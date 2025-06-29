@@ -138,9 +138,11 @@ class ExtractKeypairsStage:
             
             # Read CSV with or without header
             if has_header:
+                # Read with header, skip first row, then assign our names
                 df = pd.read_csv(
                     filepath,
-                    header=0,
+                    skiprows=1,
+                    header=None,
                     names=['type', 'key', 'timestamp'],
                     dtype={'type': str, 'key': str, 'timestamp': float}
                 )
