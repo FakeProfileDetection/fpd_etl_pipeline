@@ -94,12 +94,12 @@ raw_data-{timestamp}-{hostname}/
 
 ### New Pipeline Structure (scripts/)
 
-**Pipeline Stages** (to be implemented):
-1. `01_download_data.py` - Download from GCS web app bucket
-2. `02_clean_data.py` - Map files and validate (replaces map_new_data_to_user_dirs.py)
-3. `03_extract_keypairs.py` - Extract keystroke pairs (replaces typenet_extraction_polars.py)
-4. `04_extract_features.py` - Generate ML features (replaces typenet_ml_features_polars.py)
-5. `05_run_eda.py` - Generate analysis reports (incorporate analyze_keystrokes.py logic)
+**Pipeline Stages** (implemented):
+1. `download_data.py` - Download from GCS web app bucket
+2. `clean_data.py` - Map files and validate (replaces map_new_data_to_user_dirs.py)
+3. `extract_keypairs.py` - Extract keystroke pairs (replaces typenet_extraction_polars.py)
+4. `extract_features.py` - Generate ML features (replaces typenet_ml_features_polars.py)
+5. `run_eda.py` - Generate analysis reports (incorporates analyze_keystrokes.py logic)
 
 ## Development Commands
 
@@ -116,13 +116,16 @@ python analyze_keystrokes.py file1.csv file2.csv
 ./download_data.sh
 ```
 
-### New Pipeline (when implemented)
+### New Pipeline
 ```bash
 # Full pipeline
 python scripts/pipeline/run_pipeline.py --mode full
 
-# Single stage
-python scripts/pipeline/run_pipeline.py --stage clean
+# Run specific stages
+python scripts/pipeline/run_pipeline.py -s clean -s features
+
+# Dry run to preview
+python scripts/pipeline/run_pipeline.py --mode full --dry-run
 
 # Development workflow
 ./scripts/dev_workflow.sh run

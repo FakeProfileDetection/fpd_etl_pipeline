@@ -1,4 +1,6 @@
-# Python
+# ==========================================
+# Python Development
+# ==========================================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -27,7 +29,9 @@ ENV/
 env/
 .venv/
 
-# IDE
+# ==========================================
+# IDE and Editor Files
+# ==========================================
 .vscode/
 .idea/
 *.swp
@@ -39,48 +43,136 @@ env/
 .ipynb_checkpoints
 *.ipynb_checkpoints/
 
+# ==========================================
+# SENSITIVE FILES - DO NOT COMMIT
+# ==========================================
 # Environment variables
 .env
 .env.local
 config/.env.local
-
-# Data files (PII protection)
-*.csv
-*.parquet
-*.xlsx
-*.xls
-*.json
-!config/*.json
-!versions.json
-!requirements.json
-
-# Raw data directories
-raw_data*/
-processed_data*/
-ml_experiments*/
-data/
-uploads/
-
-# Example data with PII
-example_web_app_data/
-
-# Large context file
-context.md
-
-# Artifacts
-artifacts/
-*.tar.gz
-*.zip
-
-# Logs
-*.log
-logs/
 
 # Credentials
 *.pem
 *.key
 *credentials*.json
 service-account*.json
+*-key.json
+*-creds.json
+
+# ==========================================
+# DATA FILES AND DIRECTORIES
+# ==========================================
+# NOTE: These patterns exclude various data files to protect PII
+# and reduce repository size. Be careful when modifying!
+
+# === Data File Extensions ===
+# CSV files (keystroke data, features, reports)
+*.csv
+# Parquet files (processed data)
+*.parquet
+# Excel files (analysis outputs)
+*.xlsx
+*.xls
+# HDF5 files (large datasets)
+*.h5
+*.hdf5
+
+# === EXCEPTIONS for data files ===
+# Allow specific non-sensitive data files
+!documentation/**/*.csv
+!documentation/**/*.json
+!tests/fixtures/**/*.csv
+!tests/fixtures/**/*.json
+
+# === Raw Data Directories ===
+# These contain unprocessed keystroke data with potential PII
+raw_data*/
+raw_data-*/
+web_app_data/
+uploads/
+
+# === Processed Data Directories ===
+# These contain cleaned/processed data
+processed_data*/
+processed_data-*/
+cleaned_data/
+keypairs/
+features/
+
+# === Analysis Output Directories ===
+ml_experiments*/
+ml_experiments-*/
+experiment_results/
+model_outputs/
+
+# === Generic Data Directories ===
+data/
+datasets/
+input_data/
+output_data/
+
+# === Example/Test Data ===
+# This directory contains real data samples with PII
+example_web_app_data/
+
+# ==========================================
+# ARTIFACTS DIRECTORY
+# ==========================================
+# NOTE: We exclude the entire artifacts directory by default
+# If you need to commit specific artifacts for documentation,
+# you can use 'git add -f artifacts/specific_file'
+artifacts/
+
+# ==========================================
+# LARGE FILES
+# ==========================================
+# Large documentation file
+context.md
+
+# Compressed files
+*.tar.gz
+*.zip
+*.tar
+*.gz
+*.7z
+*.rar
+
+# Large media files
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.mkv
+
+# ==========================================
+# JSON FILES - SPECIAL HANDLING
+# ==========================================
+# Exclude all JSON by default (may contain data/PII)
+*.json
+
+# === EXCEPTIONS for JSON files ===
+# Allow configuration and metadata files
+!config/*.json
+!versions.json
+!requirements.json
+!package.json
+!package-lock.json
+!tsconfig.json
+# Allow documentation JSON files
+!documentation/**/*.json
+# Allow test fixtures
+!tests/fixtures/**/*.json
+# EXCLUDE: Any file with 'data' in the name remains excluded
+*data*.json
+
+# ==========================================
+# LOGS AND TEMPORARY FILES
+# ==========================================
+# Log files
+*.log
+logs/
+*.log.*
 
 # Temporary files
 *.tmp
@@ -88,61 +180,159 @@ service-account*.json
 *.bak
 *.backup
 *~
+tmp/
+temp/
 
 # Cache
 .cache/
 *.cache
+__pycache__/
 
-# Output files
+# ==========================================
+# OUTPUT AND RESULTS
+# ==========================================
+# General output directories
 output/
 outputs/
 results/
+reports/
+# Exception: Allow documentation reports
+!documentation/reports/
 
+# Plot outputs (may be regenerated)
+plots/
+figures/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+# Exception: Allow documentation images
+!documentation/**/*.png
+!documentation/**/*.jpg
+!documentation/**/*.svg
+
+# ==========================================
+# OS-SPECIFIC FILES
+# ==========================================
 # macOS
 .DS_Store
 .AppleDouble
 .LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
 
 # Linux
 .Trash-*
+.nfs*
 
 # Windows
 Thumbs.db
+Thumbs.db:encryptable
 ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
 
-# Coverage reports
+# ==========================================
+# TESTING AND COVERAGE
+# ==========================================
 htmlcov/
 .tox/
 .coverage
 .coverage.*
-.cache
 nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
 
-# Documentation builds
+# ==========================================
+# DOCUMENTATION BUILDS
+# ==========================================
 docs/_build/
 docs/_static/
 docs/_templates/
+site/
+_site/
 
-# ML model files
+# ==========================================
+# MACHINE LEARNING MODELS
+# ==========================================
+# Model files (can be large)
 *.pkl
+*.pickle
 *.h5
 *.model
 *.pth
+*.pt
+*.onnx
+*.pb
+*.tflite
 models/
+saved_models/
+checkpoints/
 
+# ==========================================
+# INFRASTRUCTURE
+# ==========================================
 # Terraform
 *.tfstate
 *.tfstate.*
 .terraform/
+.terraform.lock.hcl
 
-# Node (if using any JS tools)
+# Docker
+*.dockerignore
+.docker/
+
+# ==========================================
+# NODE.JS (if using any JS tools)
+# ==========================================
 node_modules/
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
-# Misc
+# ==========================================
+# MISCELLANEOUS
+# ==========================================
+# Old versions
 *.old
 *.orig
+OLD_*
+BACKUP_*
+
+# Downloaded web pages
+ETL Pipeline Design Strategy _ Claude_files/
+*.html
+# Exception: Allow documentation HTML
+!documentation/**/*.html
+!templates/**/*.html
+
+# ==========================================
+# IMPORTANT NOTES FOR CONTRIBUTORS
+# ==========================================
+# 1. NEVER commit files containing PII (personally identifiable information)
+# 2. If you need to commit a specific artifact file for documentation,
+#    use: git add -f path/to/specific/file
+# 3. Before modifying these patterns, ensure you understand the privacy implications
+# 4. When in doubt, exclude rather than include
+# 5. Use 'git status --ignored' to see what files are being ignored
+# ==========================================

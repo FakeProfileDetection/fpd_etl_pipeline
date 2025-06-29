@@ -20,8 +20,7 @@ from scripts.utils.config_manager import get_config
 from scripts.utils.cloud_artifact_manager import CloudArtifactManager
 
 # Import pipeline stages
-# TODO: Import actual stage modules once they're created
-# from scripts.pipeline import download_data, clean_data, extract_keypairs, extract_features
+from scripts.pipeline import download_data, clean_data, extract_keypairs, extract_features, run_eda
 
 logger = logging.getLogger(__name__)
 
@@ -48,26 +47,32 @@ class Pipeline:
         else:
             self.artifact_manager = None
         
-        # Track completed stages
+        # Track completed stages - check what's already done
         self.completed_stages = set()
+        version_info = self.version_manager.get_version(version_id)
+        if version_info and "stages" in version_info:
+            for stage_name, stage_info in version_info["stages"].items():
+                if stage_info.get("completed", False):
+                    self.completed_stages.add(stage_name)
     
     def run_stage(self, stage_name: str, stage_func: callable, **kwargs) -> bool:
         """Run a single pipeline stage"""
         logger.info(f"{'[DRY RUN] ' if self.dry_run else ''}Running stage: {stage_name}")
         
         if self.dry_run:
-            logger.info(f"Would run {stage_name} with config: {kwargs}")
+            logger.info(f"Would run {stage_name} with version_id: {self.version_id}")
+            self.completed_stages.add(stage_name)
             return True
         
         try:
             start_time = datetime.now()
             
-            # Run the stage
+            # Run the stage - all stages have the same signature
             output_path = stage_func(
                 version_id=self.version_id,
                 config=self.config,
-                artifact_manager=self.artifact_manager,
-                **kwargs
+                dry_run=self.dry_run,
+                local_only=self.local_only
             )
             
             # Calculate duration
@@ -122,10 +127,10 @@ class Pipeline:
         """Check if stage dependencies are met"""
         dependencies = {
             "download": [],
-            "clean": ["download"],
-            "keypairs": ["clean"],
-            "features": ["clean", "keypairs"],
-            "eda": ["clean"]  # EDA can run after cleaning
+            "clean": ["download_data"],  # Use actual stage names stored in version info
+            "keypairs": ["clean_data"],
+            "features": ["extract_keypairs"],  # Features depend on keypairs
+            "eda": ["extract_keypairs"]  # EDA can run after keypairs are extracted
         }
         
         required = dependencies.get(stage, [])
@@ -139,60 +144,21 @@ class Pipeline:
     
     def _run_stage_by_name(self, stage_name: str) -> bool:
         """Run a stage by name"""
-        # TODO: Replace with actual imports when stages are implemented
-        stage_functions = {
-            "download": self._placeholder_download,
-            "clean": self._placeholder_clean,
-            "keypairs": self._placeholder_extract_keypairs,
-            "features": self._placeholder_extract_features,
-            "eda": self._placeholder_run_eda
+        # Map CLI stage names to actual function names and module stage names
+        stage_mappings = {
+            "download": ("download_data", download_data.run),
+            "clean": ("clean_data", clean_data.run),
+            "keypairs": ("extract_keypairs", extract_keypairs.run),
+            "features": ("extract_features", extract_features.run),
+            "eda": ("run_eda", run_eda.run)
         }
         
-        stage_func = stage_functions.get(stage_name)
-        if not stage_func:
+        if stage_name not in stage_mappings:
             logger.error(f"Unknown stage: {stage_name}")
             return False
         
-        return self.run_stage(stage_name, stage_func)
-    
-    # Placeholder functions - replace with actual imports
-    def _placeholder_download(self, **kwargs):
-        """Placeholder for download_data stage"""
-        logger.info("TODO: Implement download_data stage")
-        output_dir = Path(self.config["RAW_DATA_DIR"].format(version_id=self.version_id))
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Create dummy file for testing
-        (output_dir / "data.json").write_text('{"test": "data"}')
-        return output_dir
-    
-    def _placeholder_clean(self, **kwargs):
-        """Placeholder for clean_data stage"""
-        logger.info("TODO: Implement clean_data stage")
-        output_dir = Path(self.config["CLEANED_DATA_DIR"].format(version_id=self.version_id))
-        output_dir.mkdir(parents=True, exist_ok=True)
-        return output_dir
-    
-    def _placeholder_extract_keypairs(self, **kwargs):
-        """Placeholder for extract_keypairs stage"""
-        logger.info("TODO: Implement extract_keypairs stage")
-        output_dir = Path(self.config["KEYPAIRS_DIR"].format(version_id=self.version_id))
-        output_dir.mkdir(parents=True, exist_ok=True)
-        return output_dir
-    
-    def _placeholder_extract_features(self, **kwargs):
-        """Placeholder for extract_features stage"""
-        logger.info("TODO: Implement extract_features stage")
-        output_dir = Path(self.config["FEATURES_DIR"].format(version_id=self.version_id))
-        output_dir.mkdir(parents=True, exist_ok=True)
-        return output_dir
-    
-    def _placeholder_run_eda(self, **kwargs):
-        """Placeholder for run_eda stage"""
-        logger.info("TODO: Implement run_eda stage")
-        output_dir = Path(f"artifacts/{self.version_id}/eda_reports")
-        output_dir.mkdir(parents=True, exist_ok=True)
-        return output_dir
+        actual_stage_name, stage_func = stage_mappings[stage_name]
+        return self.run_stage(actual_stage_name, stage_func)
 
 
 @click.command()
