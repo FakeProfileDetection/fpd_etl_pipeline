@@ -1,0 +1,24 @@
+# Core data science packages
+polars
+pandas
+numpy
+scikit-learn
+matplotlib
+plotly
+seaborn
+
+# Jupyter and development tools
+jupyterlab
+ipykernel
+
+# Data processing and visualization
+tqdm
+
+# Environment management
+python-dotenv
+
+# Google Drive access
+pydrive2
+google-cloud-storage
+
+# PyTorch will be installed separately in the setup script to handle GPU detection

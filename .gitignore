@@ -1,0 +1,148 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# Environment variables
+.env
+.env.local
+config/.env.local
+
+# Data files (PII protection)
+*.csv
+*.parquet
+*.xlsx
+*.xls
+*.json
+!config/*.json
+!versions.json
+!requirements.json
+
+# Raw data directories
+raw_data*/
+processed_data*/
+ml_experiments*/
+data/
+uploads/
+
+# Example data with PII
+example_web_app_data/
+
+# Large context file
+context.md
+
+# Artifacts
+artifacts/
+*.tar.gz
+*.zip
+
+# Logs
+*.log
+logs/
+
+# Credentials
+*.pem
+*.key
+*credentials*.json
+service-account*.json
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+
+# Cache
+.cache/
+*.cache
+
+# Output files
+output/
+outputs/
+results/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+.Trash-*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Documentation builds
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# ML model files
+*.pkl
+*.h5
+*.model
+*.pth
+models/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Node (if using any JS tools)
+node_modules/
+npm-debug.log*
+
+# Misc
+*.old
+*.orig
