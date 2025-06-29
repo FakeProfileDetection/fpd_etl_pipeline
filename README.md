@@ -235,38 +235,210 @@ python scripts/standalone/upload_artifacts.py \
 python scripts/standalone/create_sample_data.py --num-users 10
 ```
 
-### For Data Scientists
+### 👥 Team-Specific Workflows
 
-**Full pipeline with all data:**
+#### 🔬 Research Team
+
+**Primary Goal**: Analyze processed data and EDA artifacts for publications
+
+**Finding and Downloading Latest Data:**
 ```bash
-# Process everything including mobile data
+# 1. Find the latest complete version with artifacts
+python scripts/standalone/list_versions.py --uploaded-only
+
+# 2. Download all artifacts from the latest version
+python scripts/standalone/download_artifacts.py --version-id {latest_version_id}
+
+# 3. Access comprehensive reports
+open artifacts/{version_id}/reports/index.html
+```
+
+**Quick Access to Latest:**
+```bash
+# Create an alias in your ~/.bashrc or ~/.zshrc
+alias fpd-latest='python scripts/standalone/list_versions.py --limit 1 --uploaded-only'
+alias fpd-download-latest='python scripts/standalone/download_artifacts.py --version-id $(python scripts/standalone/list_versions.py --uploaded-only --json | jq -r ".[0].version_id")'
+```
+
+**What You Get:**
+- Comprehensive EDA reports in `reports/` directory
+- Processed features in multiple formats (CSV, Parquet)
+- Data quality summaries and statistics
+- Visualizations and plots
+
+#### 📊 Data Science Team
+
+**Primary Goal**: Perform custom analysis and develop ML models
+
+**Getting Started with Data:**
+```bash
+# 1. Download latest processed data
+python scripts/standalone/list_versions.py --uploaded-only
+python scripts/standalone/download_artifacts.py --version-id {latest_version_id}
+
+# 2. Load data in your notebooks
+# Example: Load keypairs data
+import pandas as pd
+keypairs = pd.read_parquet('artifacts/{version_id}/keypairs/keypairs.parquet')
+features = pd.read_parquet('artifacts/{version_id}/features/typenet_ml_user_platform/features.parquet')
+```
+
+**Working with Different Feature Sets:**
+```bash
+# Download only specific stages you need
+python scripts/standalone/download_artifacts.py \
+    --version-id {version_id} \
+    --stages keypairs features
+```
+
+**Requesting Pipeline Changes:**
+1. Document your requirements in a GitHub issue
+2. Include sample code showing desired output format
+3. Tag the development team for implementation
+
+**Custom Analysis Setup:**
+```python
+# Create your analysis scripts in notebooks/
+# Example: notebooks/custom_feature_analysis.ipynb
+
+# Standard imports for FPD analysis
+import pandas as pd
+import numpy as np
+from pathlib import Path
+
+# Load version info
+import json
+with open('versions.json') as f:
+    versions = json.load(f)
+    latest = versions['current']
+
+# Load artifacts
+base_path = Path(f'artifacts/{latest}')
+keypairs = pd.read_parquet(base_path / 'keypairs/keypairs.parquet')
+```
+
+#### 💻 Development Team
+
+**Primary Goal**: Extend pipeline functionality and maintain codebase
+
+**Adding New Feature Extraction Scripts:**
+
+1. **Create Feature Definition** in `config/feature_definitions.yaml`:
+```yaml
+# Example: CNN-ready image features
+cnn_image_features:
+  description: "Image-like representation of keystroke patterns for CNN"
+  module: "scripts.pipeline.features.cnn_features"
+  aggregation_level: "user_platform"
+  output_format: "numpy"
+  parameters:
+    image_width: 224
+    image_height: 224
+    channels: 3
+```
+
+2. **Implement Feature Extractor**:
+```python
+# scripts/pipeline/features/cnn_features.py
+from scripts.pipeline.features.base_feature_extractor import BaseFeatureExtractor
+
+class CNNFeatureExtractor(BaseFeatureExtractor):
+    def extract(self, keypairs_df: pd.DataFrame) -> np.ndarray:
+        """Convert keystroke patterns to image format"""
+        # Implementation here
+        pass
+```
+
+3. **Register in Pipeline**:
+```python
+# scripts/pipeline/extract_features.py
+FEATURE_EXTRACTORS = {
+    'typenet_ml': TypeNetMLExtractor,
+    'cnn_image': CNNFeatureExtractor,  # Add your extractor
+    'lstm_sequence': LSTMFeatureExtractor,
+    'transformer_tokens': TransformerFeatureExtractor,
+}
+```
+
+**Adding New EDA Tools:**
+
+1. **Create EDA Module** in `scripts/eda/`:
+```python
+# scripts/eda/timing_distribution_analysis.py
+def generate_timing_plots(keypairs_df: pd.DataFrame, output_dir: Path):
+    """Generate timing distribution visualizations"""
+    # Implementation
+```
+
+2. **Register in EDA Pipeline**:
+```python
+# scripts/pipeline/run_eda.py
+from scripts.eda.timing_distribution_analysis import generate_timing_plots
+
+EDA_MODULES = [
+    generate_summary_stats,
+    generate_timing_plots,  # Add your module
+    generate_user_comparison,
+]
+```
+
+**Development Best Practices:**
+```bash
+# 1. Create feature branch
+git checkout -b feature/lstm-sequences
+
+# 2. Use test-driven development
+python -m pytest tests/pipeline/features/test_lstm_features.py -v
+
+# 3. Test with sample data
+./scripts/dev_workflow.sh test
+
+# 4. Run full pipeline locally
+./scripts/dev_workflow.sh run
+
+# 5. Submit PR with tests and documentation
+```
+
+**Debugging Pipeline Issues:**
+```bash
+# Run specific stage with debug logging
 python scripts/pipeline/run_pipeline.py \
-    --mode full \
-    --device-types desktop,mobile \
-    --generate-reports
+    -s features \
+    --log-level DEBUG \
+    --version-id test_debug_$(date +%s)
+
+# Check intermediate outputs
+ls -la artifacts/test_debug_*/etl_metadata/
+
+# Run with Python debugger
+python -m pdb scripts/pipeline/run_pipeline.py -s clean
 ```
 
-**Feature extraction for specific analysis:**
-```bash
-# Extract features at session level only
-python scripts/pipeline/extract_features.py \
-    --version-id {your_version} \
-    --feature-types typenet_ml_session
-```
+**Processing Text Files (.txt):**
+```python
+# Example: Add text feature extraction
+# scripts/pipeline/extract_text_features.py
 
-### For Researchers
-
-**Process clean desktop data only:**
-```bash
-# Default behavior - desktop only, no PII
-python scripts/pipeline/run_pipeline.py --mode full
-```
-
-**Download specific version for review:**
-```bash
-# Download previously processed data
-python scripts/pipeline/download_data.py \
-    --version-id 2024-12-15_10-30-00_hostname
+def process_user_text_files(user_dir: Path) -> pd.DataFrame:
+    """Extract features from user .txt files"""
+    text_files = list(user_dir.glob("*.txt"))
+    
+    features = []
+    for txt_file in text_files:
+        content = txt_file.read_text()
+        
+        # Extract features
+        feature_dict = {
+            'user_id': user_dir.name,
+            'file_name': txt_file.name,
+            'char_count': len(content),
+            'word_count': len(content.split()),
+            'avg_word_length': np.mean([len(w) for w in content.split()]),
+            # Add more features
+        }
+        features.append(feature_dict)
+    
+    return pd.DataFrame(features)
 ```
 
 ### For Developers
@@ -379,11 +551,59 @@ For a user's data to be considered complete:
 3. Ensure code quality: `flake8 scripts/ tests/`
 4. Submit a pull request
 
+## 🚀 Quick Command Reference
+
+### For All Teams
+```bash
+# Find latest version with artifacts
+python scripts/standalone/list_versions.py --uploaded-only
+
+# Download latest artifacts
+python scripts/standalone/download_artifacts.py --version-id {version_id}
+
+# Check what's in a version
+ls -la artifacts/{version_id}/
+```
+
+### For Research Team
+```bash
+# Get latest and open reports
+VERSION=$(python scripts/standalone/list_versions.py --uploaded-only --json | jq -r ".[0].version_id")
+python scripts/standalone/download_artifacts.py --version-id $VERSION
+open artifacts/$VERSION/reports/index.html
+```
+
+### For Data Science Team
+```bash
+# Download specific stages for analysis
+python scripts/standalone/download_artifacts.py \
+    --version-id {version_id} \
+    --stages keypairs features
+
+# Quick data exploration
+python -c "import pandas as pd; df=pd.read_parquet('artifacts/{version_id}/keypairs/keypairs.parquet'); print(df.info())"
+```
+
+### For Development Team
+```bash
+# Full development cycle
+./scripts/dev_workflow.sh run       # Process locally
+./scripts/dev_workflow.sh upload    # Share with team
+./scripts/dev_workflow.sh status    # Check status
+
+# Test new feature
+python scripts/pipeline/run_pipeline.py \
+    -s features \
+    --feature-types your_new_feature \
+    --version-id test_$(date +%s)
+```
+
 ## 📚 Additional Documentation
 
 - [Planning and Design](documentation/planning.md) - Original design decisions
-- [Quick Reference](QUICK_REFERENCE.md) - Command cheatsheet
-- [API Documentation](documentation/api/) - Detailed function docs
+- [Feature Architecture](docs/feature_architecture.md) - Guide for adding new features
+- [Troubleshooting Guide](docs/troubleshooting.md) - Common issues and solutions
+- [GCS Setup Guide](docs/gcs_setup.md) - Cloud storage configuration
 - [Data Schema](documentation/schema.md) - File formats and structures
 
 ## 📄 License
