@@ -150,17 +150,20 @@ python scripts/pipeline/run_pipeline.py  # incr is default
 ```
 
 ### Force Mode (`--mode force`)
-- Uses the **current version ID**
+- Creates a **new version ID** with suffix `_force`
+- Links to parent version for traceability
 - Re-runs ALL stages regardless of completion status
-- Overwrites existing outputs
 - Best for: Re-processing with updated code or parameters
 
 ```bash
-# Force re-run all stages
+# Force re-run all stages (creates new version)
 python scripts/pipeline/run_pipeline.py --mode force
 
 # Force re-run specific stages only
 python scripts/pipeline/run_pipeline.py --mode force -s clean -s keypairs
+
+# Force re-run from specific parent version
+python scripts/pipeline/run_pipeline.py --mode force --version-id 2025-06-29_16-14-37
 ```
 
 ### Mode Examples
@@ -612,6 +615,46 @@ For a user's data to be considered complete:
 2. Run tests: `python run_tests.py`
 3. Ensure code quality: `flake8 scripts/ tests/`
 4. Submit a pull request
+
+## 🗂️ Version Management
+
+### Managing Versions
+
+The pipeline tracks all processing runs with version IDs. Use the `manage_versions.py` script to:
+
+```bash
+# Show version statistics
+python scripts/standalone/manage_versions.py stats
+
+# Clean up old versions (keeps 10 most recent by default)
+python scripts/standalone/manage_versions.py cleanup
+
+# Dry run to see what would be deleted
+python scripts/standalone/manage_versions.py cleanup --dry-run
+
+# Keep more versions
+python scripts/standalone/manage_versions.py cleanup --keep-count 20
+
+# Show details for a specific version
+python scripts/standalone/manage_versions.py show 2025-06-29_16-14-37_loris-mbpcablercncom
+```
+
+### Version Storage (Planned Enhancement)
+
+Currently using a single `versions.json` file. Future migration to directory structure:
+```
+versions/
+├── index.json              # Current version and quick lookups
+├── 2025-06-29_16-14-37.json  # Individual version files
+├── 2025-06-29_17-10-25.json
+└── ...
+```
+
+Benefits:
+- Better performance with many versions
+- Easier to manage individual versions
+- Supports parallel access
+- Simpler cleanup operations
 
 ## 🚀 Quick Command Reference
 

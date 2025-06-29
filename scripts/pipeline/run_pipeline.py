@@ -7,6 +7,7 @@ Coordinates execution of all pipeline stages with proper dependency management
 import click
 import logging
 import sys
+import socket
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 from datetime import datetime
@@ -315,9 +316,31 @@ Pipeline Configuration:
                 stages = stages_to_run
                 click.echo(f"📋 Incremental mode - running incomplete stages: {', '.join(stages)}")
         elif mode == 'force':
-            # Force mode: Run all requested stages regardless of completion status
+            # Force mode: Create new version linked to parent
+            if not version_id:
+                version_id = version_mgr.get_current_version_id()
+                if not version_id:
+                    click.echo("❌ No current version found. Use --mode full for new data.")
+                    return
+            
+            # Create new force version
+            parent_version_id = version_id
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            hostname = socket.gethostname().replace(' ', '-').replace('.', '-').lower()
+            version_id = f"{timestamp}_{hostname}_force"
+            
+            # Register with parent tracking
+            metadata = {
+                "mode": "force",
+                "parent_version": parent_version_id,
+                "is_force_rerun": True
+            }
+            version_mgr.register_version(version_id, metadata)
+            
+            click.echo(f"⚡ Force mode - creating new version: {version_id}")
+            click.echo(f"   Parent version: {parent_version_id}")
+            
             stages = all_stages[:-1]  # Exclude EDA by default
-            click.echo("⚡ Force mode - re-running all stages")
     
     # Initialize pipeline
     pipeline = Pipeline(
