@@ -17,7 +17,7 @@ class TestDataGenerator:
     def __init__(self):
         # Use valid 32-character hex strings (like MD5 hashes)
         self.test_user_ids = [
-            "a1b2c3d4e5f6789012345678901234567",
+            "a1b2c3d4e5f6789012345678901234ef",
             "b2c3d4e5f67890123456789012345678",
             "c3d4e5f678901234567890123456789a"
         ]
@@ -44,11 +44,7 @@ class TestDataGenerator:
                 event_type = 'R'
                 del active_keys[key]
                 
-            events.append({
-                'Press or Release': event_type,
-                'Key': key,
-                'Time': current_time
-            })
+            events.append([event_type, key, current_time])
             
             # Add some time between events
             current_time += random.randint(10, 200)
@@ -56,27 +52,15 @@ class TestDataGenerator:
         # Add data quality issues if requested
         if include_errors:
             # Orphan release
-            events.append({
-                'Press or Release': 'R',
-                'Key': 'x',
-                'Time': current_time + 100
-            })
+            events.append(['R', 'x', current_time + 100])
             
             # Double press
-            events.append({
-                'Press or Release': 'P',
-                'Key': 'y',
-                'Time': current_time + 200
-            })
-            events.append({
-                'Press or Release': 'P',
-                'Key': 'y',
-                'Time': current_time + 300
-            })
+            events.append(['P', 'y', current_time + 200])
+            events.append(['P', 'y', current_time + 300])
             
-        # Save to CSV
+        # Save to CSV without headers (as expected by extract_keypairs)
         df = pd.DataFrame(events)
-        df.to_csv(output_path, index=False)
+        df.to_csv(output_path, index=False, header=False)
         
     def create_metadata_json(self, output_path: Path, metadata_type: str = 'text') -> None:
         """Create a test metadata JSON file"""
@@ -150,31 +134,38 @@ class TestDataGenerator:
             self.create_user_info_json(user_dir / f"{user_id}_completion.json", 'completion')
             
         # Create typing data for each type and index
-        # Need 6 videos of each type for complete data (2 sessions x 3 videos each)
-        video_idx = 0
+        # Need 6 videos of each type for complete data
+        # Use the exact sequence numbers expected by clean_data stage
+        sequences = {
+            'f': [0, 3, 6, 9, 12, 15],     # Facebook 
+            'i': [1, 4, 7, 10, 13, 16],    # Instagram
+            't': [2, 5, 8, 11, 14, 17]     # Twitter
+        }
+        
+        for task_type, prefix in [('free', 'f'), ('image', 'i'), ('transcription', 't')]:
+            # For incomplete users, only create first 3 files of each platform
+            seq_list = sequences[prefix] if include_all_files else sequences[prefix][:3]
+            
+            for seq_num in seq_list:
+                # Keystroke data
+                csv_file = user_dir / f"{prefix}_{user_id}_{seq_num}.csv"
+                self.create_keystroke_csv(csv_file)
+                
+                # Metadata
+                meta_file = user_dir / f"{prefix}_{user_id}_{seq_num}_metadata.json"
+                self.create_metadata_json(meta_file, task_type)
+                
+                # Raw text
+                raw_file = user_dir / f"{prefix}_{user_id}_{seq_num}_raw.txt"
+                self.create_raw_text(raw_file, task_type)
+                
+        # Also create platform files for session/video structure
         for session in [1, 2]:
             for video in [1, 2, 3]:
-                for task_type, prefix in [('free', 'f'), ('image', 'i'), ('transcription', 't')]:
-                    # Platform_Session_Video_UserID.csv format
-                    platform_file = user_dir / f"{1}_{session}_{video}_{user_id}.csv"
-                    if not platform_file.exists():
-                        self.create_keystroke_csv(platform_file)
-                    
-                    # Also create the standard format files
-                    if video == 1:  # Only create one set of these
-                        # Keystroke data
-                        csv_file = user_dir / f"{prefix}_{user_id}_{video_idx}.csv"
-                        self.create_keystroke_csv(csv_file)
-                        
-                        # Metadata
-                        meta_file = user_dir / f"{prefix}_{user_id}_{video_idx}_metadata.json"
-                        self.create_metadata_json(meta_file, task_type)
-                        
-                        # Raw text
-                        raw_file = user_dir / f"{prefix}_{user_id}_{video_idx}_raw.txt"
-                        self.create_raw_text(raw_file, task_type)
-                        
-                        video_idx += 1
+                # Platform_Session_Video_UserID.csv format
+                platform_file = user_dir / f"{1}_{session}_{video}_{user_id}.csv"
+                if not platform_file.exists():
+                    self.create_keystroke_csv(platform_file)
                 
                 
 class TestValidator:
@@ -338,3 +329,38 @@ def create_test_config() -> Dict[str, Any]:
         "BUCKET_NAME": "test-bucket",
         "PROJECT_ID": "test-project"
     }
+
+
+def setup_test_version_manager(test_dir: Path):
+    """Setup a test-specific version manager that uses a temp directory"""
+    import sys
+    # Add project root to path if not already there
+    project_root = str(Path(__file__).parent.parent)
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+    
+    from scripts.utils.version_manager import VersionManager
+    
+    # Create test version file
+    test_version_file = test_dir / "test_versions.json"
+    
+    # Initialize test versions file with empty data
+    test_versions_data = {
+        "versions": [],
+        "current": None,
+        "schema_version": "1.0"
+    }
+    with open(test_version_file, 'w') as f:
+        json.dump(test_versions_data, f)
+    
+    # Create a test version manager instance directly
+    test_vm = VersionManager(test_version_file)
+    
+    # Return the test instance
+    return test_vm
+
+
+def cleanup_test_version_manager():
+    """Cleanup function kept for compatibility"""
+    # No longer needed since we're not monkey-patching
+    pass

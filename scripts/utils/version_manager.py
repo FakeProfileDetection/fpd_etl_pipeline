@@ -4,6 +4,7 @@ Handles version creation, tracking, and metadata
 """
 
 import json
+import os
 import socket
 from datetime import datetime
 from pathlib import Path

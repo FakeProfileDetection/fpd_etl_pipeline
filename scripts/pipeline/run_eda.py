@@ -471,12 +471,13 @@ class RunEDAStage:
     """Run exploratory data analysis and generate reports"""
     
     def __init__(self, version_id: str, config: Dict[str, Any], 
-                 dry_run: bool = False, local_only: bool = False):
+                 dry_run: bool = False, local_only: bool = False,
+                 version_manager: Optional[VersionManager] = None):
         self.version_id = version_id
         self.config = config
         self.dry_run = dry_run
         self.local_only = local_only
-        self.version_manager = VersionManager()
+        self.version_manager = version_manager or VersionManager()
         
         # Initialize analyzers
         self.quality_analyzer = DataQualityAnalyzer()

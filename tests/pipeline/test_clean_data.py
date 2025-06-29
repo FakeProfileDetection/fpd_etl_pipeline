@@ -12,8 +12,7 @@ import json
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scripts.pipeline.clean_data import CleanDataStage
-from scripts.utils.version_manager import VersionManager
-from tests.test_utils import TestDataGenerator, TestValidator, create_test_config
+from tests.test_utils import TestDataGenerator, TestValidator, create_test_config, setup_test_version_manager, cleanup_test_version_manager
 
 
 class TestCleanDataStage(unittest.TestCase):
@@ -29,12 +28,14 @@ class TestCleanDataStage(unittest.TestCase):
         self.data_gen = TestDataGenerator()
         self.validator = TestValidator()
         
-        # Create version manager and register test version
-        self.vm = VersionManager()
+        # Setup test version manager
+        self.vm = setup_test_version_manager(self.test_dir)
         self.vm.register_version(self.version_id, {"test": True})
         
     def tearDown(self):
         """Clean up test environment"""
+        cleanup_test_version_manager()
+        
         if self.test_dir.exists():
             shutil.rmtree(self.test_dir)
             
@@ -45,11 +46,11 @@ class TestCleanDataStage(unittest.TestCase):
         input_dir.mkdir(parents=True)
         
         # Create complete user data (32-char hex ID)
-        user_id = "a1b2c3d4e5f6789012345678901234567"
+        user_id = "a1b2c3d4e5f6789012345678901234ef"
         self.data_gen.create_complete_user_data(input_dir, user_id, include_all_files=True)
         
         # Run clean data stage
-        stage = CleanDataStage(self.version_id, self.config, dry_run=False)
+        stage = CleanDataStage(self.version_id, self.config, dry_run=False, version_manager=self.vm)
         output_dir = stage.run(input_dir)
         
         # Validate output structure
@@ -78,7 +79,7 @@ class TestCleanDataStage(unittest.TestCase):
         self.data_gen.create_complete_user_data(input_dir, user_id, include_all_files=False)
         
         # Run clean data stage
-        stage = CleanDataStage(self.version_id, self.config, dry_run=False)
+        stage = CleanDataStage(self.version_id, self.config, dry_run=False, version_manager=self.vm)
         output_dir = stage.run(input_dir)
         
         # Validate output structure
@@ -98,8 +99,8 @@ class TestCleanDataStage(unittest.TestCase):
         input_dir.mkdir(parents=True)
         
         # Create multiple users with different completeness (32-char hex IDs)
-        complete_users = ["c3d4e5f678901234567890123456789ab", "d4e5f6789012345678901234567890abc"]
-        incomplete_users = ["e5f67890123456789012345678901abcd", "f678901234567890123456789012abcde"]
+        complete_users = ["c3d4e5f678901234567890123456789a", "d4e5f678901234567890123456789abc"]
+        incomplete_users = ["e5f6789012345678901234567890abcd", "f67890123456789012345678901abcde"]
         
         for user_id in complete_users:
             self.data_gen.create_complete_user_data(input_dir, user_id, include_all_files=True)
@@ -108,7 +109,7 @@ class TestCleanDataStage(unittest.TestCase):
             self.data_gen.create_complete_user_data(input_dir, user_id, include_all_files=False)
             
         # Run clean data stage
-        stage = CleanDataStage(self.version_id, self.config, dry_run=False)
+        stage = CleanDataStage(self.version_id, self.config, dry_run=False, version_manager=self.vm)
         output_dir = stage.run(input_dir)
         
         # Validate
@@ -128,7 +129,7 @@ class TestCleanDataStage(unittest.TestCase):
         self.data_gen.create_complete_user_data(input_dir, user_id)
         
         # Run in dry run mode
-        stage = CleanDataStage(self.version_id, self.config, dry_run=True)
+        stage = CleanDataStage(self.version_id, self.config, dry_run=True, version_manager=self.vm)
         output_dir = stage.run(input_dir)
         
         # Check that output directory wasn't created
@@ -140,12 +141,12 @@ class TestCleanDataStage(unittest.TestCase):
         input_dir.mkdir(parents=True)
         
         # Run clean data stage
-        stage = CleanDataStage(self.version_id, self.config, dry_run=False)
+        stage = CleanDataStage(self.version_id, self.config, dry_run=False, version_manager=self.vm)
         output_dir = stage.run(input_dir)
         
         # Should still create directory structure
         validation = self.validator.validate_cleaned_data_structure(output_dir)
-        self.assertTrue(validation['valid'])
+        self.assertTrue(validation['valid'], f"Validation errors: {validation['errors']}")
         self.assertEqual(validation['stats']['desktop']['complete_users'], 0)
         self.assertEqual(validation['stats']['desktop']['broken_users'], 0)
         
@@ -159,22 +160,22 @@ class TestCleanDataStage(unittest.TestCase):
         self.data_gen.create_complete_user_data(input_dir, user_id)
         
         # Run clean data stage
-        stage = CleanDataStage(self.version_id, self.config, dry_run=False)
+        stage = CleanDataStage(self.version_id, self.config, dry_run=False, version_manager=self.vm)
         output_dir = stage.run(input_dir)
         
-        # Check processing summary
-        summary_file = output_dir.parent / "etl_metadata" / "clean" / "processing_summary.json"
-        self.assertTrue(summary_file.exists())
+        # Check cleaning report
+        report_file = output_dir.parent / "etl_metadata" / "cleaning" / "cleaning_report.json"
+        self.assertTrue(report_file.exists())
         
-        with open(summary_file) as f:
-            summary = json.load(f)
+        with open(report_file) as f:
+            report = json.load(f)
             
-        self.assertIn('stats', summary)
-        self.assertIn('total_users', summary['stats'])
-        self.assertIn('complete_users', summary['stats'])
-        self.assertIn('broken_users', summary['stats'])
-        self.assertEqual(summary['stats']['total_users'], 1)
-        self.assertEqual(summary['stats']['complete_users'], 1)
+        self.assertIn('summary', report)
+        self.assertIn('total_users', report['summary'])
+        self.assertIn('complete_users', report['summary'])
+        self.assertIn('broken_users', report['summary'])
+        self.assertEqual(report['summary']['total_users'], 1)
+        self.assertEqual(report['summary']['complete_users'], 1)
 
 
 if __name__ == '__main__':

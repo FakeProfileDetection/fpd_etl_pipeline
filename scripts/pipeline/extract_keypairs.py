@@ -82,12 +82,13 @@ class ExtractKeypairsStage:
     }
     
     def __init__(self, version_id: str, config: Dict[str, Any], 
-                 dry_run: bool = False, local_only: bool = False):
+                 dry_run: bool = False, local_only: bool = False,
+                 version_manager: Optional[VersionManager] = None):
         self.version_id = version_id
         self.config = config
         self.dry_run = dry_run
         self.local_only = local_only
-        self.version_manager = VersionManager()
+        self.version_manager = version_manager or VersionManager()
         
         # Statistics tracking
         self.stats = {
@@ -347,6 +348,15 @@ class ExtractKeypairsStage:
         if all_features:
             df = pd.DataFrame([asdict(f) for f in all_features])
             
+            # Add outlier detection
+            df['outlier'] = False
+            if len(df) > 0 and df['valid'].any():
+                # Mark as outliers if timing is extreme (only for valid keypairs)
+                valid_mask = df['valid']
+                df.loc[valid_mask & (df['HL'] > 2000000000), 'outlier'] = True  # > 2 seconds
+                df.loc[valid_mask & (df['HL'] < 30000000), 'outlier'] = True   # < 30ms
+                df.loc[valid_mask & (df['IL'].abs() > 1000000000), 'outlier'] = True  # |IL| > 1 second
+            
             # Calculate user statistics
             valid_count = df['valid'].sum()
             total_count = len(df)
@@ -359,7 +369,12 @@ class ExtractKeypairsStage:
             
             return df
         else:
-            return pd.DataFrame()
+            # Return empty dataframe with correct schema
+            return pd.DataFrame(columns=[
+                'user_id', 'platform_id', 'session_id', 'video_id', 'sequence_id',
+                'key1', 'key2', 'key1_press', 'key1_release', 'key2_press', 'key2_release',
+                'HL', 'IL', 'PL', 'RL', 'valid', 'error_description', 'key1_timestamp', 'outlier'
+            ])
             
     def run(self, input_dir: Path) -> Path:
         """Execute the extract keypairs stage"""
@@ -401,21 +416,28 @@ class ExtractKeypairsStage:
             self.stats["total_keypairs"] = len(combined_df)
             self.stats["valid_keypairs"] = combined_df['valid'].sum()
             self.stats["invalid_keypairs"] = self.stats["total_keypairs"] - self.stats["valid_keypairs"]
+        else:
+            # Create empty dataframe with correct schema
+            combined_df = pd.DataFrame(columns=[
+                'user_id', 'platform_id', 'session_id', 'video_id', 'device_type',
+                'key1', 'key2', 'HL', 'IL', 'PL', 'RL', 'valid', 'outlier'
+            ])
             
-            # Save keypair data
-            if not self.dry_run:
-                output_dir.mkdir(parents=True, exist_ok=True)
-                
-                # Save as parquet for efficiency
-                output_file = output_dir / "keypairs.parquet"
-                combined_df.to_parquet(output_file, index=False)
-                logger.info(f"Saved {len(combined_df)} keypairs to {output_file}")
-                
-                # Also save as CSV for compatibility
-                csv_file = output_dir / "keypairs.csv"
-                combined_df.to_csv(csv_file, index=False)
-                
-                # Save invalid sequences for analysis
+        # Save keypair data (even if empty)
+        if not self.dry_run:
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Save as parquet for efficiency
+            output_file = output_dir / "keypairs.parquet"
+            combined_df.to_parquet(output_file, index=False)
+            logger.info(f"Saved {len(combined_df)} keypairs to {output_file}")
+            
+            # Also save as CSV for compatibility
+            csv_file = output_dir / "keypairs.csv"
+            combined_df.to_csv(csv_file, index=False)
+            
+            # Save invalid sequences for analysis
+            if not combined_df.empty:
                 invalid_df = combined_df[~combined_df['valid']]
                 if not invalid_df.empty:
                     invalid_file = metadata_dir / "invalid_sequences.csv"
@@ -433,16 +455,16 @@ class ExtractKeypairsStage:
                 "input_dir": str(input_dir),
                 "output_dir": str(output_dir),
                 "summary": {
-                    "total_files": self.stats["total_files"],
-                    "processed_files": self.stats["processed_files"],
-                    "skipped_files": self.stats["skipped_files"],
-                    "total_keypairs": self.stats["total_keypairs"],
-                    "valid_keypairs": self.stats["valid_keypairs"],
-                    "invalid_keypairs": self.stats["invalid_keypairs"],
-                    "validity_rate": (self.stats["valid_keypairs"] / self.stats["total_keypairs"] * 100) 
-                                   if self.stats["total_keypairs"] > 0 else 0
+                    "total_files": int(self.stats["total_files"]),
+                    "processed_files": int(self.stats["processed_files"]),
+                    "skipped_files": int(self.stats["skipped_files"]),
+                    "total_keypairs": int(self.stats["total_keypairs"]),
+                    "valid_keypairs": int(self.stats["valid_keypairs"]),
+                    "invalid_keypairs": int(self.stats["invalid_keypairs"]),
+                    "validity_rate": float((self.stats["valid_keypairs"] / self.stats["total_keypairs"] * 100) 
+                                   if self.stats["total_keypairs"] > 0 else 0)
                 },
-                "error_distribution": dict(self.stats["error_counts"]),
+                "error_distribution": {k: int(v) for k, v in self.stats["error_counts"].items()},
                 "user_count": len(self.stats["user_stats"])
             }
             

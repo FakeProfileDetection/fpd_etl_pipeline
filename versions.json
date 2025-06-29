@@ -1,0 +1,1139 @@
+{
+  "versions": [
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:55:11.665393",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpgjo9vwow/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 64,
+            "total_users": 1,
+            "complete_users": 1,
+            "broken_users": 0,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T15:06:59.226312"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:55:11.660439",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp0jpq0mhr/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 0,
+            "total_users": 0,
+            "complete_users": 0,
+            "broken_users": 0,
+            "desktop_users": 0,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:55:11.662894"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:55:11.642185",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:55:11.546640",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp0igpbjz_/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 182,
+            "total_users": 4,
+            "complete_users": 2,
+            "broken_users": 2,
+            "desktop_users": 4,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:55:11.623671"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:55:11.526101",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpq5_19h9j/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 27,
+            "total_users": 1,
+            "complete_users": 0,
+            "broken_users": 1,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:55:11.540952"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:55:11.478385",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpec8s1u4_/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 64,
+            "total_users": 1,
+            "complete_users": 1,
+            "broken_users": 0,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:55:11.518338"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:54:38.873390",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpvq7gky4n/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 254,
+            "total_users": 4,
+            "complete_users": 4,
+            "broken_users": 0,
+            "desktop_users": 4,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:54:39.004353"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:54:32.771062",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpmdggog90/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 64,
+            "total_users": 1,
+            "complete_users": 1,
+            "broken_users": 0,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:54:32.798838"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:54:32.766464",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpsjoufiig/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 0,
+            "total_users": 0,
+            "complete_users": 0,
+            "broken_users": 0,
+            "desktop_users": 0,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:54:32.768741"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:54:32.748354",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:54:32.620805",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp932dtv_i/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 254,
+            "total_users": 4,
+            "complete_users": 4,
+            "broken_users": 0,
+            "desktop_users": 4,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:54:32.722952"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:54:32.580175",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp_1xy4rvj/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 63,
+            "total_users": 1,
+            "complete_users": 1,
+            "broken_users": 0,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:54:32.612493"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:54:32.540452",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp30g_6d9c/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 64,
+            "total_users": 1,
+            "complete_users": 1,
+            "broken_users": 0,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:54:32.571654"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:53:47.331220",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpe5qlcp6j/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 28,
+            "total_users": 1,
+            "complete_users": 0,
+            "broken_users": 1,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:53:47.345065"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:53:47.326861",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpbn142m44/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 0,
+            "total_users": 0,
+            "complete_users": 0,
+            "broken_users": 0,
+            "desktop_users": 0,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:53:47.329007"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:53:47.317425",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:53:47.252122",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp4a6ru6zn/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 110,
+            "total_users": 4,
+            "complete_users": 0,
+            "broken_users": 4,
+            "desktop_users": 4,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:53:47.303799"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:53:47.233596",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpf44ku3w6/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 27,
+            "total_users": 1,
+            "complete_users": 0,
+            "broken_users": 1,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:53:47.247846"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:53:47.203689",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp5jc6pkbu/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 28,
+            "total_users": 1,
+            "complete_users": 0,
+            "broken_users": 1,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:53:47.228961"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:53:20.891698",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpx11_z97r/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 28,
+            "total_users": 1,
+            "complete_users": 0,
+            "broken_users": 1,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": [
+              "Unknown file: 1_1_3_a1b2c3d4e5f678901234567890123456.csv",
+              "Unknown file: 1_2_3_a1b2c3d4e5f678901234567890123456.csv",
+              "Unknown file: 1_1_2_a1b2c3d4e5f678901234567890123456.csv",
+              "Unknown file: 1_2_2_a1b2c3d4e5f678901234567890123456.csv",
+              "Unknown file: 1_1_1_a1b2c3d4e5f678901234567890123456.csv",
+              "Unknown file: 1_2_1_a1b2c3d4e5f678901234567890123456.csv"
+            ]
+          },
+          "completed_at": "2025-06-29T14:53:20.911587"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:53:15.265688",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp907h9ruc/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 28,
+            "total_users": 1,
+            "complete_users": 0,
+            "broken_users": 1,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": [
+              "Unknown file: 1_1_1_fedcba0987654321fedcba0987654321.csv",
+              "Unknown file: 1_2_1_fedcba0987654321fedcba0987654321.csv",
+              "Unknown file: 1_1_3_fedcba0987654321fedcba0987654321.csv",
+              "Unknown file: 1_2_3_fedcba0987654321fedcba0987654321.csv",
+              "Unknown file: 1_1_2_fedcba0987654321fedcba0987654321.csv",
+              "Unknown file: 1_2_2_fedcba0987654321fedcba0987654321.csv"
+            ]
+          },
+          "completed_at": "2025-06-29T14:53:15.279931"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:53:15.258949",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp4ft0k_l0/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 0,
+            "total_users": 0,
+            "complete_users": 0,
+            "broken_users": 0,
+            "desktop_users": 0,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:53:15.262142"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:53:15.225257",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:53:15.169093",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpj1w8mkbz/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 110,
+            "total_users": 4,
+            "complete_users": 0,
+            "broken_users": 4,
+            "desktop_users": 4,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": [
+              "Unknown file: 1_2_3_e5f6789012345678901234567890abcd.csv",
+              "Unknown file: 1_2_3_d4e5f678901234567890123456789abc.csv",
+              "Unknown file: 1_1_1_f67890123456789012345678901abcde.csv",
+              "Unknown file: 1_1_3_e5f6789012345678901234567890abcd.csv",
+              "Unknown file: 1_1_3_d4e5f678901234567890123456789abc.csv",
+              "Unknown file: 1_2_1_f67890123456789012345678901abcde.csv",
+              "Unknown file: 1_2_2_e5f6789012345678901234567890abcd.csv",
+              "Unknown file: 1_2_2_d4e5f678901234567890123456789abc.csv",
+              "Unknown file: 1_1_2_e5f6789012345678901234567890abcd.csv",
+              "Unknown file: 1_1_2_d4e5f678901234567890123456789abc.csv",
+              "Unknown file: 1_1_2_c3d4e5f67890123456789012345678ab.csv",
+              "Unknown file: 1_2_2_c3d4e5f67890123456789012345678ab.csv",
+              "Unknown file: 1_1_3_c3d4e5f67890123456789012345678ab.csv",
+              "Unknown file: 1_2_3_c3d4e5f67890123456789012345678ab.csv",
+              "Unknown file: 1_1_1_c3d4e5f67890123456789012345678ab.csv",
+              "Unknown file: 1_2_1_c3d4e5f67890123456789012345678ab.csv",
+              "Unknown file: 1_1_2_f67890123456789012345678901abcde.csv",
+              "Unknown file: 1_2_2_f67890123456789012345678901abcde.csv",
+              "Unknown file: 1_1_3_f67890123456789012345678901abcde.csv",
+              "Unknown file: 1_2_1_d4e5f678901234567890123456789abc.csv",
+              "Unknown file: 1_2_1_e5f6789012345678901234567890abcd.csv",
+              "Unknown file: 1_2_3_f67890123456789012345678901abcde.csv",
+              "Unknown file: 1_1_1_d4e5f678901234567890123456789abc.csv",
+              "Unknown file: 1_1_1_e5f6789012345678901234567890abcd.csv"
+            ]
+          },
+          "completed_at": "2025-06-29T14:53:15.214773"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:53:15.151340",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp5da6uduh/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 27,
+            "total_users": 1,
+            "complete_users": 0,
+            "broken_users": 1,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": [
+              "Unknown file: 1_1_1_b2c3d4e5f678901234567890123456ab.csv",
+              "Unknown file: 1_2_1_b2c3d4e5f678901234567890123456ab.csv",
+              "Unknown file: 1_1_3_b2c3d4e5f678901234567890123456ab.csv",
+              "Unknown file: 1_2_3_b2c3d4e5f678901234567890123456ab.csv",
+              "Unknown file: 1_1_2_b2c3d4e5f678901234567890123456ab.csv",
+              "Unknown file: 1_2_2_b2c3d4e5f678901234567890123456ab.csv"
+            ]
+          },
+          "completed_at": "2025-06-29T14:53:15.164845"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:53:15.129418",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp2agbwgrh/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 28,
+            "total_users": 1,
+            "complete_users": 0,
+            "broken_users": 1,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": [
+              "Unknown file: 1_1_3_a1b2c3d4e5f678901234567890123456.csv",
+              "Unknown file: 1_2_3_a1b2c3d4e5f678901234567890123456.csv",
+              "Unknown file: 1_1_2_a1b2c3d4e5f678901234567890123456.csv",
+              "Unknown file: 1_2_2_a1b2c3d4e5f678901234567890123456.csv",
+              "Unknown file: 1_1_1_a1b2c3d4e5f678901234567890123456.csv",
+              "Unknown file: 1_2_1_a1b2c3d4e5f678901234567890123456.csv"
+            ]
+          },
+          "completed_at": "2025-06-29T14:53:15.145802"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:51:35.215072",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmprzslxves/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 28,
+            "total_users": 0,
+            "complete_users": 0,
+            "broken_users": 0,
+            "desktop_users": 0,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": [
+              "Unknown file: f_a1b2c3d4e5f6789012345678901234567_0.csv",
+              "Unknown file: a1b2c3d4e5f6789012345678901234567_start_time.json",
+              "Unknown file: f_a1b2c3d4e5f6789012345678901234567_3_metadata.json",
+              "Unknown file: i_a1b2c3d4e5f6789012345678901234567_1.csv",
+              "Unknown file: f_a1b2c3d4e5f6789012345678901234567_3.csv",
+              "Unknown file: t_a1b2c3d4e5f6789012345678901234567_5_metadata.json",
+              "Unknown file: t_a1b2c3d4e5f6789012345678901234567_2.csv",
+              "Unknown file: t_a1b2c3d4e5f6789012345678901234567_2_metadata.json",
+              "Unknown file: i_a1b2c3d4e5f6789012345678901234567_4.csv",
+              "Unknown file: t_a1b2c3d4e5f6789012345678901234567_5.csv",
+              "Unknown file: f_a1b2c3d4e5f6789012345678901234567_0_metadata.json",
+              "Unknown file: t_a1b2c3d4e5f6789012345678901234567_5_raw.txt",
+              "Unknown file: i_a1b2c3d4e5f6789012345678901234567_4_raw.txt",
+              "Unknown file: i_a1b2c3d4e5f6789012345678901234567_4_metadata.json",
+              "Unknown file: 1_2_1_a1b2c3d4e5f6789012345678901234567.csv",
+              "Unknown file: 1_2_2_a1b2c3d4e5f6789012345678901234567.csv",
+              "Unknown file: 1_2_3_a1b2c3d4e5f6789012345678901234567.csv",
+              "Unknown file: i_a1b2c3d4e5f6789012345678901234567_1_metadata.json",
+              "Unknown file: a1b2c3d4e5f6789012345678901234567_completion.json",
+              "Unknown file: i_a1b2c3d4e5f6789012345678901234567_1_raw.txt",
+              "Unknown file: 1_1_1_a1b2c3d4e5f6789012345678901234567.csv",
+              "Unknown file: 1_1_2_a1b2c3d4e5f6789012345678901234567.csv",
+              "Unknown file: 1_1_3_a1b2c3d4e5f6789012345678901234567.csv",
+              "Unknown file: f_a1b2c3d4e5f6789012345678901234567_0_raw.txt",
+              "Unknown file: a1b2c3d4e5f6789012345678901234567_demographics.json",
+              "Unknown file: t_a1b2c3d4e5f6789012345678901234567_2_raw.txt",
+              "Unknown file: a1b2c3d4e5f6789012345678901234567_consent.json",
+              "Unknown file: f_a1b2c3d4e5f6789012345678901234567_3_raw.txt"
+            ]
+          },
+          "completed_at": "2025-06-29T14:51:35.225562"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:51:29.962743",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpi347dk4_/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 28,
+            "total_users": 1,
+            "complete_users": 0,
+            "broken_users": 1,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": [
+              "Unknown file: 1_1_1_fedcba0987654321fedcba0987654321.csv",
+              "Unknown file: 1_2_1_fedcba0987654321fedcba0987654321.csv",
+              "Unknown file: 1_1_3_fedcba0987654321fedcba0987654321.csv",
+              "Unknown file: 1_2_3_fedcba0987654321fedcba0987654321.csv",
+              "Unknown file: 1_1_2_fedcba0987654321fedcba0987654321.csv",
+              "Unknown file: 1_2_2_fedcba0987654321fedcba0987654321.csv"
+            ]
+          },
+          "completed_at": "2025-06-29T14:51:29.975949"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:51:29.958673",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpzowpgk5k/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 0,
+            "total_users": 0,
+            "complete_users": 0,
+            "broken_users": 0,
+            "desktop_users": 0,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:51:29.960761"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:51:29.949862",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:51:29.913573",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpnmtuz57q/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 110,
+            "total_users": 0,
+            "complete_users": 0,
+            "broken_users": 0,
+            "desktop_users": 0,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": [
+              "Unknown file: e5f67890123456789012345678901abcd_start_time.json",
+              "Unknown file: f_e5f67890123456789012345678901abcd_3_metadata.json",
+              "Unknown file: f678901234567890123456789012abcde_consent.json",
+              "Unknown file: f_f678901234567890123456789012abcde_3.csv",
+              "Unknown file: i_f678901234567890123456789012abcde_1.csv",
+              "Unknown file: d4e5f6789012345678901234567890abc_start_time.json",
+              "Unknown file: f_d4e5f6789012345678901234567890abc_3_metadata.json",
+              "Unknown file: t_f678901234567890123456789012abcde_2.csv",
+              "Unknown file: f_d4e5f6789012345678901234567890abc_0.csv",
+              "Unknown file: d4e5f6789012345678901234567890abc_demographics.json",
+              "Unknown file: t_e5f67890123456789012345678901abcd_2_raw.txt",
+              "Unknown file: d4e5f6789012345678901234567890abc_consent.json",
+              "Unknown file: t_e5f67890123456789012345678901abcd_5_metadata.json",
+              "Unknown file: f_f678901234567890123456789012abcde_0.csv",
+              "Unknown file: t_d4e5f6789012345678901234567890abc_2.csv",
+              "Unknown file: t_d4e5f6789012345678901234567890abc_5_metadata.json",
+              "Unknown file: i_d4e5f6789012345678901234567890abc_1.csv",
+              "Unknown file: f_d4e5f6789012345678901234567890abc_3.csv",
+              "Unknown file: t_d4e5f6789012345678901234567890abc_2_metadata.json",
+              "Unknown file: c3d4e5f678901234567890123456789ab_completion.json",
+              "Unknown file: t_f678901234567890123456789012abcde_5.csv",
+              "Unknown file: t_e5f67890123456789012345678901abcd_2_metadata.json",
+              "Unknown file: i_d4e5f6789012345678901234567890abc_4.csv",
+              "Unknown file: f_e5f67890123456789012345678901abcd_0_metadata.json",
+              "Unknown file: i_c3d4e5f678901234567890123456789ab_1_metadata.json",
+              "Unknown file: i_f678901234567890123456789012abcde_4.csv",
+              "Unknown file: t_d4e5f6789012345678901234567890abc_5.csv",
+              "Unknown file: f_d4e5f6789012345678901234567890abc_0_metadata.json",
+              "Unknown file: f_e5f67890123456789012345678901abcd_3_raw.txt",
+              "Unknown file: e5f67890123456789012345678901abcd_demographics.json",
+              "Unknown file: 1_2_2_f678901234567890123456789012abcde.csv",
+              "Unknown file: t_c3d4e5f678901234567890123456789ab_2.csv",
+              "Unknown file: 1_2_3_f678901234567890123456789012abcde.csv",
+              "Unknown file: t_c3d4e5f678901234567890123456789ab_5_raw.txt",
+              "Unknown file: f_c3d4e5f678901234567890123456789ab_3.csv",
+              "Unknown file: i_c3d4e5f678901234567890123456789ab_1.csv",
+              "Unknown file: 1_2_1_f678901234567890123456789012abcde.csv",
+              "Unknown file: t_d4e5f6789012345678901234567890abc_5_raw.txt",
+              "Unknown file: i_c3d4e5f678901234567890123456789ab_4_raw.txt",
+              "Unknown file: i_f678901234567890123456789012abcde_1_metadata.json",
+              "Unknown file: i_d4e5f6789012345678901234567890abc_4_raw.txt",
+              "Unknown file: f_c3d4e5f678901234567890123456789ab_0.csv",
+              "Unknown file: i_e5f67890123456789012345678901abcd_4_metadata.json",
+              "Unknown file: 1_1_2_f678901234567890123456789012abcde.csv",
+              "Unknown file: 1_1_3_f678901234567890123456789012abcde.csv",
+              "Unknown file: t_c3d4e5f678901234567890123456789ab_5.csv",
+              "Unknown file: c3d4e5f678901234567890123456789ab_consent.json",
+              "Unknown file: i_d4e5f6789012345678901234567890abc_4_metadata.json",
+              "Unknown file: f_e5f67890123456789012345678901abcd_0_raw.txt",
+              "Unknown file: 1_1_1_f678901234567890123456789012abcde.csv",
+              "Unknown file: t_f678901234567890123456789012abcde_5_raw.txt",
+              "Unknown file: f678901234567890123456789012abcde_demographics.json",
+              "Unknown file: i_f678901234567890123456789012abcde_4_raw.txt",
+              "Unknown file: i_c3d4e5f678901234567890123456789ab_4.csv",
+              "Unknown file: i_e5f67890123456789012345678901abcd_1_raw.txt",
+              "Unknown file: 1_2_1_e5f67890123456789012345678901abcd.csv",
+              "Unknown file: f_c3d4e5f678901234567890123456789ab_0_metadata.json",
+              "Unknown file: i_f678901234567890123456789012abcde_1_raw.txt",
+              "Unknown file: i_e5f67890123456789012345678901abcd_1_metadata.json",
+              "Unknown file: i_e5f67890123456789012345678901abcd_4_raw.txt",
+              "Unknown file: i_e5f67890123456789012345678901abcd_4.csv",
+              "Unknown file: 1_2_3_e5f67890123456789012345678901abcd.csv",
+              "Unknown file: 1_2_2_e5f67890123456789012345678901abcd.csv",
+              "Unknown file: i_d4e5f6789012345678901234567890abc_1_metadata.json",
+              "Unknown file: t_e5f67890123456789012345678901abcd_5_raw.txt",
+              "Unknown file: f_f678901234567890123456789012abcde_0_raw.txt",
+              "Unknown file: t_e5f67890123456789012345678901abcd_5.csv",
+              "Unknown file: d4e5f6789012345678901234567890abc_completion.json",
+              "Unknown file: t_c3d4e5f678901234567890123456789ab_2_metadata.json",
+              "Unknown file: e5f67890123456789012345678901abcd_consent.json",
+              "Unknown file: i_d4e5f6789012345678901234567890abc_1_raw.txt",
+              "Unknown file: t_c3d4e5f678901234567890123456789ab_5_metadata.json",
+              "Unknown file: 1_1_1_e5f67890123456789012345678901abcd.csv",
+              "Unknown file: 1_1_3_e5f67890123456789012345678901abcd.csv",
+              "Unknown file: i_c3d4e5f678901234567890123456789ab_1_raw.txt",
+              "Unknown file: f_e5f67890123456789012345678901abcd_0.csv",
+              "Unknown file: 1_1_2_e5f67890123456789012345678901abcd.csv",
+              "Unknown file: i_f678901234567890123456789012abcde_4_metadata.json",
+              "Unknown file: c3d4e5f678901234567890123456789ab_start_time.json",
+              "Unknown file: f_c3d4e5f678901234567890123456789ab_3_metadata.json",
+              "Unknown file: f_d4e5f6789012345678901234567890abc_0_raw.txt",
+              "Unknown file: t_e5f67890123456789012345678901abcd_2.csv",
+              "Unknown file: f_e5f67890123456789012345678901abcd_3.csv",
+              "Unknown file: i_e5f67890123456789012345678901abcd_1.csv",
+              "Unknown file: f_c3d4e5f678901234567890123456789ab_0_raw.txt",
+              "Unknown file: 1_2_1_c3d4e5f678901234567890123456789ab.csv",
+              "Unknown file: t_f678901234567890123456789012abcde_5_metadata.json",
+              "Unknown file: f_f678901234567890123456789012abcde_3_raw.txt",
+              "Unknown file: 1_2_3_c3d4e5f678901234567890123456789ab.csv",
+              "Unknown file: 1_2_2_c3d4e5f678901234567890123456789ab.csv",
+              "Unknown file: i_c3d4e5f678901234567890123456789ab_4_metadata.json",
+              "Unknown file: f_f678901234567890123456789012abcde_3_metadata.json",
+              "Unknown file: f678901234567890123456789012abcde_start_time.json",
+              "Unknown file: t_d4e5f6789012345678901234567890abc_2_raw.txt",
+              "Unknown file: 1_2_1_d4e5f6789012345678901234567890abc.csv",
+              "Unknown file: 1_2_2_d4e5f6789012345678901234567890abc.csv",
+              "Unknown file: t_c3d4e5f678901234567890123456789ab_2_raw.txt",
+              "Unknown file: 1_2_3_d4e5f6789012345678901234567890abc.csv",
+              "Unknown file: 1_1_1_c3d4e5f678901234567890123456789ab.csv",
+              "Unknown file: f_f678901234567890123456789012abcde_0_metadata.json",
+              "Unknown file: f_d4e5f6789012345678901234567890abc_3_raw.txt",
+              "Unknown file: 1_1_3_c3d4e5f678901234567890123456789ab.csv",
+              "Unknown file: f_c3d4e5f678901234567890123456789ab_3_raw.txt",
+              "Unknown file: 1_1_2_c3d4e5f678901234567890123456789ab.csv",
+              "Unknown file: c3d4e5f678901234567890123456789ab_demographics.json",
+              "Unknown file: t_f678901234567890123456789012abcde_2_raw.txt",
+              "Unknown file: 1_1_1_d4e5f6789012345678901234567890abc.csv",
+              "Unknown file: t_f678901234567890123456789012abcde_2_metadata.json",
+              "Unknown file: 1_1_2_d4e5f6789012345678901234567890abc.csv",
+              "Unknown file: 1_1_3_d4e5f6789012345678901234567890abc.csv"
+            ]
+          },
+          "completed_at": "2025-06-29T14:51:29.943207"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:51:29.896550",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpkze3uk4x/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 27,
+            "total_users": 1,
+            "complete_users": 0,
+            "broken_users": 1,
+            "desktop_users": 1,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": [
+              "Unknown file: 1_2_3_b2c3d4e5f67890123456789012345678.csv",
+              "Unknown file: 1_1_3_b2c3d4e5f67890123456789012345678.csv",
+              "Unknown file: 1_2_2_b2c3d4e5f67890123456789012345678.csv",
+              "Unknown file: 1_1_2_b2c3d4e5f67890123456789012345678.csv",
+              "Unknown file: 1_2_1_b2c3d4e5f67890123456789012345678.csv",
+              "Unknown file: 1_1_1_b2c3d4e5f67890123456789012345678.csv"
+            ]
+          },
+          "completed_at": "2025-06-29T14:51:29.909429"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:51:29.882632",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpjgj3jhym/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 28,
+            "total_users": 0,
+            "complete_users": 0,
+            "broken_users": 0,
+            "desktop_users": 0,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": [
+              "Unknown file: f_a1b2c3d4e5f6789012345678901234567_0.csv",
+              "Unknown file: a1b2c3d4e5f6789012345678901234567_start_time.json",
+              "Unknown file: f_a1b2c3d4e5f6789012345678901234567_3_metadata.json",
+              "Unknown file: i_a1b2c3d4e5f6789012345678901234567_1.csv",
+              "Unknown file: f_a1b2c3d4e5f6789012345678901234567_3.csv",
+              "Unknown file: t_a1b2c3d4e5f6789012345678901234567_5_metadata.json",
+              "Unknown file: t_a1b2c3d4e5f6789012345678901234567_2.csv",
+              "Unknown file: t_a1b2c3d4e5f6789012345678901234567_2_metadata.json",
+              "Unknown file: i_a1b2c3d4e5f6789012345678901234567_4.csv",
+              "Unknown file: t_a1b2c3d4e5f6789012345678901234567_5.csv",
+              "Unknown file: f_a1b2c3d4e5f6789012345678901234567_0_metadata.json",
+              "Unknown file: t_a1b2c3d4e5f6789012345678901234567_5_raw.txt",
+              "Unknown file: i_a1b2c3d4e5f6789012345678901234567_4_raw.txt",
+              "Unknown file: i_a1b2c3d4e5f6789012345678901234567_4_metadata.json",
+              "Unknown file: 1_2_1_a1b2c3d4e5f6789012345678901234567.csv",
+              "Unknown file: 1_2_2_a1b2c3d4e5f6789012345678901234567.csv",
+              "Unknown file: 1_2_3_a1b2c3d4e5f6789012345678901234567.csv",
+              "Unknown file: i_a1b2c3d4e5f6789012345678901234567_1_metadata.json",
+              "Unknown file: a1b2c3d4e5f6789012345678901234567_completion.json",
+              "Unknown file: i_a1b2c3d4e5f6789012345678901234567_1_raw.txt",
+              "Unknown file: 1_1_1_a1b2c3d4e5f6789012345678901234567.csv",
+              "Unknown file: 1_1_2_a1b2c3d4e5f6789012345678901234567.csv",
+              "Unknown file: 1_1_3_a1b2c3d4e5f6789012345678901234567.csv",
+              "Unknown file: f_a1b2c3d4e5f6789012345678901234567_0_raw.txt",
+              "Unknown file: a1b2c3d4e5f6789012345678901234567_demographics.json",
+              "Unknown file: t_a1b2c3d4e5f6789012345678901234567_2_raw.txt",
+              "Unknown file: a1b2c3d4e5f6789012345678901234567_consent.json",
+              "Unknown file: f_a1b2c3d4e5f6789012345678901234567_3_raw.txt"
+            ]
+          },
+          "completed_at": "2025-06-29T14:51:29.893307"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:51:24.224582",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpkzdimdrb/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 0,
+            "total_users": 0,
+            "complete_users": 0,
+            "broken_users": 0,
+            "desktop_users": 0,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:51:24.226944"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:50:01.293076",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpzxygt0j2/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 0,
+            "total_users": 0,
+            "complete_users": 0,
+            "broken_users": 0,
+            "desktop_users": 0,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:50:01.293943"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_version_001",
+      "created_at": "2025-06-29T14:49:47.662347",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpq307jof3/artifacts/test_version_001/cleaned_data",
+          "stats": {
+            "total_files": 0,
+            "total_users": 0,
+            "complete_users": 0,
+            "broken_users": 0,
+            "desktop_users": 0,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T14:49:47.663164"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    }
+  ],
+  "current": "test_version_001",
+  "schema_version": "1.0"
+}

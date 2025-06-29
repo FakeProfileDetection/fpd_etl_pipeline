@@ -14,7 +14,7 @@ import json
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scripts.pipeline.extract_features import ExtractFeaturesStage, TypeNetMLFeatureExtractor
-from tests.test_utils import TestDataGenerator, TestValidator, create_test_config
+from tests.test_utils import TestDataGenerator, TestValidator, create_test_config, setup_test_version_manager, cleanup_test_version_manager
 
 
 class TestExtractFeaturesStage(unittest.TestCase):
@@ -30,8 +30,13 @@ class TestExtractFeaturesStage(unittest.TestCase):
         self.data_gen = TestDataGenerator()
         self.validator = TestValidator()
         
+        # Setup test version manager
+        self.vm = setup_test_version_manager(self.test_dir)
+        self.vm.register_version(self.version_id, {"test": True})
+        
     def tearDown(self):
         """Clean up test environment"""
+        cleanup_test_version_manager()
         if self.test_dir.exists():
             shutil.rmtree(self.test_dir)
             
@@ -88,7 +93,7 @@ class TestExtractFeaturesStage(unittest.TestCase):
         self.create_test_keypair_data(keypair_file)
         
         # Run feature extraction
-        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=False)
+        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=False, version_manager=self.vm)
         output_dir = stage.run(keypair_dir)
         
         # Validate output
@@ -135,7 +140,7 @@ class TestExtractFeaturesStage(unittest.TestCase):
         df.to_parquet(keypair_file)
         
         # Run extraction
-        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=False)
+        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=False, version_manager=self.vm)
         output_dir = stage.run(keypair_dir)
         
         # Load features and check for NaN values
@@ -154,7 +159,7 @@ class TestExtractFeaturesStage(unittest.TestCase):
         df = self.create_test_keypair_data(keypair_file, num_users=2)
         
         # Run extraction
-        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=False)
+        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=False, version_manager=self.vm)
         output_dir = stage.run(keypair_dir)
         
         # Check shapes for each aggregation level
@@ -184,13 +189,15 @@ class TestExtractFeaturesStage(unittest.TestCase):
         self.assertGreater(outlier_count, 0, "Test data should have some outliers")
         
         # Test with outliers excluded (default)
-        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=False)
+        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=False, version_manager=self.vm)
         self.config['KEEP_OUTLIERS'] = False
         output_dir = stage.run(keypair_dir)
         
         # Test with outliers included
         self.config['KEEP_OUTLIERS'] = True
-        stage2 = ExtractFeaturesStage(self.version_id + "_with_outliers", self.config, dry_run=False)
+        version_id2 = self.version_id + "_with_outliers"
+        self.vm.register_version(version_id2, {"test": True})
+        stage2 = ExtractFeaturesStage(version_id2, self.config, dry_run=False, version_manager=self.vm)
         output_dir2 = stage2.run(keypair_dir)
         
         # Compare feature counts
@@ -209,7 +216,7 @@ class TestExtractFeaturesStage(unittest.TestCase):
         self.create_test_keypair_data(keypair_file)
         
         # Run extraction
-        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=False)
+        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=False, version_manager=self.vm)
         output_dir = stage.run(keypair_dir)
         
         # Check feature registry
@@ -230,7 +237,7 @@ class TestExtractFeaturesStage(unittest.TestCase):
         self.create_test_keypair_data(keypair_file)
         
         # Extract only user_platform features
-        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=False)
+        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=False, version_manager=self.vm)
         output_dir = stage.run(keypair_dir, feature_types=['typenet_ml_user_platform'])
         
         # Check that only requested type was created
@@ -245,7 +252,7 @@ class TestExtractFeaturesStage(unittest.TestCase):
         self.create_test_keypair_data(keypair_file)
         
         # Run in dry run mode
-        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=True)
+        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=True, version_manager=self.vm)
         output_dir = stage.run(keypair_dir)
         
         # Check that no output was created
@@ -284,7 +291,7 @@ class TestExtractFeaturesStage(unittest.TestCase):
         df.to_parquet(keypair_file)
         
         # Run extraction
-        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=False)
+        stage = ExtractFeaturesStage(self.version_id, self.config, dry_run=False, version_manager=self.vm)
         output_dir = stage.run(keypair_dir)
         
         # Load features
@@ -296,7 +303,7 @@ class TestExtractFeaturesStage(unittest.TestCase):
         # Expected values (in milliseconds)
         expected_mean = np.mean(hl_values)
         expected_median = np.median(hl_values)
-        expected_std = np.std(hl_values)
+        expected_std = np.std(hl_values, ddof=1)  # Use ddof=1 to match pandas default
         
         # Check values (allowing small floating point differences)
         self.assertAlmostEqual(row['HL_h_mean'], expected_mean, places=1)

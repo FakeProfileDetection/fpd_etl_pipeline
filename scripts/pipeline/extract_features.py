@@ -144,7 +144,7 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
             # Replace NaN with global mean
             for col in feature_cols:
                 global_mean = dataset[col].mean()
-                dataset[col].fillna(global_mean, inplace=True)
+                dataset[col] = dataset[col].fillna(global_mean)
                 
         elif strategy == 'user':
             # Replace NaN with user-specific mean
@@ -158,7 +158,7 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
                 
                 # If still NaN (user has no data for this feature), use global mean
                 global_mean = dataset[col].mean()
-                dataset[col].fillna(global_mean, inplace=True)
+                dataset[col] = dataset[col].fillna(global_mean)
                 
         # Final check - if still any NaN, fill with 0
         dataset[feature_cols] = dataset[feature_cols].fillna(0.0)
@@ -244,12 +244,13 @@ class ExtractFeaturesStage:
     """Extract ML features from keypair data"""
     
     def __init__(self, version_id: str, config: Dict[str, Any], 
-                 dry_run: bool = False, local_only: bool = False):
+                 dry_run: bool = False, local_only: bool = False,
+                 version_manager: Optional[VersionManager] = None):
         self.version_id = version_id
         self.config = config
         self.dry_run = dry_run
         self.local_only = local_only
-        self.version_manager = VersionManager()
+        self.version_manager = version_manager or VersionManager()
         
         # Feature extractors registry
         self.extractors = {

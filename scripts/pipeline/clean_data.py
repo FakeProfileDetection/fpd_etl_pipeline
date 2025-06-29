@@ -106,12 +106,13 @@ class CleanDataStage:
     }
     
     def __init__(self, version_id: str, config: Dict[str, Any], 
-                 dry_run: bool = False, local_only: bool = False):
+                 dry_run: bool = False, local_only: bool = False,
+                 version_manager: Optional[VersionManager] = None):
         self.version_id = version_id
         self.config = config
         self.dry_run = dry_run
         self.local_only = local_only
-        self.version_manager = VersionManager()
+        self.version_manager = version_manager or VersionManager()
         
         # Statistics tracking
         self.stats = {
@@ -127,8 +128,10 @@ class CleanDataStage:
         
     def extract_user_id(self, filename: str) -> Optional[str]:
         """Extract user ID (hash) from filename"""
-        # Match patterns like: f_3741e927ab7d45a7ca19ed47a3eb5864_0.csv
-        # or: 3741e927ab7d45a7ca19ed47a3eb5864_consent.json
+        # Match patterns like: 
+        # - f_3741e927ab7d45a7ca19ed47a3eb5864_0.csv (platform files)
+        # - 3741e927ab7d45a7ca19ed47a3eb5864_consent.json (metadata files)
+        # - 1_1_1_3741e927ab7d45a7ca19ed47a3eb5864.csv (TypeNet format)
         
         # Try platform file pattern first
         match = re.search(r'[fit]_([a-f0-9]{32})_\d+', filename)
@@ -137,6 +140,11 @@ class CleanDataStage:
             
         # Try metadata file pattern
         match = re.search(r'^([a-f0-9]{32})_', filename)
+        if match:
+            return match.group(1)
+            
+        # Try TypeNet format pattern (Platform_Session_Video_UserID.csv)
+        match = re.search(r'^\d+_\d+_\d+_([a-f0-9]{32})', filename)
         if match:
             return match.group(1)
             
@@ -323,12 +331,11 @@ class CleanDataStage:
         """Generate metadata CSV files for complete and broken users"""
         for device_type in ["desktop", "mobile"]:
             device_dir = output_base / device_type
-            if not device_dir.exists():
-                continue
-                
             metadata_dir = device_dir / "metadata"
+            
+            # Always create metadata directory and files (even if empty)
             if not self.dry_run:
-                metadata_dir.mkdir(exist_ok=True)
+                metadata_dir.mkdir(parents=True, exist_ok=True)
                 
             # Lists of users
             complete_users = []
@@ -385,6 +392,13 @@ class CleanDataStage:
         input_files = list(input_dir.glob("*"))
         self.stats["total_files"] = len(input_files)
         logger.info(f"Found {self.stats['total_files']} files to process")
+        
+        # Create base directory structure (even if no users found)
+        if not self.dry_run:
+            for device_type in ["desktop", "mobile"]:
+                for subdir in ["raw_data", "broken_data", "metadata", "text"]:
+                    dir_path = output_base / device_type / subdir
+                    dir_path.mkdir(parents=True, exist_ok=True)
         
         # Group files by user
         user_files = self.group_files_by_user(input_dir)

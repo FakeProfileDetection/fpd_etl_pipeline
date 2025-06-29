@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from scripts.pipeline import clean_data, extract_keypairs, extract_features
 from scripts.utils.data_validator import validate_pipeline_output
-from tests.test_utils import TestDataGenerator, create_test_config
+from tests.test_utils import TestDataGenerator, create_test_config, setup_test_version_manager, cleanup_test_version_manager
 
 
 class TestPipelineIntegration(unittest.TestCase):
@@ -27,8 +27,13 @@ class TestPipelineIntegration(unittest.TestCase):
         self.version_id = "test_integration_001"
         self.data_gen = TestDataGenerator()
         
+        # Setup test version manager
+        self.vm = setup_test_version_manager(self.test_dir)
+        self.vm.register_version(self.version_id, {"test": True})
+        
     def tearDown(self):
         """Clean up test environment"""
+        cleanup_test_version_manager()
         if self.test_dir.exists():
             shutil.rmtree(self.test_dir)
             
@@ -38,31 +43,31 @@ class TestPipelineIntegration(unittest.TestCase):
         input_dir = self.test_dir / "web_app_data"
         input_dir.mkdir(parents=True)
         
-        # Create data for 3 users
+        # Create data for 3 users (32 hex chars each)
         user_ids = [
-            "integration_user_1_" + "a" * 12,
-            "integration_user_2_" + "b" * 12,
-            "integration_user_3_" + "c" * 12
+            "a" * 32,
+            "b" * 32,
+            "c" * 32
         ]
         
         for user_id in user_ids:
             self.data_gen.create_complete_user_data(input_dir, user_id)
             
         # Step 2: Run clean data stage
-        clean_stage = clean_data.CleanDataStage(self.version_id, self.config)
+        clean_stage = clean_data.CleanDataStage(self.version_id, self.config, version_manager=self.vm)
         cleaned_dir = clean_stage.run(input_dir)
         
         self.assertTrue(cleaned_dir.exists())
         
         # Step 3: Run extract keypairs stage
-        keypair_stage = extract_keypairs.ExtractKeypairsStage(self.version_id, self.config)
+        keypair_stage = extract_keypairs.ExtractKeypairsStage(self.version_id, self.config, version_manager=self.vm)
         keypair_dir = keypair_stage.run(cleaned_dir)
         
         self.assertTrue(keypair_dir.exists())
         self.assertTrue((keypair_dir / "keypairs.parquet").exists())
         
         # Step 4: Run extract features stage
-        feature_stage = extract_features.ExtractFeaturesStage(self.version_id, self.config)
+        feature_stage = extract_features.ExtractFeaturesStage(self.version_id, self.config, version_manager=self.vm)
         feature_dir = feature_stage.run(keypair_dir)
         
         self.assertTrue(feature_dir.exists())
@@ -89,21 +94,21 @@ class TestPipelineIntegration(unittest.TestCase):
         input_dir = self.test_dir / "web_app_data"
         input_dir.mkdir(parents=True)
         
-        # Create mix of complete and incomplete users
-        complete_user = "complete_user_" + "x" * 18
-        incomplete_user = "incomplete_user_" + "y" * 16
+        # Create mix of complete and incomplete users (32 hex chars)
+        complete_user = "d" * 32
+        incomplete_user = "e" * 32
         
         self.data_gen.create_complete_user_data(input_dir, complete_user, include_all_files=True)
         self.data_gen.create_complete_user_data(input_dir, incomplete_user, include_all_files=False)
         
         # Run pipeline stages
-        clean_stage = clean_data.CleanDataStage(self.version_id, self.config)
+        clean_stage = clean_data.CleanDataStage(self.version_id, self.config, version_manager=self.vm)
         cleaned_dir = clean_stage.run(input_dir)
         
-        keypair_stage = extract_keypairs.ExtractKeypairsStage(self.version_id, self.config)
+        keypair_stage = extract_keypairs.ExtractKeypairsStage(self.version_id, self.config, version_manager=self.vm)
         keypair_dir = keypair_stage.run(cleaned_dir)
         
-        feature_stage = extract_features.ExtractFeaturesStage(self.version_id, self.config)
+        feature_stage = extract_features.ExtractFeaturesStage(self.version_id, self.config, version_manager=self.vm)
         feature_dir = feature_stage.run(keypair_dir)
         
         # Validate
@@ -125,8 +130,8 @@ class TestPipelineIntegration(unittest.TestCase):
         input_dir = self.test_dir / "bad_data"
         input_dir.mkdir(parents=True)
         
-        # Create a user with invalid CSV data
-        user_id = "bad_user_" + "z" * 24
+        # Create a user with invalid CSV data (32 hex chars)
+        user_id = "f" * 32
         user_dir = input_dir
         
         # Create required JSON files
@@ -140,7 +145,7 @@ class TestPipelineIntegration(unittest.TestCase):
         bad_csv.write_text("Invalid,CSV,Format\nNo,Proper,Headers\n")
         
         # The pipeline should handle this gracefully
-        clean_stage = clean_data.CleanDataStage(self.version_id, self.config)
+        clean_stage = clean_data.CleanDataStage(self.version_id, self.config, version_manager=self.vm)
         cleaned_dir = clean_stage.run(input_dir)
         
         # User should be in broken data due to invalid CSV
