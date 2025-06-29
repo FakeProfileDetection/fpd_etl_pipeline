@@ -119,18 +119,39 @@ python scripts/pipeline/run_pipeline.py -s eda
 
 ## 📁 Output Structure
 
+**Local Artifacts:**
 ```
 artifacts/
 └── {version_id}/
     ├── raw_data/           # Downloaded data
+    │   └── web_app_data/   # Raw CSV and JSON files
     ├── cleaned_data/       # Organized by user
     │   ├── desktop/
     │   │   ├── raw_data/   # Complete users
     │   │   └── broken_data/# Incomplete users
     │   └── mobile/
     ├── keypairs/           # Extracted timing features
+    │   ├── keypairs.parquet
+    │   └── keypairs.csv
     ├── features/           # ML-ready features
-    └── reports/            # EDA reports and plots
+    │   ├── typenet_ml_user_platform/
+    │   ├── typenet_ml_session/
+    │   └── typenet_ml_video/
+    ├── reports/            # EDA reports and plots
+    └── etl_metadata/       # Processing logs and stats
+```
+
+**Cloud Storage Structure:**
+```
+gs://{bucket}/
+├── uploads/                # Raw web app data (source)
+├── artifacts/              # Processed pipeline outputs
+│   └── {version_id}/       # Mirrors local structure
+│       ├── artifact_manifest.json
+│       ├── raw_data/
+│       ├── keypairs/
+│       └── features/
+└── raw_data_from_web_app/  # Legacy tar.gz files (old pipeline)
 ```
 
 ## 🎯 Common Use Cases
@@ -151,6 +172,59 @@ python scripts/standalone/test_gcs_access.py
 ```bash
 # Full pipeline with GCS download
 python scripts/pipeline/run_pipeline.py --mode full --upload-artifacts
+```
+
+### Team Collaboration Workflow
+
+**Important:** The `--upload-artifacts` flag enables cloud operations (like downloading from GCS) but does NOT automatically upload results. Use the separate upload script after reviewing results.
+
+**Team Member 1 - Process and Share Data:**
+```bash
+# 1. Process data with cloud download enabled
+python scripts/pipeline/run_pipeline.py --mode full --upload-artifacts
+
+# 2. Review results locally
+ls artifacts/2025-06-29_16-14-37_loris-mbpcablercncom/
+
+# 3. Upload artifacts for team access (excludes PII by default)
+python scripts/standalone/upload_artifacts.py --version-id 2025-06-29_16-14-37_loris-mbpcablercncom
+
+# 4. Commit and push versions.json to share version info
+git add versions.json
+git commit -m "Add processed version 2025-06-29_16-14-37"
+git push
+```
+
+**Team Member 2 - Use Shared Data:**
+```bash
+# 1. Pull latest version info
+git pull
+
+# 2. Download all artifacts from a version
+python scripts/standalone/download_artifacts.py --version-id 2025-06-29_16-14-37_loris-mbpcablercncom
+
+# 3. Or download specific stages only
+python scripts/standalone/download_artifacts.py \
+    --version-id 2025-06-29_16-14-37_loris-mbpcablercncom \
+    --stages keypairs features
+```
+
+**Upload Options:**
+```bash
+# Include PII in upload (requires explicit flag)
+python scripts/standalone/upload_artifacts.py \
+    --version-id {version_id} \
+    --include-pii
+
+# Upload specific stages only
+python scripts/standalone/upload_artifacts.py \
+    --version-id {version_id} \
+    --stages features reports
+
+# Force re-upload if artifacts already exist
+python scripts/standalone/upload_artifacts.py \
+    --version-id {version_id} \
+    --force
 ```
 
 ### Running with Sample Data (No GCS Required)
@@ -197,7 +271,47 @@ python scripts/pipeline/download_data.py \
 
 ### For Developers
 
-**Test pipeline changes:**
+**Development Workflow Helper Script:**
+
+The `dev_workflow.sh` script provides convenient commands for common development tasks:
+
+```bash
+# Make it executable (first time only)
+chmod +x scripts/dev_workflow.sh
+
+# Run full pipeline locally (no uploads)
+./scripts/dev_workflow.sh run
+
+# Review results, then upload artifacts
+./scripts/dev_workflow.sh upload
+
+# Quick test with temporary version
+./scripts/dev_workflow.sh test
+
+# Download team member's artifacts
+./scripts/dev_workflow.sh download                    # Latest version
+./scripts/dev_workflow.sh download 2025-06-29_16-14  # Specific version
+
+# Check pipeline status
+./scripts/dev_workflow.sh status
+
+# Run specific stage
+./scripts/dev_workflow.sh stage clean
+
+# Clean up local artifacts
+./scripts/dev_workflow.sh clean
+```
+
+**What dev_workflow.sh does:**
+- `run`: Executes full pipeline locally without uploading, shows artifact location
+- `upload`: Shows what will be uploaded (dry run), then uploads after confirmation
+- `test`: Creates temporary version for testing without contaminating real artifacts
+- `download`: Downloads artifacts from GCS (latest or specific version)
+- `status`: Shows current version, local artifacts, cloud config, and environment
+- `stage`: Runs only specified stage (clean, keypairs, features, or eda)
+- `clean`: Removes all local artifacts and cache (with confirmation)
+
+**Manual testing:**
 ```bash
 # Dry run to see what would happen
 python scripts/pipeline/run_pipeline.py --dry-run --mode full

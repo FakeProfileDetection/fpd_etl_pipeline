@@ -169,7 +169,7 @@ class Pipeline:
               help='Specific stages to run (default: all)')
 @click.option('--version-id', help='Version to work with (default: create new)')
 @click.option('--upload-artifacts', is_flag=True, default=False,
-              help='Upload artifacts to cloud (default: False)')
+              help='Enable cloud operations for download (upload requires separate script)')
 @click.option('--include-pii', is_flag=True, default=False,
               help='Include PII data in operations (default: False)')
 @click.option('--generate-reports', is_flag=True, default=None,
