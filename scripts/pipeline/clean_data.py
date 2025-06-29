@@ -188,8 +188,8 @@ class CleanDataStage:
             if expected not in file_names:
                 missing_optional.append(expected)
                 
-        # Check keystroke files - at least one platform should be complete
-        has_complete_platform = False
+        # Check keystroke files - ALL platforms must be complete (18 total files)
+        complete_platforms = 0
         platform_completeness = {}
         
         for platform, sequences in self.PLATFORM_SEQUENCES.items():
@@ -206,14 +206,15 @@ class CleanDataStage:
             }
             
             if len(platform_files) == len(sequences):
-                has_complete_platform = True
+                complete_platforms += 1
                 
-        # User is complete if they have all required metadata and at least one complete platform
-        is_complete = len(missing_required) == 0 and has_complete_platform
+        # User is complete if they have all required metadata and ALL platforms complete (18 files)
+        has_all_platforms = complete_platforms == len(self.PLATFORM_SEQUENCES)
+        is_complete = len(missing_required) == 0 and has_all_platforms
         
-        # Add platform info to missing if no complete platform
-        if not has_complete_platform:
-            missing_required.append(f"No complete platform data: {platform_completeness}")
+        # Add platform info to missing if not all platforms complete
+        if not has_all_platforms:
+            missing_required.append(f"Incomplete platform data (need all 18 files): {platform_completeness}")
             
         return is_complete, missing_required, missing_optional
         
