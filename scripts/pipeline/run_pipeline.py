@@ -30,11 +30,13 @@ class Pipeline:
     
     def __init__(self, version_id: str, config: Dict[str, Any], 
                  dry_run: bool = False, local_only: bool = False,
+                 force_mode: bool = False,
                  version_manager: Optional[VersionManager] = None):
         self.version_id = version_id
         self.config = config
         self.dry_run = dry_run
         self.local_only = local_only
+        self.force_mode = force_mode
         
         # Initialize managers
         self.version_manager = version_manager or VersionManager()
@@ -279,16 +281,51 @@ Pipeline Configuration:
     if not stages:
         if mode == 'full':
             stages = all_stages[:-1]  # Exclude EDA by default
-        else:
-            # TODO: For incremental mode, determine what needs to run
-            stages = all_stages[:-1]
+        elif mode == 'incr':
+            # Incremental mode: Only run stages not yet completed
+            vm = VersionManager()
+            version_info = vm.get_version(version_id)
+            completed_stages = set()
+            
+            if version_info and "stages" in version_info:
+                for stage_name, stage_info in version_info["stages"].items():
+                    if stage_info.get("completed", False):
+                        completed_stages.add(stage_name)
+            
+            # Map stage names to CLI names
+            stage_name_mapping = {
+                'download_data': 'download',
+                'clean_data': 'clean', 
+                'extract_keypairs': 'keypairs',
+                'extract_features': 'features',
+                'run_eda': 'eda'
+            }
+            
+            # Determine which stages still need to run
+            stages_to_run = []
+            for stage in all_stages[:-1]:  # Exclude EDA by default
+                mapped_name = {v: k for k, v in stage_name_mapping.items()}.get(stage, stage)
+                if mapped_name not in completed_stages:
+                    stages_to_run.append(stage)
+            
+            if not stages_to_run:
+                click.echo("ℹ️  All stages already completed. Use --mode force to re-run.")
+                stages = []
+            else:
+                stages = stages_to_run
+                click.echo(f"📋 Incremental mode - running incomplete stages: {', '.join(stages)}")
+        elif mode == 'force':
+            # Force mode: Run all requested stages regardless of completion status
+            stages = all_stages[:-1]  # Exclude EDA by default
+            click.echo("⚡ Force mode - re-running all stages")
     
     # Initialize pipeline
     pipeline = Pipeline(
         version_id=version_id,
         config=config,
         dry_run=dry_run,
-        local_only=local_only or not config.get('UPLOAD_ARTIFACTS')
+        local_only=local_only or not config.get('UPLOAD_ARTIFACTS'),
+        force_mode=(mode == 'force')
     )
     
     # Run pipeline

@@ -117,6 +117,68 @@ python scripts/pipeline/run_pipeline.py -s features
 python scripts/pipeline/run_pipeline.py -s eda
 ```
 
+## 🔄 Pipeline Modes
+
+The pipeline supports three execution modes:
+
+### Full Mode (`--mode full`)
+- Creates a **new version ID** for tracking
+- Runs all requested stages from scratch
+- Best for: Initial processing or complete reprocessing
+- Default stages: download, clean, keypairs, features (excludes EDA)
+
+```bash
+# Process new data completely
+python scripts/pipeline/run_pipeline.py --mode full
+
+# Include EDA
+python scripts/pipeline/run_pipeline.py --mode full -s eda
+```
+
+### Incremental Mode (`--mode incr`) - Default
+- Uses the **current version ID** from versions.json
+- Only runs stages that haven't been completed yet
+- Checks completed stages and skips them automatically
+- Best for: Continuing interrupted processing or adding new stages
+
+```bash
+# Continue processing where left off
+python scripts/pipeline/run_pipeline.py --mode incr
+
+# Example: If download and clean are done, will only run keypairs and features
+python scripts/pipeline/run_pipeline.py  # incr is default
+```
+
+### Force Mode (`--mode force`)
+- Uses the **current version ID**
+- Re-runs ALL stages regardless of completion status
+- Overwrites existing outputs
+- Best for: Re-processing with updated code or parameters
+
+```bash
+# Force re-run all stages
+python scripts/pipeline/run_pipeline.py --mode force
+
+# Force re-run specific stages only
+python scripts/pipeline/run_pipeline.py --mode force -s clean -s keypairs
+```
+
+### Mode Examples
+
+```bash
+# Scenario 1: Fresh start with new data
+python scripts/pipeline/run_pipeline.py --mode full --upload-artifacts
+
+# Scenario 2: Pipeline failed at features stage, continue from there
+python scripts/pipeline/run_pipeline.py --mode incr
+
+# Scenario 3: Updated feature extraction code, need to re-run
+python scripts/pipeline/run_pipeline.py --mode force -s features
+
+# Scenario 4: Add EDA to already processed data
+python scripts/pipeline/run_pipeline.py -s eda
+```
+
 ## 📁 Output Structure
 
 **Local Artifacts:**
