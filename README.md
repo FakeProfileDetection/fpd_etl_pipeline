@@ -1,413 +1,258 @@
-# ETL/EDA Pipeline Implementation Plan
-## Fake Profile Detection Research Project
+# FPD ETL Pipeline
 
-**Version**: 1.0  
-**Date**: January 2025  
-**Team**: Data Science Research Team
+A robust ETL (Extract, Transform, Load) pipeline for processing keystroke dynamics data from the Fake Profile Detection (FPD) project.
 
----
+## 🎯 Quick Start for Different Teams
 
-## Executive Summary
-
-This document outlines the implementation plan for a modular, versioned ETL/EDA pipeline for processing keystroke dynamics data collected via a web application. The pipeline is designed for academic research with requirements for reproducibility, team collaboration, and eventual public data release.
-
-### Key Features
-- **Modular pipeline** with independent stages that can be run separately or together
-- **Version control** for all data processing runs with unique identifiers
-- **Cloud-based artifact storage** (Google Cloud Storage) with local caching
-- **Safe defaults**: No cloud uploads or PII processing without explicit flags
-- **Academic research focus**: Reproducibility, documentation, and publication readiness
-- **Team collaboration**: Shared artifacts, GitHub Pages reports, and version tracking
-
----
-
-## Project Context
-
-### Current Situation
-- Transitioning from old dataset to new web app collected data
-- Existing EDA scripts need refactoring for new pipeline
-- Team of 4 members working on different aspects
-- 5-hour prototype timeline for initial validation
-
-### Technical Environment
-- **Cloud**: Google Cloud Storage (GCS) with IAM-controlled access
-- **Development**: Mac/Linux environments
-- **Version Control**: Git/GitHub (open source)
-- **Languages**: Python (primary), Bash (scripts)
-- **Data Privacy**: PII contained only in demographics files
-
-### Requirements
-1. **Reproducibility**: Complete environment and parameter tracking
-2. **Modularity**: Run individual stages or full pipeline
-3. **Safety**: Prevent accidental PII exposure or cloud clutter
-4. **Collaboration**: Easy sharing of processed data and results
-5. **Development**: Local-only mode for pipeline development
-
----
-
-## Architecture Overview
-
-### Directory Structure
-```
-project/
-├── config/
-│   ├── .env.base              # Base configuration (in git)
-│   ├── .env.local             # Local overrides (gitignored)
-│   └── versions.json          # Version registry (in git)
-├── scripts/
-│   ├── pipeline/
-│   │   ├── 01_download_data.py
-│   │   ├── 02_clean_data.py
-│   │   ├── 03_extract_keypairs.py
-│   │   ├── 04_extract_features.py
-│   │   ├── 05_run_eda.py
-│   │   └── run_pipeline.py
-│   ├── standalone/
-│   │   ├── download_artifacts.py
-│   │   ├── upload_artifacts.py
-│   │   └── publish_reports.py
-│   ├── utils/
-│   │   ├── artifact_manager.py
-│   │   ├── cloud_artifact_manager.py
-│   │   ├── version_manager.py
-│   │   ├── config_manager.py
-│   │   └── safety_checks.py
-│   └── dev_workflow.sh
-├── features/
-│   ├── registry.py
-│   └── extractors/
-│       ├── base.py
-│       ├── typenet_ml.py
-│       └── (future extractors)
-├── eda/
-│   ├── registry.py
-│   └── reports/
-│       ├── base.py
-│       ├── data_quality.py
-│       └── (custom reports)
-├── artifacts/              # Local artifacts (gitignored)
-├── docs/
-│   └── reports/           # GitHub Pages reports
-└── templates/
-    └── reports/           # Report templates
-```
-
-### Data Flow
-1. **Web App Data** (GCS) → Download → **Local Raw Data**
-2. **Raw Data** → Clean → **Cleaned Data** + Metadata
-3. **Cleaned Data** → Extract Keypairs → **Keypair Data**
-4. **Cleaned/Keypair Data** → Extract Features → **Feature Sets**
-5. **All Stages** → Generate Reports → **HTML/PDF Reports**
-
-### Artifact Storage
-- **Local**: `artifacts/{version_id}/{stage}/`
-- **Cloud**: `gs://bucket/artifacts/{version_id}/{stage}/`
-- **Metadata**: `versions.json` (in git) tracks all versions
-
----
-
-## Implementation Strategy
-
-### Phase 1: Core Infrastructure (Hour 1)
-1. **Version Manager**
-   ```python
-   # utils/version_manager.py
-   - create_version_id() → "{timestamp}_{hostname}"
-   - get_current_version()
-   - register_stage()
-   - update_versions_json()
-   ```
-
-2. **Configuration System**
-   ```python
-   # utils/config_manager.py
-   - Load .env.base and .env.local
-   - Cloud configuration (bucket, paths)
-   - Pipeline parameters
-   ```
-
-3. **Directory Setup Script**
-   ```bash
-   # scripts/setup_project.sh
-   - Create directory structure
-   - Install git hooks
-   - Initialize configs
-   ```
-
-### Phase 2: Pipeline Stages (Hours 2-3)
-1. **Download Stage** (`01_download_data.py`)
-   - Download from GCS web app data
-   - Create local raw data directory
-   - Generate download manifest
-
-2. **Clean Stage** (`02_clean_data.py`)
-   - Implement existing cleaning logic
-   - Collect cleaning metadata
-   - Save outliers and validation errors
-
-3. **Keypair Extraction** (`03_extract_keypairs.py`)
-   - Adapt existing extraction code
-   - Generate extraction statistics
-
-### Phase 3: Feature System (Hour 4)
-1. **Feature Registry**
-   ```python
-   # features/registry.py
-   - Register feature extractors
-   - Track which features processed per version
-   - Handle dependencies
-   ```
-
-2. **Base Feature Extractor**
-   ```python
-   # features/extractors/base.py
-   - Standard interface for all extractors
-   - Input/output validation
-   - Metadata collection
-   ```
-
-3. **Initial Feature Extractor**
-   ```python
-   # features/extractors/typenet_ml.py
-   - Port existing non-DL feature extraction
-   ```
-
-### Phase 4: Integration & Testing (Hour 5)
-1. **Pipeline Orchestrator**
-   ```python
-   # scripts/pipeline/run_pipeline.py
-   - Command-line interface
-   - Stage coordination
-   - Safe defaults (no upload, no PII)
-   ```
-
-2. **Artifact Management**
-   ```python
-   # utils/cloud_artifact_manager.py
-   - Upload/download artifacts
-   - Update manifests
-   - PII filtering
-   ```
-
-3. **Initial Testing**
-   - Run on sample data
-   - Verify outputs
-   - Check safety features
-
----
-
-## Key Design Decisions
-
-### 1. Versioning Strategy
-- **Version ID Format**: `YYYY-MM-DD_HH-MM-SS_hostname`
-- **Purpose**: Unique identification, chronological ordering, source tracking
-- **Storage**: Metadata in git, artifacts in cloud/local
-
-### 2. Safe Defaults
-- **No Upload**: `--upload-artifacts` flag required
-- **No PII**: `--include-pii` flag required
-- **Rationale**: Prevent accidental data exposure or cloud clutter
-
-### 3. Modular Feature Extraction
-- **Registry Pattern**: New features don't require pipeline changes
-- **Independent Execution**: Can run only new features on old data
-- **Dependency Management**: Features can depend on stages or other features
-
-### 4. Artifact Separation
-- **ETL Metadata**: Processing statistics, errors, validation results
-- **EDA Reports**: Visualizations, insights, analysis
-- **Storage**: Cloud for sharing, local for development
-
-### 5. PII Handling
-- **Isolation**: PII only in `*demographics*` files
-- **Filtering**: Automatic exclusion in downloads/uploads
-- **Future**: Clean PII before public data release
-
----
-
-## Usage Examples
-
-### Development Workflow
+### Data Science Team (Full Analysis)
 ```bash
-# 1. Run pipeline locally (no upload)
+# Process all data including mobile devices and generate comprehensive reports
+python scripts/pipeline/run_pipeline.py --mode full --device-types desktop,mobile --generate-reports
+```
+
+### Research Team (Review for Paper)
+```bash
+# Download and process desktop data only (default)
 python scripts/pipeline/run_pipeline.py --mode full
-
-# 2. Review results
-ls artifacts/2025-01-15_10-30-00_macbook-dev/
-
-# 3. Upload if satisfied
-python scripts/standalone/upload_artifacts.py
-
-# 4. Share version with team
-git add versions.json
-git commit -m "Add pipeline run 2025-01-15_10-30-00"
-git push
 ```
 
-### Team Collaboration
+### Development Team
 ```bash
-# Download teammate's artifacts
-python scripts/standalone/download_artifacts.py \
-    --version 2025-01-15_10-30-00_macbook-alice
+# Run specific stages with dry-run to test changes
+python scripts/pipeline/run_pipeline.py --dry-run -s clean -s keypairs
 
-# Run only new feature extraction
-python scripts/pipeline/04_extract_features.py \
-    --version-id current \
-    --feature-types new_behavioral_features
+# Run tests
+python run_tests.py
 ```
 
-### Production Run
+## 📋 Overview
+
+This pipeline processes keystroke dynamics data collected from a web application where users complete typing tasks across three platforms (Facebook, Instagram, Twitter). The pipeline:
+
+1. **Downloads** raw data from Google Cloud Storage
+2. **Cleans** and validates data (requires all 18 tasks per user)
+3. **Extracts** keystroke timing features (Hold, Inter-key, Press, Release latencies)
+4. **Generates** ML-ready feature sets at multiple aggregation levels
+5. **Creates** comprehensive EDA reports and visualizations
+
+## 🚀 Installation
+
+### Prerequisites
+- Python 3.8+
+- Google Cloud SDK (for data download)
+- Git
+
+### Setup
 ```bash
-# Full pipeline with uploads and reports
-python scripts/pipeline/run_pipeline.py \
-    --mode full \
-    --upload-artifacts \
-    --generate-reports \
-    --publish-to-github
-```
+# Clone the repository
+git clone https://github.com/FakeProfileDetection/fpd_etl_pipeline.git
+cd fpd_etl_pipeline
 
----
-
-## Future Enhancements
-
-### Near Term (After Prototype)
-1. **Parallel Processing**: Run independent stages/features in parallel
-2. **Incremental Mode**: Only process changed data
-3. **Data Validation**: Schema enforcement between stages
-4. **Enhanced Reports**: Interactive dashboards, statistical summaries
-
-### Long Term
-1. **Public Data Release**: Automated PII removal and packaging
-2. **DOI Integration**: Mint DOIs for dataset versions
-3. **Containerization**: Docker images for exact reproduction
-4. **CI/CD Pipeline**: Automated testing and quality checks
-
----
-
-## Safety Considerations
-
-### Git Safety
-- **.gitignore**: Excludes all data files (`*.csv`, `*.parquet`, etc.)
-- **Pre-commit Hook**: Prevents accidental data commits
-- **Only Metadata**: Only `versions.json` and manifests in git
-
-### PII Protection
-- **Default Exclusion**: `--include-pii` flag required
-- **Pattern Matching**: `*demographics*`, `*consent*`, `*email*`
-- **Cloud Isolation**: PII files require special IAM permissions
-
-### Upload Safety
-- **Confirmation Prompts**: For PII or large uploads
-- **Dry Run Mode**: Preview before upload
-- **Size Limits**: Configurable max file size
-
----
-
-## Getting Started
-
-### Initial Setup
-```bash
-# 1. Clone repository
-git clone https://github.com/your-org/fake-profile-detection
-cd fake-profile-detection
-
-# 2. Set up environment
+# Create virtual environment
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 
-# 3. Configure
+# Copy configuration template
 cp config/.env.base config/.env.local
-# Edit .env.local with your settings
-
-# 4. Initialize
-python scripts/setup_project.py
-
-# 5. Run test
-python scripts/pipeline/run_pipeline.py --mode full --dry-run
+# Edit config/.env.local with your settings
 ```
+
+## 🔧 Configuration
 
 ### Environment Variables
+Create `config/.env.local` based on `.env.base`:
+
 ```bash
-# Required in .env.local
-PROJECT_ID="your-gcp-project"
-BUCKET_DIR="your-bucket-name"
-GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account.json"
+# Essential for cloud data access
+PROJECT_ID=your-gcp-project
+BUCKET_NAME=your-gcs-bucket
+
+# Processing options
+DEVICE_TYPES=desktop          # Options: desktop, mobile, or desktop,mobile
+UPLOAD_ARTIFACTS=false        # Set to true for production
+INCLUDE_PII=false            # Set to true to include demographics
+GENERATE_REPORTS=true        # Generate EDA reports
 ```
 
----
+## 📊 Pipeline Stages
 
-## Appendix: Code Templates
-
-### Basic Stage Template
-```python
-# scripts/pipeline/0X_stage_name.py
-from pathlib import Path
-from typing import Dict, Any
-import pandas as pd
-from utils.artifact_manager import ArtifactManager
-
-def run(version_id: str, config: Dict[str, Any], 
-        artifact_manager: ArtifactManager, **kwargs) -> Path:
-    """Stage description"""
-    
-    # Setup paths
-    input_dir = Path(config['PREV_STAGE_DIR']) / version_id
-    output_dir = Path(config['THIS_STAGE_DIR']) / version_id
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Process data
-    # ... your logic here ...
-    
-    # Save artifacts
-    artifact_manager.save_dataframe(
-        df=result_df,
-        stage='stage_name',
-        name='output_data',
-        description='Processed data from stage'
-    )
-    
-    return output_dir
+### 1. Download Data (`download`)
+Downloads raw keystroke data from Google Cloud Storage.
+```bash
+python scripts/pipeline/run_pipeline.py -s download
 ```
 
-### Feature Extractor Template
-```python
-# features/extractors/new_feature.py
-from features.extractors.base import BaseFeatureExtractor
-
-class NewFeatureExtractor(BaseFeatureExtractor):
-    """Extract new feature type"""
-    
-    def validate_inputs(self, input_dir: Path) -> bool:
-        required_file = input_dir / "cleaned_data.parquet"
-        return required_file.exists()
-    
-    def extract(self, input_dir: Path) -> pd.DataFrame:
-        # Load input data
-        data = pd.read_parquet(input_dir / "cleaned_data.parquet")
-        
-        # Extract features
-        features = self._compute_features(data)
-        
-        return features
-    
-    def get_schema(self) -> Dict[str, Any]:
-        return {
-            "user_id": "string",
-            "feature_1": "float",
-            # ... define expected schema
-        }
+### 2. Clean Data (`clean`)
+- Validates user data completeness (requires all 18 files)
+- Separates complete vs. incomplete users
+- Organizes by device type (desktop/mobile)
+```bash
+python scripts/pipeline/run_pipeline.py -s clean
 ```
 
----
+### 3. Extract Keypairs (`keypairs`)
+- Extracts keystroke pairs and timing features
+- Calculates latencies: HL, IL, PL, RL
+- Identifies data quality issues
+```bash
+python scripts/pipeline/run_pipeline.py -s keypairs
+```
 
-## Contact for Questions
+### 4. Extract Features (`features`)
+- Generates statistical features per key combination
+- Creates features at multiple levels: user-platform, session, video
+- Handles missing data with imputation
+```bash
+python scripts/pipeline/run_pipeline.py -s features
+```
 
-This implementation plan should provide sufficient detail to continue development. Key files to implement first:
+### 5. Run EDA (`eda`)
+- Generates comprehensive analysis reports
+- Creates visualizations for timing distributions
+- Produces data quality summaries
+```bash
+python scripts/pipeline/run_pipeline.py -s eda
+```
 
-1. `utils/version_manager.py` - Core versioning logic
-2. `scripts/pipeline/run_pipeline.py` - Main orchestrator
-3. `scripts/pipeline/01_download_data.py` - First stage
-4. `utils/cloud_artifact_manager.py` - Cloud integration
+## 📁 Output Structure
 
-The modular design allows implementing and testing each component independently before full integration.
+```
+artifacts/
+└── {version_id}/
+    ├── raw_data/           # Downloaded data
+    ├── cleaned_data/       # Organized by user
+    │   ├── desktop/
+    │   │   ├── raw_data/   # Complete users
+    │   │   └── broken_data/# Incomplete users
+    │   └── mobile/
+    ├── keypairs/           # Extracted timing features
+    ├── features/           # ML-ready features
+    └── reports/            # EDA reports and plots
+```
+
+## 🎯 Common Use Cases
+
+### For Data Scientists
+
+**Full pipeline with all data:**
+```bash
+# Process everything including mobile data
+python scripts/pipeline/run_pipeline.py \
+    --mode full \
+    --device-types desktop,mobile \
+    --generate-reports
+```
+
+**Feature extraction for specific analysis:**
+```bash
+# Extract features at session level only
+python scripts/pipeline/extract_features.py \
+    --version-id {your_version} \
+    --feature-types typenet_ml_session
+```
+
+### For Researchers
+
+**Process clean desktop data only:**
+```bash
+# Default behavior - desktop only, no PII
+python scripts/pipeline/run_pipeline.py --mode full
+```
+
+**Download specific version for review:**
+```bash
+# Download previously processed data
+python scripts/pipeline/download_data.py \
+    --version-id 2024-12-15_10-30-00_hostname
+```
+
+### For Developers
+
+**Test pipeline changes:**
+```bash
+# Dry run to see what would happen
+python scripts/pipeline/run_pipeline.py --dry-run --mode full
+
+# Run specific tests
+python -m pytest tests/pipeline/test_clean_data.py -v
+
+# Run all tests
+python run_tests.py
+```
+
+**Debug specific stage:**
+```bash
+# Run with debug logging
+python scripts/pipeline/run_pipeline.py \
+    -s clean \
+    --log-level DEBUG
+```
+
+## 🛡️ Data Privacy
+
+By default, the pipeline:
+- **Excludes PII** (demographics, email, consent forms)
+- **Processes desktop data only** (mobile users didn't follow instructions)
+- **Keeps data local** (no cloud uploads)
+
+To include PII for analysis:
+```bash
+python scripts/pipeline/run_pipeline.py --include-pii
+```
+
+## 📈 Data Requirements
+
+For a user's data to be considered complete:
+- Must have all **18 keystroke files** (3 platforms × 3 videos × 2 sessions)
+- Must have required metadata files (consent, demographics, start_time)
+- Files must follow the naming convention: `{platform}_{user_id}_{sequence}.csv`
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **"No complete platform data"**
+   - User is missing some of the 18 required files
+   - Check `cleaned_data/{device}/broken_data/` for incomplete users
+
+2. **"Could not extract user ID"**
+   - File naming doesn't match expected pattern
+   - User IDs must be 32-character hex strings
+
+3. **"No keypair data found"**
+   - Previous stages haven't run successfully
+   - Check that cleaned_data contains users in raw_data folders
+
+### Logs and Debugging
+
+- Logs are written to console and can be redirected: `python run_pipeline.py > pipeline.log 2>&1`
+- Use `--log-level DEBUG` for detailed output
+- Check `artifacts/{version}/etl_metadata/` for stage-specific metadata
+
+## 🤝 Contributing
+
+1. Create a feature branch: `git checkout -b feature/your-feature`
+2. Run tests: `python run_tests.py`
+3. Ensure code quality: `flake8 scripts/ tests/`
+4. Submit a pull request
+
+## 📚 Additional Documentation
+
+- [Planning and Design](documentation/planning.md) - Original design decisions
+- [Quick Reference](QUICK_REFERENCE.md) - Command cheatsheet
+- [API Documentation](documentation/api/) - Detailed function docs
+- [Data Schema](documentation/schema.md) - File formats and structures
+
+## 📄 License
+
+This project is part of the Fake Profile Detection research. See LICENSE for details.
+
+## 👥 Contact
+
+For questions about:
+- **Pipeline usage**: Contact the development team
+- **Data analysis**: Contact the data science team  
+- **Research**: Contact the principal investigators
