@@ -180,9 +180,11 @@ class Pipeline:
               help='Development mode - no cloud operations')
 @click.option('--log-level', type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR']),
               default='INFO', help='Logging level')
+@click.option('--device-types', type=str, default='desktop',
+              help='Device types to process (comma-separated: desktop,mobile)')
 def main(mode: str, stages: List[str], version_id: Optional[str],
          upload_artifacts: bool, include_pii: bool, generate_reports: Optional[bool],
-         dry_run: bool, local_only: bool, log_level: str):
+         dry_run: bool, local_only: bool, log_level: str, device_types: str):
     """
     Run data processing pipeline with safe defaults.
     
@@ -222,6 +224,14 @@ def main(mode: str, stages: List[str], version_id: Optional[str],
     if generate_reports is not None:
         config["GENERATE_REPORTS"] = generate_reports
     
+    # Parse and set device types
+    if device_types:
+        device_list = [d.strip().lower() for d in device_types.split(",") if d.strip()]
+        config["DEVICE_TYPES"] = device_list
+        # Also set in environment for config manager
+        import os
+        os.environ["DEVICE_TYPES"] = device_types
+    
     # Show warnings for risky operations
     if upload_artifacts and not include_pii:
         click.echo("📌 Uploading artifacts with PII excluded (default)")
@@ -253,6 +263,7 @@ Pipeline Configuration:
 - Upload to cloud: {'Yes' if config.get('UPLOAD_ARTIFACTS') else 'No (local only)'}
 - Include PII: {'Yes' if config.get('INCLUDE_PII') else 'No (excluded)'}
 - Generate reports: {'Yes' if config.get('GENERATE_REPORTS') else 'No'}
+- Device types: {', '.join(config.get('DEVICE_TYPES', ['desktop']))}
 - Stages: {list(stages) if stages else 'all'}
 """)
     

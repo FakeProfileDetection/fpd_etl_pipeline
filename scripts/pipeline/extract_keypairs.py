@@ -389,10 +389,16 @@ class ExtractKeypairsStage:
         if not input_dir.exists():
             raise FileNotFoundError(f"Input directory not found: {input_dir}")
             
-        # Process each device type
+        # Process configured device types
         all_keypair_data = []
         
-        for device_type in ["desktop", "mobile"]:
+        # Get device types from config (default: ["desktop"])
+        from scripts.utils.config_manager import get_config
+        config_manager = get_config()
+        device_types = config_manager.get_device_types()
+        logger.info(f"Processing device types: {device_types}")
+        
+        for device_type in device_types:
             device_dir = input_dir / device_type / "raw_data"
             if not device_dir.exists():
                 logger.info(f"No {device_type} data found, skipping")

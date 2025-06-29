@@ -487,7 +487,12 @@ class RunEDAStage:
         """Load raw keystroke data for quality analysis"""
         all_data = []
         
-        for device_type in ['desktop', 'mobile']:
+        # Get device types from config
+        from scripts.utils.config_manager import get_config
+        config_manager = get_config()
+        device_types = config_manager.get_device_types()
+        
+        for device_type in device_types:
             raw_data_dir = cleaned_data_dir / device_type / 'raw_data'
             if not raw_data_dir.exists():
                 continue

@@ -84,6 +84,12 @@ class ConfigManager:
         self.config["SAMPLE_SIZE_DEV"] = int(os.getenv("SAMPLE_SIZE_DEV", "1000"))
         self.config["CHUNK_SIZE"] = int(os.getenv("CHUNK_SIZE", "10000"))
         
+        # Device types to process (comma-separated)
+        device_types = os.getenv("DEVICE_TYPES", "desktop")
+        self.config["DEVICE_TYPES"] = [
+            d.strip().lower() for d in device_types.split(",") if d.strip()
+        ]
+        
         # Logging
         self.config["LOG_LEVEL"] = os.getenv("LOG_LEVEL", "INFO")
         self.config["LOG_FORMAT"] = os.getenv("LOG_FORMAT", "json")
@@ -160,6 +166,10 @@ class ConfigManager:
     def get_pii_patterns(self) -> List[str]:
         """Get PII exclusion patterns"""
         return self.config.get("PII_EXCLUDE_PATTERNS", [])
+    
+    def get_device_types(self) -> List[str]:
+        """Get device types to process"""
+        return self.config.get("DEVICE_TYPES", ["desktop"])
     
     def save_run_config(self, version_id: str, output_dir: Path):
         """Save configuration used for this run"""
