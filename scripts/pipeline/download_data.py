@@ -66,7 +66,8 @@ class DownloadDataStage:
     def get_gcs_files(self) -> List[str]:
         """List files in GCS bucket"""
         try:
-            cmd = ["gsutil", "ls", f"gs://{self.bucket_name}/{self.source_prefix}"]
+            # Use gcloud storage instead of gsutil for better compatibility
+            cmd = ["gcloud", "storage", "ls", f"gs://{self.bucket_name}/{self.source_prefix}"]
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             
             files = [f for f in result.stdout.strip().split('\n') if f and not f.endswith('/')]
@@ -74,6 +75,7 @@ class DownloadDataStage:
             
         except subprocess.CalledProcessError as e:
             logger.error(f"Failed to list GCS files: {e}")
+            logger.error(f"Error output: {e.stderr if hasattr(e, 'stderr') else 'No stderr'}")
             return []
             
     def download_files(self, output_dir: Path) -> Dict[str, Any]:
@@ -88,10 +90,10 @@ class DownloadDataStage:
         }
         
         try:
-            # Use gsutil -m for parallel downloads
+            # Use gcloud storage cp for better compatibility
             cmd = [
-                "gsutil", "-m", "cp", 
-                f"gs://{self.bucket_name}/{self.source_prefix}*.*",
+                "gcloud", "storage", "cp", "-r",
+                f"gs://{self.bucket_name}/{self.source_prefix}*",
                 str(output_dir) + "/"
             ]
             
@@ -102,7 +104,7 @@ class DownloadDataStage:
                 result = subprocess.run(cmd, capture_output=True, text=True)
                 
                 if result.returncode != 0:
-                    error_msg = f"gsutil failed: {result.stderr}"
+                    error_msg = f"gcloud storage cp failed: {result.stderr}"
                     logger.error(error_msg)
                     download_stats["errors"].append(error_msg)
                     return download_stats

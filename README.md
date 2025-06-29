@@ -135,6 +135,32 @@ artifacts/
 
 ## 🎯 Common Use Cases
 
+### Running with Real GCS Data
+
+**First-time setup:**
+```bash
+# Authenticate with Google Cloud
+gcloud auth login
+gcloud config set project fake-profile-detection-460117
+
+# Test access
+python scripts/standalone/test_gcs_access.py
+```
+
+**Download and process real data:**
+```bash
+# Full pipeline with GCS download
+python scripts/pipeline/run_pipeline.py --mode full --upload-artifacts
+```
+
+### Running with Sample Data (No GCS Required)
+
+**Create sample data for testing:**
+```bash
+# Generate 10 sample users
+python scripts/standalone/create_sample_data.py --num-users 10
+```
+
 ### For Data Scientists
 
 **Full pipeline with all data:**

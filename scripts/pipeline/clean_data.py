@@ -500,7 +500,10 @@ def run(version_id: str, config: Dict[str, Any],
         artifacts_dir = Path(config.get("ARTIFACTS_DIR", "artifacts")) / version_id
         input_dir = artifacts_dir / "raw_data" / "web_app_data"
     else:
-        input_dir = Path(version_info["stages"]["download_data"]["output_dir"])
+        # Handle both output_dir and output_path for compatibility
+        download_info = version_info["stages"]["download_data"]
+        path_key = "output_path" if "output_path" in download_info else "output_dir"
+        input_dir = Path(download_info[path_key])
         
     stage = CleanDataStage(version_id, config, dry_run, local_only)
     return stage.run(input_dir)

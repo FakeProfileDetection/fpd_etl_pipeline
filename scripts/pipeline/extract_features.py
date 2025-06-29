@@ -457,7 +457,10 @@ def run(version_id: str, config: Dict[str, Any],
         artifacts_dir = Path(config.get("ARTIFACTS_DIR", "artifacts")) / version_id
         input_dir = artifacts_dir / "keypairs"
     else:
-        input_dir = Path(version_info["stages"]["extract_keypairs"]["output_dir"])
+        # Handle both output_dir and output_path for compatibility
+        keypairs_info = version_info["stages"]["extract_keypairs"]
+        path_key = "output_path" if "output_path" in keypairs_info else "output_dir"
+        input_dir = Path(keypairs_info[path_key])
         
     stage = ExtractFeaturesStage(version_id, config, dry_run, local_only)
     return stage.run(input_dir, feature_types)

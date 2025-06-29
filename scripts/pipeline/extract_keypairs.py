@@ -129,13 +129,28 @@ class ExtractKeypairsStage:
     def parse_raw_file(self, filepath: Path) -> Optional[pd.DataFrame]:
         """Parse raw keystroke file with format: press-type (P or R), key, timestamp"""
         try:
-            # Read CSV without header
-            df = pd.read_csv(
-                filepath,
-                header=None,
-                names=['type', 'key', 'timestamp'],
-                dtype={'type': str, 'key': str, 'timestamp': float}
-            )
+            # First check if file has header
+            with open(filepath, 'r') as f:
+                first_line = f.readline().strip()
+            
+            # Determine if file has header by checking first line
+            has_header = 'Press' in first_line or 'Time' in first_line
+            
+            # Read CSV with or without header
+            if has_header:
+                df = pd.read_csv(
+                    filepath,
+                    header=0,
+                    names=['type', 'key', 'timestamp'],
+                    dtype={'type': str, 'key': str, 'timestamp': float}
+                )
+            else:
+                df = pd.read_csv(
+                    filepath,
+                    header=None,
+                    names=['type', 'key', 'timestamp'],
+                    dtype={'type': str, 'key': str, 'timestamp': float}
+                )
             
             # Validate format
             if len(df.columns) != 3:
@@ -352,10 +367,11 @@ class ExtractKeypairsStage:
             df['outlier'] = False
             if len(df) > 0 and df['valid'].any():
                 # Mark as outliers if timing is extreme (only for valid keypairs)
+                # Note: timings are in milliseconds, not nanoseconds
                 valid_mask = df['valid']
-                df.loc[valid_mask & (df['HL'] > 2000000000), 'outlier'] = True  # > 2 seconds
-                df.loc[valid_mask & (df['HL'] < 30000000), 'outlier'] = True   # < 30ms
-                df.loc[valid_mask & (df['IL'].abs() > 1000000000), 'outlier'] = True  # |IL| > 1 second
+                df.loc[valid_mask & (df['HL'] > 2000), 'outlier'] = True  # > 2 seconds
+                df.loc[valid_mask & (df['HL'] < 30), 'outlier'] = True   # < 30ms
+                df.loc[valid_mask & (df['IL'].abs() > 1000), 'outlier'] = True  # |IL| > 1 second
             
             # Calculate user statistics
             valid_count = df['valid'].sum()
@@ -521,7 +537,10 @@ def run(version_id: str, config: Dict[str, Any],
         artifacts_dir = Path(config.get("ARTIFACTS_DIR", "artifacts")) / version_id
         input_dir = artifacts_dir / "cleaned_data"
     else:
-        input_dir = Path(version_info["stages"]["clean_data"]["output_dir"])
+        # Handle both output_dir and output_path for compatibility
+        clean_info = version_info["stages"]["clean_data"]
+        path_key = "output_path" if "output_path" in clean_info else "output_dir"
+        input_dir = Path(clean_info[path_key])
         
     stage = ExtractKeypairsStage(version_id, config, dry_run, local_only)
     return stage.run(input_dir)
