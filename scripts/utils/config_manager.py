@@ -29,6 +29,12 @@ class ConfigManager:
             load_dotenv(base_env)
             logger.info(f"Loaded base config from {base_env}")
         
+        # Load shared team configuration
+        shared_env = self.config_dir / ".env.shared"
+        if shared_env.exists():
+            load_dotenv(shared_env, override=True)
+            logger.info(f"Loaded shared config from {shared_env}")
+        
         # Load local overrides
         local_env = self.config_dir / ".env.local"
         if local_env.exists():
