@@ -1,6 +1,152 @@
 {
   "versions": [
     {
+      "version_id": "2025-06-29_21-26-23_loris-mbpcablercncom",
+      "created_at": "2025-06-29T21:26:23.852297",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "complete",
+      "completed_at": "2025-06-29T21:26:26.661064",
+      "summary": {
+        "stages_run": [
+          "download_data",
+          "run_eda",
+          "extract_keypairs",
+          "extract_features",
+          "clean_data"
+        ],
+        "mode": "full",
+        "artifacts_uploaded": false
+      }
+    },
+    {
+      "version_id": "2025-06-29_21-23-04_loris-mbpcablercncom",
+      "created_at": "2025-06-29T21:23:04.439554",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "complete",
+      "completed_at": "2025-06-29T21:23:07.119650",
+      "summary": {
+        "stages_run": [
+          "extract_features",
+          "download_data",
+          "run_eda",
+          "extract_keypairs",
+          "clean_data"
+        ],
+        "mode": "full",
+        "artifacts_uploaded": false
+      }
+    },
+    {
+      "version_id": "2025-06-29_21-21-39_loris-mbpcablercncom",
+      "created_at": "2025-06-29T21:21:39.321526",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "complete",
+      "completed_at": "2025-06-29T21:21:42.013995",
+      "summary": {
+        "stages_run": [
+          "clean_data",
+          "extract_keypairs",
+          "extract_features",
+          "download_data"
+        ],
+        "mode": "full",
+        "artifacts_uploaded": false
+      }
+    },
+    {
+      "version_id": "2025-06-29_21-17-56_loris-mbpcablercncom",
+      "created_at": "2025-06-29T21:17:56.504111",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "complete",
+      "completed_at": "2025-06-29T21:17:59.178773",
+      "summary": {
+        "stages_run": [
+          "extract_keypairs",
+          "clean_data",
+          "download_data",
+          "extract_features"
+        ],
+        "mode": "full",
+        "artifacts_uploaded": false
+      }
+    },
+    {
+      "version_id": "2025-06-29_21-17-27_loris-mbpcablercncom",
+      "created_at": "2025-06-29T21:17:27.610558",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "complete",
+      "completed_at": "2025-06-29T21:17:30.415930",
+      "summary": {
+        "stages_run": [
+          "extract_features",
+          "download_data",
+          "extract_keypairs",
+          "clean_data"
+        ],
+        "mode": "full",
+        "artifacts_uploaded": false
+      }
+    },
+    {
+      "version_id": "2025-06-29_21-14-12_loris-mbpcablercncom",
+      "created_at": "2025-06-29T21:14:12.978606",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "complete",
+      "completed_at": "2025-06-29T21:14:14.276456",
+      "summary": {
+        "stages_run": [
+          "extract_features",
+          "download_data",
+          "extract_keypairs",
+          "clean_data"
+        ],
+        "mode": "full",
+        "artifacts_uploaded": false
+      }
+    },
+    {
       "version_id": "2025-06-29_19-56-58_loris-mbpcablercncom",
       "created_at": "2025-06-29T19:56:58.347057",
       "created_by": "Loris-MBP.cable.rcn.com",
@@ -2018,6 +2164,6 @@
       "status": "in_progress"
     }
   ],
-  "current": "2025-06-29_19-56-58_loris-mbpcablercncom",
+  "current": "2025-06-29_21-26-23_loris-mbpcablercncom",
   "schema_version": "1.0"
 }

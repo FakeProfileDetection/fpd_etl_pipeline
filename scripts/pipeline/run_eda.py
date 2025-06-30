@@ -25,12 +25,27 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from collections import defaultdict
 import warnings
-from jinja2 import Template
+from jinja2 import Environment
+from json import JSONEncoder
 
 warnings.filterwarnings('ignore')
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+
+class NumpyEncoder(JSONEncoder):
+    """Custom JSON encoder that handles NumPy types"""
+    def default(self, obj):
+        if isinstance(obj, (np.integer, np.int64)):
+            return int(obj)
+        elif isinstance(obj, (np.floating, np.float64)):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, pd.Timestamp):
+            return obj.isoformat()
+        return super().default(obj)
 
 from scripts.utils.version_manager import VersionManager
 
@@ -458,11 +473,17 @@ class ReportGenerator:
 </html>
         '''
         
-        template = Template(template_str)
+        # Create a Jinja2 environment with custom filters
+        from jinja2 import Environment
         
-        # Custom filters
-        template.globals['number'] = lambda x: f"{int(x):,}" if pd.notna(x) else "N/A"
-        template.globals['round'] = lambda x, n=1: round(x, n) if pd.notna(x) else "N/A"
+        env = Environment()
+        
+        # Add custom filters
+        env.filters['number'] = lambda x: f"{int(x):,}" if pd.notna(x) else "N/A"
+        env.filters['round'] = lambda x, n=1: round(x, n) if pd.notna(x) else "N/A"
+        
+        # Create template from string
+        template = env.from_string(template_str)
         
         return template.render(**analysis_results)
 
@@ -510,7 +531,18 @@ class RunEDAStage:
                         continue
                         
                     try:
-                        df = pd.read_csv(csv_file, header=None, names=['type', 'key', 'timestamp'])
+                        # First, check if file has headers by reading first line
+                        with open(csv_file, 'r') as f:
+                            first_line = f.readline().strip()
+                        
+                        # If first line contains non-numeric data in the timestamp column, skip header
+                        if first_line and not first_line.split(',')[2].replace('.', '').replace('-', '').isdigit():
+                            df = pd.read_csv(csv_file, skiprows=1, header=None, names=['type', 'key', 'timestamp'],
+                                           dtype={'timestamp': float})
+                        else:
+                            df = pd.read_csv(csv_file, header=None, names=['type', 'key', 'timestamp'],
+                                           dtype={'timestamp': float})
+                        
                         df['user_id'] = user_id
                         df['device_type'] = device_type
                         df['source_file'] = csv_file.name
@@ -668,10 +700,15 @@ class RunEDAStage:
                 report_gen.create_user_quality_chart(analysis_results['user_stats'])
                 
             # Generate HTML report
-            html_content = report_gen.generate_html_report(analysis_results)
-            
-            with open(output_dir / 'report.html', 'w') as f:
-                f.write(html_content)
+            try:
+                html_content = report_gen.generate_html_report(analysis_results)
+                
+                with open(output_dir / 'report.html', 'w') as f:
+                    f.write(html_content)
+            except Exception as e:
+                logger.error(f"Failed to generate HTML report: {e}")
+                logger.error(f"Analysis results keys: {list(analysis_results.keys())}")
+                raise
                 
             # Save analysis results as JSON
             with open(output_dir / 'analysis_results.json', 'w') as f:
@@ -682,12 +719,12 @@ class RunEDAStage:
                 if 'top_users' in results_for_json:
                     results_for_json['top_users'] = results_for_json['top_users'].to_dict('records')
                     
-                json.dump(results_for_json, f, indent=2, default=str)
+                json.dump(results_for_json, f, indent=2, cls=NumpyEncoder)
                 
             # Save summary statistics
             if 'summary' in analysis_results:
                 with open(output_dir / 'summary_stats.json', 'w') as f:
-                    json.dump(analysis_results['summary'], f, indent=2)
+                    json.dump(analysis_results['summary'], f, indent=2, cls=NumpyEncoder)
                     
             logger.info(f"Reports saved to {output_dir}")
             
