@@ -1,6 +1,803 @@
 {
   "versions": [
     {
+      "version_id": "2025-06-29_19-56-58_loris-mbpcablercncom",
+      "created_at": "2025-06-29T19:56:58.347057",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "complete",
+      "completed_at": "2025-06-29T19:56:59.655487",
+      "summary": {
+        "stages_run": [
+          "extract_features",
+          "clean_data",
+          "download_data",
+          "extract_keypairs"
+        ],
+        "mode": "full",
+        "artifacts_uploaded": false
+      }
+    },
+    {
+      "version_id": "2025-06-29_17-59-26_loris-mbpcablercncom",
+      "created_at": "2025-06-29T17:59:26.881364",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "complete",
+      "completed_at": "2025-06-29T17:59:28.196369",
+      "summary": {
+        "stages_run": [
+          "extract_features",
+          "extract_keypairs",
+          "download_data",
+          "clean_data"
+        ],
+        "mode": "full",
+        "artifacts_uploaded": false
+      }
+    },
+    {
+      "version_id": "2025-06-29_17-55-19_loris-mbpcablercncom",
+      "created_at": "2025-06-29T17:55:19.307512",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "complete",
+      "completed_at": "2025-06-29T17:55:20.678557",
+      "summary": {
+        "stages_run": [
+          "clean_data",
+          "extract_features",
+          "download_data",
+          "extract_keypairs"
+        ],
+        "mode": "full",
+        "artifacts_uploaded": false
+      }
+    },
+    {
+      "version_id": "2025-06-29_17-44-44_loris-mbpcablercncom",
+      "created_at": "2025-06-29T17:44:44.109389",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "complete",
+      "completed_at": "2025-06-29T17:44:45.457410",
+      "summary": {
+        "stages_run": [
+          "download_data",
+          "extract_features",
+          "extract_keypairs",
+          "clean_data"
+        ],
+        "mode": "full",
+        "artifacts_uploaded": false
+      }
+    },
+    {
+      "version_id": "test_integration_5227093488",
+      "created_at": "2025-06-29T17:44:11.541466",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp0mpnseld/test_integration_5227093488/cleaned_data",
+          "stats": {
+            "total_files": 34,
+            "total_users": 2,
+            "complete_users": 1,
+            "broken_users": 1,
+            "desktop_users": 2,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T17:44:11.559542"
+        },
+        "extract_keypairs": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp0mpnseld/test_integration_5227093488/keypairs",
+          "stats": {
+            "total_files": 18,
+            "processed_files": 18,
+            "skipped_files": 0,
+            "total_keypairs": 342,
+            "valid_keypairs": 342,
+            "invalid_keypairs": 0,
+            "validity_rate": 100.0
+          },
+          "completed_at": "2025-06-29T17:44:11.585189"
+        },
+        "extract_features": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp0mpnseld/test_integration_5227093488/features",
+          "features_extracted": [
+            "typenet_ml_user_platform",
+            "typenet_ml_session",
+            "typenet_ml_video"
+          ],
+          "completed_at": "2025-06-29T17:44:11.973730"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_5227093056",
+      "created_at": "2025-06-29T17:44:11.459575",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "extract_keypairs": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpla0clt_f/test_integration_5227093056/keypairs",
+          "completed": true,
+          "completed_at": "2025-06-29T17:44:11.460814"
+        },
+        "extract_features": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpla0clt_f/test_integration_5227093056/features",
+          "features_extracted": [
+            "typenet_ml_user_platform",
+            "typenet_ml_session",
+            "typenet_ml_video"
+          ],
+          "completed_at": "2025-06-29T17:44:11.528169"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_5227092288",
+      "created_at": "2025-06-29T17:44:11.412008",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp1hec4ylt/test_integration_5227092288/cleaned_data",
+          "completed": true,
+          "completed_at": "2025-06-29T17:44:11.413370"
+        },
+        "extract_keypairs": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp1hec4ylt/test_integration_5227092288/keypairs",
+          "stats": {
+            "total_files": 18,
+            "processed_files": 18,
+            "skipped_files": 0,
+            "total_keypairs": 18,
+            "valid_keypairs": 18,
+            "invalid_keypairs": 0,
+            "validity_rate": 100.0
+          },
+          "completed_at": "2025-06-29T17:44:11.441487"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_4904218560",
+      "created_at": "2025-06-29T17:44:11.392285",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "download_data": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpx0haaov7/test_integration_4904218560/raw_data/web_app_data",
+          "completed": true,
+          "completed_at": "2025-06-29T17:44:11.393640"
+        },
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpx0haaov7/test_integration_4904218560/cleaned_data",
+          "stats": {
+            "total_files": 29,
+            "total_users": 2,
+            "complete_users": 1,
+            "broken_users": 1,
+            "desktop_users": 2,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T17:44:11.403031"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_4861075264",
+      "created_at": "2025-06-29T17:44:03.786204",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpxrmnlwv0/test_integration_4861075264/cleaned_data",
+          "stats": {
+            "total_files": 34,
+            "total_users": 2,
+            "complete_users": 1,
+            "broken_users": 1,
+            "desktop_users": 2,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T17:44:03.819978"
+        },
+        "extract_keypairs": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpxrmnlwv0/test_integration_4861075264/keypairs",
+          "stats": {
+            "total_files": 18,
+            "processed_files": 18,
+            "skipped_files": 0,
+            "total_keypairs": 342,
+            "valid_keypairs": 342,
+            "invalid_keypairs": 0,
+            "validity_rate": 100.0
+          },
+          "completed_at": "2025-06-29T17:44:03.860246"
+        },
+        "extract_features": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpxrmnlwv0/test_integration_4861075264/features",
+          "features_extracted": [
+            "typenet_ml_user_platform",
+            "typenet_ml_session",
+            "typenet_ml_video"
+          ],
+          "completed_at": "2025-06-29T17:44:04.281569"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_4781300512",
+      "created_at": "2025-06-29T17:43:43.120952",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpe6e8vueg/test_integration_4781300512/cleaned_data",
+          "stats": {
+            "total_files": 34,
+            "total_users": 2,
+            "complete_users": 1,
+            "broken_users": 1,
+            "desktop_users": 2,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T17:43:43.138437"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_4781300224",
+      "created_at": "2025-06-29T17:43:43.025814",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "extract_keypairs": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp90feo2pa/test_integration_4781300224/keypairs",
+          "completed": true,
+          "completed_at": "2025-06-29T17:43:43.026936"
+        },
+        "extract_features": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp90feo2pa/test_integration_4781300224/features",
+          "features_extracted": [
+            "typenet_ml_user_platform",
+            "typenet_ml_session",
+            "typenet_ml_video"
+          ],
+          "completed_at": "2025-06-29T17:43:43.107633"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_4332601424",
+      "created_at": "2025-06-29T17:43:42.974782",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpamra01ay/test_integration_4332601424/cleaned_data",
+          "completed": true,
+          "completed_at": "2025-06-29T17:43:42.975909"
+        },
+        "extract_keypairs": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpamra01ay/test_integration_4332601424/keypairs",
+          "stats": {
+            "total_files": 18,
+            "processed_files": 18,
+            "skipped_files": 0,
+            "total_keypairs": 18,
+            "valid_keypairs": 18,
+            "invalid_keypairs": 0,
+            "validity_rate": 100.0
+          },
+          "completed_at": "2025-06-29T17:43:43.007115"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_4780330304",
+      "created_at": "2025-06-29T17:43:42.955846",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "download_data": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpptchqczs/test_integration_4780330304/raw_data/web_app_data",
+          "completed": true,
+          "completed_at": "2025-06-29T17:43:42.957081"
+        },
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpptchqczs/test_integration_4780330304/cleaned_data",
+          "stats": {
+            "total_files": 29,
+            "total_users": 2,
+            "complete_users": 1,
+            "broken_users": 1,
+            "desktop_users": 2,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T17:43:42.966866"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_5129461664",
+      "created_at": "2025-06-29T17:43:08.944698",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "extract_keypairs": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmprj9px93s/test_integration_5129461664/keypairs",
+          "completed": true,
+          "completed_at": "2025-06-29T17:43:08.946010"
+        },
+        "extract_features": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmprj9px93s/test_integration_5129461664/features",
+          "features_extracted": [
+            "typenet_ml_user_platform",
+            "typenet_ml_session",
+            "typenet_ml_video"
+          ],
+          "completed_at": "2025-06-29T17:43:09.016225"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_5129461328",
+      "created_at": "2025-06-29T17:43:08.888326",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "clean_data": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp7shv713f/test_integration_5129461328/cleaned_data",
+          "completed": true,
+          "completed_at": "2025-06-29T17:43:08.889573"
+        },
+        "extract_keypairs": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp7shv713f/test_integration_5129461328/keypairs",
+          "stats": {
+            "total_files": 18,
+            "processed_files": 18,
+            "skipped_files": 0,
+            "total_keypairs": 18,
+            "valid_keypairs": 18,
+            "invalid_keypairs": 0,
+            "validity_rate": 100.0
+          },
+          "completed_at": "2025-06-29T17:43:08.924665"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_4393979104",
+      "created_at": "2025-06-29T17:43:08.869596",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "download_data": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpjvlz_do4/test_integration_4393979104/raw_data/web_app_data",
+          "completed": true,
+          "completed_at": "2025-06-29T17:43:08.870718"
+        },
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpjvlz_do4/test_integration_4393979104/cleaned_data",
+          "stats": {
+            "total_files": 29,
+            "total_users": 2,
+            "complete_users": 1,
+            "broken_users": 1,
+            "desktop_users": 2,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T17:43:08.879814"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_4871727312",
+      "created_at": "2025-06-29T17:43:02.941473",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "download_data": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp8rz7w7uw/test_integration_4871727312/raw_data/web_app_data",
+          "completed": true,
+          "completed_at": "2025-06-29T17:43:02.942512"
+        },
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmp8rz7w7uw/test_integration_4871727312/cleaned_data",
+          "stats": {
+            "total_files": 29,
+            "total_users": 2,
+            "complete_users": 1,
+            "broken_users": 1,
+            "desktop_users": 2,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T17:43:02.952065"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_4354011456",
+      "created_at": "2025-06-29T17:42:45.992810",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "download_data": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpucjh76qh/test_integration_4354011456/raw_data/web_app_data",
+          "completed": true,
+          "completed_at": "2025-06-29T17:42:45.994112"
+        },
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpucjh76qh/test_integration_4354011456/cleaned_data",
+          "stats": {
+            "total_files": 29,
+            "total_users": 2,
+            "complete_users": 1,
+            "broken_users": 1,
+            "desktop_users": 2,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T17:42:46.005091"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_4537088912",
+      "created_at": "2025-06-29T17:42:23.130484",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "download_data": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpqdoddcjn/test_integration_4537088912/raw_data/web_app_data",
+          "completed": true,
+          "completed_at": "2025-06-29T17:42:23.131500"
+        },
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpqdoddcjn/test_integration_4537088912/cleaned_data",
+          "stats": {
+            "total_files": 29,
+            "total_users": 2,
+            "complete_users": 1,
+            "broken_users": 1,
+            "desktop_users": 2,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T17:42:23.140632"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_4327438384",
+      "created_at": "2025-06-29T17:41:55.404234",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "download_data": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmph4uhqnr6/test_integration_4327438384/raw_data/web_app_data",
+          "completed": true,
+          "completed_at": "2025-06-29T17:41:55.405175"
+        },
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmph4uhqnr6/test_integration_4327438384/cleaned_data",
+          "stats": {
+            "total_files": 29,
+            "total_users": 2,
+            "complete_users": 1,
+            "broken_users": 1,
+            "desktop_users": 2,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T17:41:55.413798"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_5752428336",
+      "created_at": "2025-06-29T17:41:37.265769",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "download_data": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpk71vtaue/test_integration_5752428336/raw_data/web_app_data",
+          "completed": true,
+          "completed_at": "2025-06-29T17:41:37.266704"
+        },
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpk71vtaue/test_integration_5752428336/cleaned_data",
+          "stats": {
+            "total_files": 29,
+            "total_users": 2,
+            "complete_users": 0,
+            "broken_users": 2,
+            "desktop_users": 2,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": []
+          },
+          "completed_at": "2025-06-29T17:41:37.275823"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_4336290848",
+      "created_at": "2025-06-29T17:40:58.031278",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "download_data": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpw89gbl5g/test_integration_4336290848/raw_data/web_app_data",
+          "completed": true,
+          "completed_at": "2025-06-29T17:40:58.032306"
+        },
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmpw89gbl5g/test_integration_4336290848/cleaned_data",
+          "stats": {
+            "total_files": 29,
+            "total_users": 0,
+            "complete_users": 0,
+            "broken_users": 0,
+            "desktop_users": 0,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": [
+              "Unknown file: f_completeaa5a00551b7cb7f1473b4d97_0.csv",
+              "Unknown file: t_completeaa5a00551b7cb7f1473b4d97_5.csv",
+              "Unknown file: incomplete337b75276c3123907d5d02_consent_form.json",
+              "Unknown file: f_completeaa5a00551b7cb7f1473b4d97_3.csv",
+              "Unknown file: f_completeaa5a00551b7cb7f1473b4d97_6.csv",
+              "Unknown file: t_completeaa5a00551b7cb7f1473b4d97_2.csv",
+              "Unknown file: f_completeaa5a00551b7cb7f1473b4d97_15.csv",
+              "Unknown file: t_completeaa5a00551b7cb7f1473b4d97_14.csv",
+              "Unknown file: i_completeaa5a00551b7cb7f1473b4d97_16.csv",
+              "Unknown file: i_completeaa5a00551b7cb7f1473b4d97_4.csv",
+              "Unknown file: t_completeaa5a00551b7cb7f1473b4d97_17.csv",
+              "Unknown file: i_completeaa5a00551b7cb7f1473b4d97_7.csv",
+              "Unknown file: completeaa5a00551b7cb7f1473b4d97_demographics.json",
+              "Unknown file: i_completeaa5a00551b7cb7f1473b4d97_10.csv",
+              "Unknown file: f_completeaa5a00551b7cb7f1473b4d97_12.csv",
+              "Unknown file: t_completeaa5a00551b7cb7f1473b4d97_11.csv",
+              "Unknown file: incomplete337b75276c3123907d5d02_start_time.json",
+              "Unknown file: i_completeaa5a00551b7cb7f1473b4d97_13.csv",
+              "Unknown file: i_completeaa5a00551b7cb7f1473b4d97_1.csv",
+              "Unknown file: t_incomplete337b75276c3123907d5d02_2.csv",
+              "Unknown file: f_incomplete337b75276c3123907d5d02_0.csv",
+              "Unknown file: completeaa5a00551b7cb7f1473b4d97_consent_form.json",
+              "Unknown file: f_incomplete337b75276c3123907d5d02_3.csv",
+              "Unknown file: completeaa5a00551b7cb7f1473b4d97_start_time.json",
+              "Unknown file: incomplete337b75276c3123907d5d02_demographics.json",
+              "Unknown file: f_completeaa5a00551b7cb7f1473b4d97_9.csv",
+              "Unknown file: i_incomplete337b75276c3123907d5d02_1.csv",
+              "Unknown file: i_incomplete337b75276c3123907d5d02_4.csv",
+              "Unknown file: t_completeaa5a00551b7cb7f1473b4d97_8.csv"
+            ]
+          },
+          "completed_at": "2025-06-29T17:40:58.038709"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "test_integration_4425152896",
+      "created_at": "2025-06-29T17:40:21.147548",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "download_data": {
+          "output_path": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmphrwe8dda/test_integration_4425152896/raw_data/web_app_data",
+          "completed": true,
+          "completed_at": "2025-06-29T17:40:21.148658"
+        },
+        "clean_data": {
+          "output_dir": "/var/folders/83/g4t03gpn0r5_fyc54brv7fqr0000gn/T/tmphrwe8dda/test_integration_4425152896/cleaned_data",
+          "stats": {
+            "total_files": 29,
+            "total_users": 0,
+            "complete_users": 0,
+            "broken_users": 0,
+            "desktop_users": 0,
+            "mobile_users": 0,
+            "processing_errors": [],
+            "data_issues": [
+              "Unknown file: 3_3_2_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: 1_3_1_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: completeaa30c1da4e24d35da2df76a2_start_time.json",
+              "Unknown file: completeaa30c1da4e24d35da2df76a2_consent_form.json",
+              "Unknown file: 3_1_1_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: 1_2_2_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: 1_1_1_incomplete22393de253956b8a6853d7.csv",
+              "Unknown file: 1_1_2_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: 3_2_1_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: 1_2_1_incomplete22393de253956b8a6853d7.csv",
+              "Unknown file: 2_2_2_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: 2_1_2_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: 2_3_1_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: incomplete22393de253956b8a6853d7_consent_form.json",
+              "Unknown file: 2_2_1_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: 2_1_1_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: incomplete22393de253956b8a6853d7_start_time.json",
+              "Unknown file: incomplete22393de253956b8a6853d7_demographics.json",
+              "Unknown file: 2_3_2_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: 1_3_1_incomplete22393de253956b8a6853d7.csv",
+              "Unknown file: 3_3_1_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: completeaa30c1da4e24d35da2df76a2_demographics.json",
+              "Unknown file: 1_3_2_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: 1_1_2_incomplete22393de253956b8a6853d7.csv",
+              "Unknown file: 1_2_1_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: 3_1_2_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: 1_2_2_incomplete22393de253956b8a6853d7.csv",
+              "Unknown file: 3_2_2_completeaa30c1da4e24d35da2df76a2.csv",
+              "Unknown file: 1_1_1_completeaa30c1da4e24d35da2df76a2.csv"
+            ]
+          },
+          "completed_at": "2025-06-29T17:40:21.152519"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "test": true
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "2025-06-29_17-32-05_loris-mbpcablercncom",
+      "created_at": "2025-06-29T17:32:05.579061",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "complete",
+      "completed_at": "2025-06-29T17:34:56.274398",
+      "summary": {
+        "stages_run": [
+          "clean_data",
+          "download_data"
+        ],
+        "mode": "incr",
+        "artifacts_uploaded": false
+      }
+    },
+    {
       "version_id": "2025-06-29_17-10-25_loris-mbpcablercncom",
       "created_at": "2025-06-29T17:10:25.787700",
       "created_by": "Loris-MBP.cable.rcn.com",
@@ -1221,6 +2018,6 @@
       "status": "in_progress"
     }
   ],
-  "current": "2025-06-29_17-10-25_loris-mbpcablercncom",
+  "current": "2025-06-29_19-56-58_loris-mbpcablercncom",
   "schema_version": "1.0"
 }

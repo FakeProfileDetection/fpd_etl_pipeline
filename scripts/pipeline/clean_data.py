@@ -280,12 +280,14 @@ class CleanDataStage:
             else:
                 self.stats["desktop_users"] += 1
                 
-        # Determine output directory
+        # Determine output directories
         if is_complete:
-            user_dir = output_base / device_type / "raw_data" / user_id
+            csv_dir = output_base / device_type / "raw_data" / user_id
+            text_dir = output_base / device_type / "text" / user_id
             self.stats["complete_users"] += 1
         else:
-            user_dir = output_base / device_type / "broken_data" / user_id
+            csv_dir = output_base / device_type / "broken_data" / user_id
+            text_dir = None  # No text directory for broken users
             self.stats["broken_users"] += 1
             
             # Log missing files
@@ -295,37 +297,66 @@ class CleanDataStage:
             if missing_optional:
                 logger.debug(f"  Missing optional: {missing_optional}")
                 
-        # Create user directory
+        # Create directories
         if not self.dry_run:
-            user_dir.mkdir(parents=True, exist_ok=True)
+            csv_dir.mkdir(parents=True, exist_ok=True)
+            if text_dir:
+                text_dir.mkdir(parents=True, exist_ok=True)
             
         # Process files
         files_copied = 0
         for file_path in files:
             filename = file_path.name
             
-            # Copy metadata files as-is
-            if filename.endswith('.json') or filename.endswith('.txt'):
-                dest_path = user_dir / filename
-                if not self.dry_run:
-                    shutil.copy2(file_path, dest_path)
-                files_copied += 1
+            # Skip JSON metadata files - they don't go in user directories
+            if filename.endswith('.json'):
+                # These files (consent, demographics, etc.) are not copied to user dirs
+                continue
+                
+            # Process text files - move to text directory (complete users only)
+            elif filename.endswith('_raw.txt'):
+                if text_dir and not self.dry_run:
+                    # Convert filename format for text files
+                    # From: f_3741e927ab7d45a7ca19ed47a3eb5864_0_raw.txt
+                    # To: 1_1_1_3741e927ab7d45a7ca19ed47a3eb5864.txt
+                    match = re.match(r'^([fit])_([a-f0-9]{32})_(\d+)_raw\.txt$', filename)
+                    if match:
+                        platform_letter = match.group(1)
+                        user_id_from_file = match.group(2)
+                        sequence = int(match.group(3))
+                        
+                        platform_id = self.PLATFORM_MAP.get(platform_letter)
+                        video_session = self.SEQUENCE_MAP.get(sequence)
+                        
+                        if platform_id and video_session:
+                            video_id, session_id = video_session
+                            new_name = f"{platform_id}_{video_id}_{session_id}_{user_id_from_file}.txt"
+                            dest_path = text_dir / new_name
+                            shutil.copy2(file_path, dest_path)
+                            files_copied += 1
+                    else:
+                        # If can't convert, skip this file
+                        logger.warning(f"Could not convert text filename: {filename}")
+                        
+            # Skip metadata JSON files (*_metadata.json)
+            elif filename.endswith('_metadata.json'):
+                continue
                 
             # Convert and copy CSV files
             elif filename.endswith('.csv'):
                 # Try to convert to TypeNet format
                 new_name = self.convert_csv_filename(filename, user_id)
                 if new_name:
-                    dest_path = user_dir / new_name
+                    dest_path = csv_dir / new_name
                 else:
                     # Keep original name if conversion fails
-                    dest_path = user_dir / filename
+                    dest_path = csv_dir / filename
                     
                 if not self.dry_run:
                     shutil.copy2(file_path, dest_path)
                 files_copied += 1
                 
-        logger.debug(f"Processed user {user_id}: {files_copied} files -> {user_dir}")
+        logger.debug(f"Processed user {user_id}: {files_copied} files")
         return is_complete
         
     def generate_metadata_files(self, output_base: Path, user_metadata: Dict[str, UserMetadata]):

@@ -133,10 +133,44 @@ class DownloadDataStage:
         metadata_dir = artifacts_dir / "etl_metadata" / "download"
         
         if self.local_only:
-            logger.info("Local-only mode: Skipping download, using existing data")
-            if not output_dir.exists():
-                logger.warning(f"No existing data found at {output_dir}")
+            logger.info("Local-only mode: Looking for existing data")
+            
+            # Check for test data first
+            test_data_dir = Path("test_data/raw_data")
+            if test_data_dir.exists() and any(test_data_dir.iterdir()):
+                logger.info(f"Using test data from {test_data_dir}")
                 output_dir.mkdir(parents=True, exist_ok=True)
+                
+                # Copy test data to output directory
+                import shutil
+                for item in test_data_dir.iterdir():
+                    if item.is_file():
+                        shutil.copy2(item, output_dir)
+                        
+                logger.info(f"Copied {len(list(output_dir.iterdir()))} files from test data")
+                return output_dir
+            
+            # Check for previously downloaded data
+            previous_versions = sorted(Path("artifacts").glob("*/raw_data/web_app_data"), reverse=True)
+            for prev_dir in previous_versions:
+                if prev_dir != output_dir and any(prev_dir.iterdir()):
+                    logger.info(f"Using previously downloaded data from {prev_dir.parent.parent.name}")
+                    output_dir.mkdir(parents=True, exist_ok=True)
+                    
+                    # Copy previous data
+                    import shutil
+                    for item in prev_dir.iterdir():
+                        if item.is_file():
+                            shutil.copy2(item, output_dir)
+                    
+                    logger.info(f"Copied {len(list(output_dir.iterdir()))} files from previous version")
+                    return output_dir
+            
+            # No data found
+            logger.warning(f"No existing data found. Creating empty directory at {output_dir}")
+            logger.warning("To download real data, use: --upload-artifacts")
+            logger.warning("To use test data, run: python scripts/standalone/create_sample_data.py")
+            output_dir.mkdir(parents=True, exist_ok=True)
             return output_dir
             
         # Validate authentication

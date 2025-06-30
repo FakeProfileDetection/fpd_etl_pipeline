@@ -175,8 +175,8 @@ class Pipeline:
               help='Enable cloud operations for download (upload requires separate script)')
 @click.option('--include-pii', is_flag=True, default=False,
               help='Include PII data in operations (default: False)')
-@click.option('--generate-reports', is_flag=True, default=None,
-              help='Generate reports after pipeline')
+@click.option('--no-eda', is_flag=True, default=False,
+              help='Skip EDA stage (EDA runs by default)')
 @click.option('--dry-run', is_flag=True,
               help='Show what would be done without executing')
 @click.option('--local-only', is_flag=True,
@@ -186,7 +186,7 @@ class Pipeline:
 @click.option('--device-types', type=str, default='desktop',
               help='Device types to process (comma-separated: desktop,mobile)')
 def main(mode: str, stages: List[str], version_id: Optional[str],
-         upload_artifacts: bool, include_pii: bool, generate_reports: Optional[bool],
+         upload_artifacts: bool, include_pii: bool, no_eda: bool,
          dry_run: bool, local_only: bool, log_level: str, device_types: str):
     """
     Run data processing pipeline with safe defaults.
@@ -224,8 +224,6 @@ def main(mode: str, stages: List[str], version_id: Optional[str],
         config["UPLOAD_ARTIFACTS"] = True
     if include_pii:
         config["INCLUDE_PII"] = True
-    if generate_reports is not None:
-        config["GENERATE_REPORTS"] = generate_reports
     
     # Parse and set device types
     if device_types:
@@ -265,7 +263,7 @@ Pipeline Configuration:
 - Mode: {mode}
 - Upload to cloud: {'Yes' if config.get('UPLOAD_ARTIFACTS') else 'No (local only)'}
 - Include PII: {'Yes' if config.get('INCLUDE_PII') else 'No (excluded)'}
-- Generate reports: {'Yes' if config.get('GENERATE_REPORTS') else 'No'}
+- Run EDA: {'No' if no_eda else 'Yes'}
 - Device types: {', '.join(config.get('DEVICE_TYPES', ['desktop']))}
 - Stages: {list(stages) if stages else 'all'}
 """)
@@ -281,7 +279,8 @@ Pipeline Configuration:
     all_stages = ["download", "clean", "keypairs", "features", "eda"]
     if not stages:
         if mode == 'full':
-            stages = all_stages[:-1]  # Exclude EDA by default
+            # Include all stages including EDA by default, unless --no-eda is specified
+            stages = all_stages if not no_eda else all_stages[:-1]
         elif mode == 'incr':
             # Incremental mode: Only run stages not yet completed
             vm = VersionManager()
@@ -304,7 +303,8 @@ Pipeline Configuration:
             
             # Determine which stages still need to run
             stages_to_run = []
-            for stage in all_stages[:-1]:  # Exclude EDA by default
+            stages_to_check = all_stages if not no_eda else all_stages[:-1]
+            for stage in stages_to_check:
                 mapped_name = {v: k for k, v in stage_name_mapping.items()}.get(stage, stage)
                 if mapped_name not in completed_stages:
                     stages_to_run.append(stage)
@@ -340,7 +340,7 @@ Pipeline Configuration:
             click.echo(f"⚡ Force mode - creating new version: {version_id}")
             click.echo(f"   Parent version: {parent_version_id}")
             
-            stages = all_stages[:-1]  # Exclude EDA by default
+            stages = all_stages if not no_eda else all_stages[:-1]
     
     # Initialize pipeline
     pipeline = Pipeline(
@@ -366,11 +366,6 @@ Pipeline Configuration:
             }
             version_mgr.mark_version_complete(version_id, summary)
         
-        # Generate reports if requested
-        if config.get('GENERATE_REPORTS') and not dry_run:
-            click.echo("\n📊 Generating reports...")
-            # TODO: Call report generation
-            click.echo("TODO: Implement report generation")
         
         # Show next steps
         if not config.get('UPLOAD_ARTIFACTS'):
