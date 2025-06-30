@@ -254,32 +254,32 @@ class ExtractFeaturesStage:
         
         # Feature extractors registry
         self.extractors = {
-            'typenet_ml': TypeNetMLFeatureExtractor()
+            'statistical': TypeNetMLFeatureExtractor()
         }
         
         # Default feature configurations
         self.feature_configs = {
-            'typenet_ml_user_platform': FeatureConfig(
-                name='typenet_ml_user_platform',
-                description='TypeNet ML features aggregated by user and platform',
+            'statistical_platform': FeatureConfig(
+                name='statistical_platform',
+                description='Statistical features aggregated by user and platform',
                 top_n_digrams=10,
                 use_all_unigrams=True,
                 imputation_strategy='global',
                 aggregation_level='user_platform',
                 keep_outliers=self.config.get('KEEP_OUTLIERS', False)
             ),
-            'typenet_ml_session': FeatureConfig(
-                name='typenet_ml_session',
-                description='TypeNet ML features aggregated by session',
+            'statistical_session': FeatureConfig(
+                name='statistical_session',
+                description='Statistical features aggregated by session',
                 top_n_digrams=10,
                 use_all_unigrams=True,
                 imputation_strategy='global',
                 aggregation_level='session',
                 keep_outliers=self.config.get('KEEP_OUTLIERS', False)
             ),
-            'typenet_ml_video': FeatureConfig(
-                name='typenet_ml_video',
-                description='TypeNet ML features at video level (most granular)',
+            'statistical_video': FeatureConfig(
+                name='statistical_video',
+                description='Statistical features at video level (most granular)',
                 top_n_digrams=10,
                 use_all_unigrams=True,
                 imputation_strategy='user',
@@ -337,7 +337,7 @@ class ExtractFeaturesStage:
                 
                 # Get configuration and extractor
                 config = self.feature_configs[feature_type]
-                extractor_name = feature_type.split('_')[0] + '_' + feature_type.split('_')[1]  # e.g., 'typenet_ml'
+                extractor_name = feature_type.split('_')[0]  # e.g., 'statistical'
                 extractor = self.extractors.get(extractor_name)
                 
                 if not extractor:
