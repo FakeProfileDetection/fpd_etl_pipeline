@@ -270,7 +270,7 @@ class ExtractFeaturesStage:
             ),
             'statistical_session': FeatureConfig(
                 name='statistical_session',
-                description='Statistical features aggregated by session',
+                description='Statistical features aggregated by user, platform, and session',
                 top_n_digrams=10,
                 use_all_unigrams=True,
                 imputation_strategy='global',
@@ -279,7 +279,7 @@ class ExtractFeaturesStage:
             ),
             'statistical_video': FeatureConfig(
                 name='statistical_video',
-                description='Statistical features at video level (most granular)',
+                description='Statistical features aggregated by user, platform, session, and video (most granular)',
                 top_n_digrams=10,
                 use_all_unigrams=True,
                 imputation_strategy='user',

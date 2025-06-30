@@ -21,6 +21,22 @@ statistical_session/
 └── feature_summary.json # Metadata about features
 ```
 
+### Feature Aggregation Levels
+
+The statistical features are computed at three different levels of granularity:
+
+1. **`statistical_platform`**: Aggregated by user and platform
+   - One row per user per platform (e.g., user X on Facebook)
+   - Most aggregated view, combining all sessions and videos
+   
+2. **`statistical_session`**: Aggregated by user, platform, and session
+   - One row per user per platform per session
+   - Captures session-level variations in typing behavior
+   
+3. **`statistical_video`**: Aggregated by user, platform, session, and video
+   - One row per user per platform per session per video
+   - Most granular view, capturing video-specific typing patterns
+
 ## Scalability Considerations
 
 ### Current Limitations (< 100 users)
