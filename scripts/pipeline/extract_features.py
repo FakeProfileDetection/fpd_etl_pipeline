@@ -138,7 +138,7 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
     def apply_imputation(self, dataset: pd.DataFrame, strategy: str) -> pd.DataFrame:
         """Apply imputation strategy for missing values"""
         feature_cols = [col for col in dataset.columns 
-                       if col not in ['user_id', 'platform_id', 'session_id', 'video_id', 'device_type']]
+                       if col not in ['user_id', 'platform_id', 'session_id', 'video_id']]
         
         if strategy == 'global':
             # Replace NaN with global mean
@@ -194,38 +194,35 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
         
         if config.aggregation_level == 'user_platform':
             # Group by user and platform
-            groups = data.groupby(['user_id', 'platform_id', 'device_type'])
+            groups = data.groupby(['user_id', 'platform_id'])
             
-            for (user_id, platform_id, device_type), group_data in groups:
+            for (user_id, platform_id), group_data in groups:
                 features = self.extract_statistical_features(group_data, unigrams, digrams)
                 features['user_id'] = user_id
                 features['platform_id'] = platform_id
-                features['device_type'] = device_type
                 feature_records.append(features)
                 
         elif config.aggregation_level == 'session':
             # Group by user, platform, and session
-            groups = data.groupby(['user_id', 'platform_id', 'session_id', 'device_type'])
+            groups = data.groupby(['user_id', 'platform_id', 'session_id'])
             
-            for (user_id, platform_id, session_id, device_type), group_data in groups:
+            for (user_id, platform_id, session_id), group_data in groups:
                 features = self.extract_statistical_features(group_data, unigrams, digrams)
                 features['user_id'] = user_id
                 features['platform_id'] = platform_id
                 features['session_id'] = session_id
-                features['device_type'] = device_type
                 feature_records.append(features)
                 
         elif config.aggregation_level == 'video':
             # Group by user, platform, session, and video
-            groups = data.groupby(['user_id', 'platform_id', 'session_id', 'video_id', 'device_type'])
+            groups = data.groupby(['user_id', 'platform_id', 'session_id', 'video_id'])
             
-            for (user_id, platform_id, session_id, video_id, device_type), group_data in groups:
+            for (user_id, platform_id, session_id, video_id), group_data in groups:
                 features = self.extract_statistical_features(group_data, unigrams, digrams)
                 features['user_id'] = user_id
                 features['platform_id'] = platform_id
                 features['session_id'] = session_id
                 features['video_id'] = video_id
-                features['device_type'] = device_type
                 feature_records.append(features)
                 
         # Create DataFrame and apply imputation
@@ -379,7 +376,7 @@ class ExtractFeaturesStage:
                 # Update statistics
                 self.stats["features_extracted"][feature_type] = {
                     "records": len(features_df),
-                    "features": len(features_df.columns) - len(['user_id', 'platform_id', 'session_id', 'video_id', 'device_type'])
+                    "features": len(features_df.columns) - len(['user_id', 'platform_id', 'session_id', 'video_id'])
                 }
                 self.stats["processing_time"][feature_type] = (datetime.now() - start_time).total_seconds()
                 self.stats["feature_counts"][feature_type] = features_df.shape
