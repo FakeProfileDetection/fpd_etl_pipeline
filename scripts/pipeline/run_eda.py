@@ -630,17 +630,43 @@ class RunEDAStage:
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
         
+        # Check if required input directories exist
+        if not keypairs_dir.exists():
+            logger.error(f"Keypairs directory not found: {keypairs_dir}")
+            raise FileNotFoundError(f"Cannot run EDA: keypairs directory missing. Did previous stages complete successfully?")
+        
         # Load and analyze keypair data
         keypair_file = keypairs_dir / "keypairs.parquet"
         if not keypair_file.exists():
             keypair_file = keypairs_dir / "keypairs.csv"
             
-        if keypair_file.exists():
-            logger.info("Analyzing keypair data...")
+        if not keypair_file.exists():
+            logger.error(f"No keypair data found in {keypairs_dir}")
+            raise FileNotFoundError(f"Cannot run EDA: No keypair data file found. Did the extract_keypairs stage complete successfully?")
+            
+        logger.info(f"Loading keypair data from {keypair_file}")
+        try:
             if keypair_file.suffix == '.parquet':
                 keypairs_df = pd.read_parquet(keypair_file)
             else:
                 keypairs_df = pd.read_csv(keypair_file)
+        except Exception as e:
+            logger.error(f"Failed to load keypair data: {e}")
+            raise RuntimeError(f"Cannot run EDA: Failed to load keypair data - {e}")
+            
+        if keypairs_df.empty:
+            logger.error("Keypair data is empty")
+            raise ValueError("Cannot run EDA: Keypair data file is empty")
+            
+        # Verify required columns exist
+        required_columns = ['valid', 'user_id', 'device_type']
+        missing_columns = [col for col in required_columns if col not in keypairs_df.columns]
+        if missing_columns:
+            logger.error(f"Missing required columns in keypair data: {missing_columns}")
+            raise ValueError(f"Cannot run EDA: Missing required columns - {missing_columns}")
+            
+        if keypair_file.exists():
+            logger.info("Analyzing keypair data...")
                 
             # Basic summary
             summary = {

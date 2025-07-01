@@ -61,6 +61,9 @@ class DownloadDataStage:
             
         except subprocess.CalledProcessError as e:
             logger.error(f"Failed to check gcloud auth: {e}")
+            if "Reauthentication" in str(e) or "non-interactive" in str(e):
+                logger.error("Your authentication has expired. Please re-authenticate:")
+                logger.error("  Run: gcloud auth application-default login")
             return False
             
     def get_gcs_files(self) -> List[str]:
@@ -76,7 +79,7 @@ class DownloadDataStage:
         except subprocess.CalledProcessError as e:
             logger.error(f"Failed to list GCS files: {e}")
             logger.error(f"Error output: {e.stderr if hasattr(e, 'stderr') else 'No stderr'}")
-            return []
+            raise RuntimeError(f"Cannot access GCS bucket: {e.stderr if hasattr(e, 'stderr') else str(e)}")
             
     def download_files(self, output_dir: Path) -> Dict[str, Any]:
         """Download files from GCS to local directory"""
@@ -135,6 +138,13 @@ class DownloadDataStage:
         if self.local_only:
             logger.info("Local-only mode: Looking for existing data")
             
+            # Check if a specific version was requested
+            if self.version_id and Path("artifacts") / self.version_id / "raw_data" / "web_app_data" == output_dir:
+                # User wants to use their current version's data if it exists
+                if output_dir.exists() and any(output_dir.iterdir()):
+                    logger.info(f"Using existing data from current version: {self.version_id}")
+                    return output_dir
+            
             # Check for test data first
             test_data_dir = Path("test_data/raw_data")
             if test_data_dir.exists() and any(test_data_dir.iterdir()):
@@ -150,32 +160,94 @@ class DownloadDataStage:
                 logger.info(f"Copied {len(list(output_dir.iterdir()))} files from test data")
                 return output_dir
             
-            # Check for previously downloaded data
-            previous_versions = sorted(Path("artifacts").glob("*/raw_data/web_app_data"), reverse=True)
-            for prev_dir in previous_versions:
-                if prev_dir != output_dir and any(prev_dir.iterdir()):
-                    logger.info(f"Using previously downloaded data from {prev_dir.parent.parent.name}")
-                    output_dir.mkdir(parents=True, exist_ok=True)
-                    
-                    # Copy previous data
-                    import shutil
-                    for item in prev_dir.iterdir():
-                        if item.is_file():
-                            shutil.copy2(item, output_dir)
-                    
-                    logger.info(f"Copied {len(list(output_dir.iterdir()))} files from previous version")
-                    return output_dir
+            # Interactive version selection
+            logger.info("No test data found. Checking for available versions...")
             
-            # No data found
-            logger.warning(f"No existing data found. Creating empty directory at {output_dir}")
-            logger.warning("To download real data, use: --upload-artifacts")
-            logger.warning("To use test data, run: python scripts/standalone/create_sample_data.py")
-            output_dir.mkdir(parents=True, exist_ok=True)
-            return output_dir
+            # Find all local versions with data
+            artifacts_path = Path("artifacts")
+            local_versions = []
+            if artifacts_path.exists():
+                for version_dir in sorted(artifacts_path.iterdir(), reverse=True):
+                    if version_dir.is_dir():
+                        raw_data_path = version_dir / "raw_data" / "web_app_data"
+                        if raw_data_path.exists() and any(raw_data_path.iterdir()):
+                            file_count = len(list(raw_data_path.glob("*")))
+                            local_versions.append({
+                                "version_id": version_dir.name,
+                                "path": raw_data_path,
+                                "file_count": file_count
+                            })
+            
+            if not local_versions:
+                logger.warning("No local versions found with data.")
+                print("\nOptions:")
+                print("1. Download new data from cloud (run without --local-only)")
+                print("2. Place test data in test_data/raw_data/")
+                print("3. Exit")
+                
+                choice = input("\nSelect option (1-3): ").strip()
+                if choice == "1":
+                    logger.info("Please run without --local-only flag to download from cloud")
+                elif choice == "2":
+                    logger.info("Place your test data files in test_data/raw_data/ and run again")
+                sys.exit(0)
+            else:
+                # Show available versions
+                print(f"\nFound {len(local_versions)} local version(s) with data:")
+                for i, ver in enumerate(local_versions, 1):
+                    print(f"{i}. {ver['version_id']} ({ver['file_count']} files)")
+                
+                print(f"\n{len(local_versions) + 1}. Check cloud for available versions")
+                print(f"{len(local_versions) + 2}. Exit")
+                
+                while True:
+                    try:
+                        choice = int(input(f"\nSelect version (1-{len(local_versions) + 2}): "))
+                        if 1 <= choice <= len(local_versions):
+                            # Use selected local version
+                            selected = local_versions[choice - 1]
+                            logger.info(f"Using data from version: {selected['version_id']}")
+                            
+                            if not self.dry_run:
+                                output_dir.mkdir(parents=True, exist_ok=True)
+                                import shutil
+                                for item in selected['path'].iterdir():
+                                    if item.is_file():
+                                        shutil.copy2(item, output_dir)
+                                logger.info(f"Copied {len(list(output_dir.iterdir()))} files from {selected['version_id']}")
+                            return output_dir
+                        elif choice == len(local_versions) + 1:
+                            # List cloud versions
+                            logger.info("Checking cloud for available versions...")
+                            bucket_name = self.config.get("BUCKET_NAME")
+                            if bucket_name:
+                                cmd = ["gcloud", "storage", "ls", f"gs://{bucket_name}/artifacts/"]
+                                result = subprocess.run(cmd, capture_output=True, text=True)
+                                if result.returncode == 0:
+                                    print("\nCloud versions:")
+                                    print(result.stdout)
+                                else:
+                                    print("Failed to list cloud versions")
+                            print("\nTo download from cloud, run without --local-only flag")
+                            sys.exit(0)
+                        elif choice == len(local_versions) + 2:
+                            sys.exit(0)
+                        else:
+                            print("Invalid choice")
+                    except ValueError:
+                        print("Please enter a number")
+                    except KeyboardInterrupt:
+                        print("\nExiting...")
+                        sys.exit(0)
             
         # Validate authentication
         if not self.validate_gcs_auth():
-            raise RuntimeError("GCS authentication failed")
+            logger.error("GCS authentication failed")
+            logger.error("Please ensure you are authenticated with Google Cloud:")
+            logger.error("  1. Run: gcloud auth login")
+            logger.error("  2. Set project: gcloud config set project YOUR_PROJECT_ID")
+            logger.error("  3. Or use: gcloud auth application-default login")
+            raise RuntimeError("GCS authentication failed. See above for instructions.")
             
         # List available files
         logger.info("Listing files in GCS...")
@@ -216,8 +288,18 @@ class DownloadDataStage:
             logger.info(f"Downloaded {download_stats['files_downloaded']} files")
             logger.info(f"Total size: {download_stats['total_size'] / 1024 / 1024:.2f} MB")
             
+            # Check for errors
             if download_stats["errors"]:
-                logger.warning(f"Encountered {len(download_stats['errors'])} errors during download")
+                error_count = len(download_stats['errors'])
+                logger.error(f"Download failed with {error_count} error(s)")
+                for error in download_stats["errors"]:
+                    logger.error(f"  - {error}")
+                raise RuntimeError(f"Download failed with {error_count} error(s). Check logs for details.")
+            
+            # Check if any files were actually downloaded
+            if download_stats["files_downloaded"] == 0:
+                logger.error("No files were downloaded from cloud storage")
+                raise RuntimeError("Download failed: No files retrieved from cloud storage")
                 
         # Update version info
         if not self.dry_run:

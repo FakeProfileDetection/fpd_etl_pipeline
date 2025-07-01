@@ -1,6 +1,99 @@
 {
   "versions": [
     {
+      "version_id": "2025-07-01_09-50-25_loris-mbpcablercncom",
+      "created_at": "2025-07-01T09:50:25.358466",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "complete",
+      "completed_at": "2025-07-01T09:50:33.498456",
+      "summary": {
+        "stages_run": [
+          "clean_data",
+          "extract_features",
+          "run_eda",
+          "extract_keypairs",
+          "download_data"
+        ],
+        "mode": "full",
+        "artifacts_uploaded": false
+      }
+    },
+    {
+      "version_id": "2025-07-01_09-48-43_loris-mbpcablercncom",
+      "created_at": "2025-07-01T09:48:43.851197",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {
+        "download_data": {
+          "completed": false,
+          "error": "Cannot access GCS bucket: ERROR: (gcloud.storage.ls) There was a problem refreshing your current auth tokens: Reauthentication failed. cannot prompt during non-interactive execution.\nPlease run:\n\n  $ gcloud auth login\n\nto obtain new credentials.\n\nIf you have already logged in with a different account, run:\n\n  $ gcloud config set account ACCOUNT\n\nto select an already authenticated account to use.\n",
+          "completed_at": "2025-07-01T09:48:45.410173"
+        }
+      },
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "in_progress"
+    },
+    {
+      "version_id": "2025-06-30_23-11-14_loris-mbpcablercncom",
+      "created_at": "2025-06-30T23:11:14.165118",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "complete",
+      "completed_at": "2025-06-30T23:11:16.878460",
+      "summary": {
+        "stages_run": [
+          "extract_features",
+          "extract_keypairs",
+          "clean_data",
+          "download_data"
+        ],
+        "mode": "full",
+        "artifacts_uploaded": false
+      }
+    },
+    {
+      "version_id": "2025-06-30_06-56-52_loris-mbpcablercncom",
+      "created_at": "2025-06-30T06:56:52.407850",
+      "created_by": "Loris-MBP.cable.rcn.com",
+      "user": "loripickering",
+      "stages": {},
+      "features": {},
+      "metadata": {
+        "mode": "full",
+        "stages": []
+      },
+      "status": "complete",
+      "completed_at": "2025-06-30T06:56:55.292535",
+      "summary": {
+        "stages_run": [
+          "clean_data",
+          "download_data",
+          "extract_features",
+          "run_eda",
+          "extract_keypairs"
+        ],
+        "mode": "full",
+        "artifacts_uploaded": false
+      }
+    },
+    {
       "version_id": "2025-06-29_21-26-23_loris-mbpcablercncom",
       "created_at": "2025-06-29T21:26:23.852297",
       "created_by": "Loris-MBP.cable.rcn.com",
@@ -2164,6 +2257,6 @@
       "status": "in_progress"
     }
   ],
-  "current": "2025-06-29_21-26-23_loris-mbpcablercncom",
+  "current": "2025-07-01_09-50-25_loris-mbpcablercncom",
   "schema_version": "1.0"
 }

@@ -8,6 +8,8 @@ import click
 import logging
 import sys
 import socket
+import tarfile
+import subprocess
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 from datetime import datetime
@@ -42,8 +44,8 @@ class Pipeline:
         # Initialize managers
         self.version_manager = version_manager or VersionManager()
         
-        # Cloud artifact manager (if not local only)
-        if not local_only and config.get("UPLOAD_ARTIFACTS"):
+        # Cloud artifact manager (only if uploads are enabled)
+        if config.get("UPLOAD_ARTIFACTS"):
             self.artifact_manager = CloudArtifactManager(
                 version_id=version_id,
                 bucket_name=config.get("BUCKET_NAME")
@@ -122,7 +124,8 @@ class Pipeline:
             
             # Run stage
             success = self._run_stage_by_name(stage)
-            if not success and stage != "eda":  # EDA failure shouldn't stop pipeline
+            if not success:
+                logger.error(f"Stage '{stage}' failed. Stopping pipeline.")
                 return False
         
         return True
@@ -163,6 +166,96 @@ class Pipeline:
         
         actual_stage_name, stage_func = stage_mappings[stage_name]
         return self.run_stage(actual_stage_name, stage_func)
+    
+    def create_and_upload_tarball(self) -> bool:
+        """Create tar.gz of version artifacts and upload to cloud"""
+        artifacts_dir = Path(self.config.get("ARTIFACTS_DIR", "artifacts"))
+        version_dir = artifacts_dir / self.version_id
+        
+        if not version_dir.exists():
+            logger.error(f"Version directory not found: {version_dir}")
+            return False
+        
+        # Create tar.gz file
+        tarball_name = f"{self.version_id}.tar.gz"
+        tarball_path = artifacts_dir / tarball_name
+        
+        logger.info(f"Creating archive: {tarball_name}")
+        
+        try:
+            # Create tar.gz excluding PII if needed
+            exclude_patterns = []
+            if not self.config.get("INCLUDE_PII"):
+                exclude_patterns = [
+                    "*metadata/metadata.csv",
+                    "*demographics.json", 
+                    "*consent.json",
+                    "*email*",
+                    "*start_time.json"
+                ]
+            
+            def should_exclude(tarinfo):
+                """Filter function for tarfile to exclude PII files"""
+                if not exclude_patterns:
+                    return False
+                    
+                for pattern in exclude_patterns:
+                    if pattern.replace("*", "") in tarinfo.name:
+                        logger.debug(f"Excluding PII file: {tarinfo.name}")
+                        return True
+                return False
+            
+            with tarfile.open(tarball_path, "w:gz") as tar:
+                tar.add(version_dir, arcname=self.version_id, filter=lambda x: None if should_exclude(x) else x)
+            
+            logger.info(f"Archive created: {tarball_path.stat().st_size / 1024 / 1024:.2f} MB")
+            
+            # Upload to cloud
+            bucket_name = self.config.get("BUCKET_NAME")
+            if not bucket_name:
+                logger.error("BUCKET_NAME not configured")
+                return False
+            
+            # Check if version already exists in cloud
+            check_cmd = [
+                "gcloud", "storage", "ls",
+                f"gs://{bucket_name}/artifacts/{tarball_name}"
+            ]
+            
+            result = subprocess.run(check_cmd, capture_output=True, text=True)
+            
+            if result.returncode == 0:
+                logger.warning(f"Version {self.version_id} already exists in cloud")
+                logger.info("Per policy: Only additions are allowed to existing versions")
+                logger.info("If you need to modify existing artifacts, create a new version")
+                return False
+            
+            # Upload the tarball
+            upload_cmd = [
+                "gcloud", "storage", "cp",
+                str(tarball_path),
+                f"gs://{bucket_name}/artifacts/{tarball_name}"
+            ]
+            
+            logger.info(f"Uploading to gs://{bucket_name}/artifacts/{tarball_name}")
+            result = subprocess.run(upload_cmd, capture_output=True, text=True)
+            
+            if result.returncode != 0:
+                logger.error(f"Upload failed: {result.stderr}")
+                return False
+            
+            logger.info("✅ Upload completed successfully")
+            
+            # Clean up local tarball
+            tarball_path.unlink()
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to create/upload archive: {e}")
+            if tarball_path.exists():
+                tarball_path.unlink()
+            return False
 
 
 @click.command()
@@ -171,16 +264,16 @@ class Pipeline:
 @click.option('--stages', '-s', multiple=True,
               help='Specific stages to run (default: all)')
 @click.option('--version-id', help='Version to work with (default: create new)')
+@click.option('--local-only', is_flag=True, default=False,
+              help='Development mode - use only local data, no cloud downloads')
 @click.option('--upload-artifacts', is_flag=True, default=False,
-              help='Enable cloud operations for download (upload requires separate script)')
+              help='Upload processed artifacts to cloud storage after completion')
 @click.option('--include-pii', is_flag=True, default=False,
               help='Include PII data in operations (default: False)')
 @click.option('--no-eda', is_flag=True, default=False,
               help='Skip EDA stage (EDA runs by default)')
 @click.option('--dry-run', is_flag=True,
               help='Show what would be done without executing')
-@click.option('--local-only', is_flag=True,
-              help='Development mode - no cloud operations')
 @click.option('--log-level', type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR']),
               default='INFO', help='Logging level')
 @click.option('--device-types', type=str, default='desktop',
@@ -189,24 +282,37 @@ def main(mode: str, stages: List[str], version_id: Optional[str],
          upload_artifacts: bool, include_pii: bool, no_eda: bool,
          dry_run: bool, local_only: bool, log_level: str, device_types: str):
     """
-    Run data processing pipeline with safe defaults.
+    Run the keystroke data processing pipeline.
     
-    By default:
-    - Artifacts are NOT uploaded to cloud (use --upload-artifacts to enable)
-    - PII data is EXCLUDED (use --include-pii to process demographics)
+    DEFAULT BEHAVIOR:
+    - Downloads latest data from cloud storage
+    - Processes through all pipeline stages
+    - Saves results locally (does NOT upload unless --upload-artifacts is used)
+    - Excludes PII data (use --include-pii to include demographics)
+    
+    MODES:
+    - full: Create new version with fresh download from cloud
+    - incr: Continue processing incomplete stages from last run
+    - force: Force re-run all stages using existing downloaded data
+    
+    FLAGS:
+    - --local-only: Skip cloud download, use existing local data (for development)
+    - --upload-artifacts: Upload results to cloud after processing
+    - --include-pii: Include personally identifiable information in processing
+    - --no-eda: Skip exploratory data analysis stage
     
     Examples:
-        # Local development (default)
-        python run_pipeline.py
+        # Standard run - download latest data and process
+        python run_pipeline.py --mode full
         
-        # Full pipeline with uploads
+        # Development - use local data only
+        python run_pipeline.py --mode full --local-only
+        
+        # Process and upload results to cloud
         python run_pipeline.py --mode full --upload-artifacts
         
-        # Run specific stages
-        python run_pipeline.py -s clean -s features
-        
-        # Dry run to see what would happen
-        python run_pipeline.py --mode full --dry-run
+        # Continue incomplete processing
+        python run_pipeline.py --mode incr
     """
     
     # Setup logging
@@ -220,10 +326,9 @@ def main(mode: str, stages: List[str], version_id: Optional[str],
     config = config_mgr.get_all()
     
     # Override config with command line flags
-    if upload_artifacts:
-        config["UPLOAD_ARTIFACTS"] = True
-    if include_pii:
-        config["INCLUDE_PII"] = True
+    config["UPLOAD_ARTIFACTS"] = upload_artifacts
+    config["INCLUDE_PII"] = include_pii
+    config["LOCAL_ONLY"] = local_only
     
     # Parse and set device types
     if device_types:
@@ -233,12 +338,17 @@ def main(mode: str, stages: List[str], version_id: Optional[str],
         import os
         os.environ["DEVICE_TYPES"] = device_types
     
-    # Show warnings for risky operations
-    if upload_artifacts and not include_pii:
-        click.echo("📌 Uploading artifacts with PII excluded (default)")
-    elif upload_artifacts and include_pii:
-        if not click.confirm("⚠️  WARNING: Upload will include PII data. Continue?"):
-            return
+    # Show operation mode
+    if local_only:
+        click.echo("🏠 Local-only mode: Using existing local data (no cloud download)")
+    else:
+        click.echo("☁️  Cloud mode: Will download latest data from cloud storage")
+    
+    if upload_artifacts:
+        click.echo("📤 Upload enabled: Results will be uploaded to cloud after processing")
+        if include_pii:
+            if not click.confirm("⚠️  WARNING: Upload will include PII data. Continue?"):
+                return
     
     # Initialize version
     version_mgr = VersionManager()
@@ -261,8 +371,9 @@ def main(mode: str, stages: List[str], version_id: Optional[str],
 Pipeline Configuration:
 - Version: {version_id}
 - Mode: {mode}
-- Upload to cloud: {'Yes' if config.get('UPLOAD_ARTIFACTS') else 'No (local only)'}
-- Include PII: {'Yes' if config.get('INCLUDE_PII') else 'No (excluded)'}
+- Local only: {'Yes (no cloud download)' if local_only else 'No (will download from cloud)'}
+- Upload results: {'Yes' if upload_artifacts else 'No'}
+- Include PII: {'Yes' if include_pii else 'No (excluded)'}
 - Run EDA: {'No' if no_eda else 'Yes'}
 - Device types: {', '.join(config.get('DEVICE_TYPES', ['desktop']))}
 - Stages: {list(stages) if stages else 'all'}
@@ -347,7 +458,7 @@ Pipeline Configuration:
         version_id=version_id,
         config=config,
         dry_run=dry_run,
-        local_only=local_only or not config.get('UPLOAD_ARTIFACTS'),
+        local_only=local_only,
         force_mode=(mode == 'force')
     )
     
@@ -362,13 +473,22 @@ Pipeline Configuration:
             summary = {
                 "stages_run": list(pipeline.completed_stages),
                 "mode": mode,
-                "artifacts_uploaded": config.get('UPLOAD_ARTIFACTS', False)
+                "artifacts_uploaded": False
             }
             version_mgr.mark_version_complete(version_id, summary)
         
-        
-        # Show next steps
-        if not config.get('UPLOAD_ARTIFACTS'):
+        # Handle artifact upload if requested
+        if upload_artifacts and not dry_run:
+            click.echo("\n📤 Uploading artifacts to cloud...")
+            if pipeline.create_and_upload_tarball():
+                click.echo("✅ Artifacts uploaded successfully")
+                # Update summary to reflect upload
+                summary["artifacts_uploaded"] = True
+                version_mgr.update_version(version_id, summary)
+            else:
+                click.echo("❌ Failed to upload artifacts")
+                click.echo("You can retry with: python scripts/standalone/upload_artifacts.py --version-id " + version_id)
+        elif not upload_artifacts:
             click.echo("\n💡 Tip: To upload artifacts after review, run:")
             click.echo(f"    python scripts/standalone/upload_artifacts.py --version-id {version_id}")
     else:
