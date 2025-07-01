@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from scripts.utils.version_manager import VersionManager
 from scripts.utils.config_manager import get_config
 from scripts.utils.cloud_artifact_manager import CloudArtifactManager
+from scripts.utils.logger_config import setup_pipeline_logging, get_pipeline_logger
 
 # Import pipeline stages
 from scripts.pipeline import download_data, clean_data, extract_keypairs, extract_features, run_eda
@@ -60,6 +61,16 @@ class Pipeline:
             for stage_name, stage_info in version_info["stages"].items():
                 if stage_info.get("completed", False):
                     self.completed_stages.add(stage_name)
+                    
+        # Track pipeline statistics
+        self.pipeline_stats = {
+            "start_time": datetime.now(),
+            "stage_times": {},
+            "stage_errors": {},
+            "files_processed": 0,
+            "users_processed": 0,
+            "data_downloaded_mb": 0
+        }
     
     def run_stage(self, stage_name: str, stage_func: callable, **kwargs) -> bool:
         """Run a single pipeline stage"""
@@ -83,6 +94,7 @@ class Pipeline:
             
             # Calculate duration
             duration = (datetime.now() - start_time).total_seconds()
+            self.pipeline_stats["stage_times"][stage_name] = duration
             
             # Update version info
             stage_info = {
@@ -92,12 +104,41 @@ class Pipeline:
             }
             self.version_manager.update_stage_info(self.version_id, stage_name, stage_info)
             
+            # Extract statistics from stages if available
+            version_info = self.version_manager.get_version(self.version_id)
+            if version_info and "stages" in version_info:
+                # Get stats from clean_data stage
+                if stage_name == "clean_data" and "clean_data" in version_info["stages"]:
+                    stats = version_info["stages"]["clean_data"].get("stats", {})
+                    self.pipeline_stats["users_processed"] = stats.get("total_users", 0)
+                    self.pipeline_stats["files_processed"] = stats.get("total_files", 0)
+                # Get download size from download_data stage  
+                elif stage_name == "download_data" and "download_data" in version_info["stages"]:
+                    # Read from download metadata if available
+                    artifacts_dir = Path(self.config.get("ARTIFACTS_DIR", "artifacts")) / self.version_id
+                    download_log = artifacts_dir / "etl_metadata" / "download" / "download_log.json"
+                    if download_log.exists():
+                        try:
+                            import json
+                            with open(download_log, 'r') as f:
+                                log_data = json.load(f)
+                                size_bytes = log_data.get("total_size", 0)
+                                self.pipeline_stats["data_downloaded_mb"] = size_bytes / (1024 * 1024)
+                        except:
+                            pass
+            
             self.completed_stages.add(stage_name)
             logger.info(f"✅ Completed {stage_name} in {duration:.1f}s")
             return True
             
         except Exception as e:
             logger.error(f"❌ Failed stage {stage_name}: {e}")
+            self.pipeline_stats["stage_errors"][stage_name] = str(e)
+            
+            # Log detailed error information
+            logger_config = get_pipeline_logger()
+            logger_config.log_error_details(stage_name, e)
+            
             # Update version info with failure
             self.version_manager.update_stage_info(
                 self.version_id, 
@@ -256,6 +297,57 @@ class Pipeline:
             if tarball_path.exists():
                 tarball_path.unlink()
             return False
+    
+    def get_summary(self) -> Dict[str, Any]:
+        """Generate pipeline execution summary"""
+        end_time = datetime.now()
+        total_duration = (end_time - self.pipeline_stats["start_time"]).total_seconds()
+        
+        summary = {
+            "version_id": self.version_id,
+            "total_duration_seconds": round(total_duration, 2),
+            "stages_completed": list(self.completed_stages),
+            "stages_failed": list(self.pipeline_stats["stage_errors"].keys()),
+            "files_processed": self.pipeline_stats["files_processed"],
+            "users_processed": self.pipeline_stats["users_processed"],
+            "data_downloaded_mb": round(self.pipeline_stats["data_downloaded_mb"], 2),
+            "stage_times": {k: round(v, 2) for k, v in self.pipeline_stats["stage_times"].items()}
+        }
+        
+        return summary
+    
+    def print_summary(self):
+        """Print a formatted summary to console"""
+        summary = self.get_summary()
+        
+        print("\n" + "="*60)
+        print("PIPELINE EXECUTION SUMMARY")
+        print("="*60)
+        print(f"Version: {summary['version_id']}")
+        print(f"Total Duration: {summary['total_duration_seconds']} seconds")
+        print(f"\nStages Completed ({len(summary['stages_completed'])}):")
+        for stage in summary['stages_completed']:
+            time_taken = summary['stage_times'].get(stage, 0)
+            print(f"  ✓ {stage}: {time_taken}s")
+        
+        if summary['stages_failed']:
+            print(f"\nStages Failed ({len(summary['stages_failed'])}):")
+            for stage in summary['stages_failed']:
+                print(f"  ✗ {stage}")
+                # Show error message if available
+                error_msg = self.pipeline_stats["stage_errors"].get(stage)
+                if error_msg:
+                    print(f"     Error: {error_msg}")
+        
+        if summary['files_processed'] > 0:
+            print(f"\nData Processed:")
+            print(f"  Files: {summary['files_processed']}")
+            print(f"  Users: {summary['users_processed']}")
+            
+        if summary['data_downloaded_mb'] > 0:
+            print(f"  Downloaded: {summary['data_downloaded_mb']} MB")
+            
+        print("="*60 + "\n")
 
 
 @click.command()
@@ -315,11 +407,43 @@ def main(mode: str, stages: List[str], version_id: Optional[str],
         python run_pipeline.py --mode incr
     """
     
-    # Setup logging
-    logging.basicConfig(
-        level=getattr(logging, log_level),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    # Initialize version first to get version_id
+    version_mgr = VersionManager()
+    
+    if not version_id:
+        if mode == 'full':
+            # Create new version for full runs
+            version_id = version_mgr.create_version_id()
+            version_mgr.register_version(version_id, {"mode": mode, "stages": list(stages)})
+            click.echo(f"Created new version: {version_id}")
+        else:
+            # Use current version for incremental/force modes
+            version_id = version_mgr.get_current_version_id()
+            if not version_id:
+                click.echo("❌ No current version found. Run with --mode full first.")
+                return
+    
+    # Setup centralized logging
+    command_args = {
+        'mode': mode,
+        'stages': list(stages) if stages else 'all',
+        'local_only': local_only,
+        'upload_artifacts': upload_artifacts,
+        'include_pii': include_pii,
+        'no_eda': no_eda,
+        'dry_run': dry_run,
+        'log_level': log_level,
+        'device_types': device_types
+    }
+    
+    log_filename = setup_pipeline_logging(
+        version_id=version_id,
+        script_name='pipeline',
+        command_args=command_args,
+        log_level=log_level
     )
+    
+    logger.info(f"📝 Logging to: {log_filename}")
     
     # Load configuration
     config_mgr = get_config()
@@ -350,21 +474,6 @@ def main(mode: str, stages: List[str], version_id: Optional[str],
             if not click.confirm("⚠️  WARNING: Upload will include PII data. Continue?"):
                 return
     
-    # Initialize version
-    version_mgr = VersionManager()
-    
-    if not version_id:
-        if mode == 'full':
-            # Create new version for full runs
-            version_id = version_mgr.create_version_id()
-            version_mgr.register_version(version_id, {"mode": mode, "stages": list(stages)})
-            click.echo(f"Created new version: {version_id}")
-        else:
-            # Use current version for incremental/force modes
-            version_id = version_mgr.get_current_version_id()
-            if not version_id:
-                click.echo("❌ No current version found. Run with --mode full first.")
-                return
     
     # Show configuration
     click.echo(f"""
@@ -465,8 +574,14 @@ Pipeline Configuration:
     # Run pipeline
     success = pipeline.run_all_stages(stages)
     
+    # Always print summary
+    pipeline.print_summary()
+    
+    # Show log file location
+    logger.info(f"\n📄 Full execution log: {log_filename}")
+    
     if success:
-        click.echo(f"\n✅ Pipeline completed successfully!")
+        logger.info("\n✅ Pipeline completed successfully!")
         
         # Mark version as complete
         if not dry_run:
@@ -479,20 +594,29 @@ Pipeline Configuration:
         
         # Handle artifact upload if requested
         if upload_artifacts and not dry_run:
-            click.echo("\n📤 Uploading artifacts to cloud...")
+            logger.info("\n📤 Uploading artifacts to cloud...")
             if pipeline.create_and_upload_tarball():
-                click.echo("✅ Artifacts uploaded successfully")
+                logger.info("✅ Artifacts uploaded successfully")
                 # Update summary to reflect upload
                 summary["artifacts_uploaded"] = True
                 version_mgr.update_version(version_id, summary)
             else:
-                click.echo("❌ Failed to upload artifacts")
-                click.echo("You can retry with: python scripts/standalone/upload_artifacts.py --version-id " + version_id)
+                logger.error("❌ Failed to upload artifacts")
+                logger.info("You can retry with: python scripts/standalone/upload_artifacts.py --version-id " + version_id)
         elif not upload_artifacts:
-            click.echo("\n💡 Tip: To upload artifacts after review, run:")
-            click.echo(f"    python scripts/standalone/upload_artifacts.py --version-id {version_id}")
+            logger.info("\n💡 Tip: To upload artifacts after review, run:")
+            logger.info(f"    python scripts/standalone/upload_artifacts.py --version-id {version_id}")
     else:
-        click.echo(f"\n❌ Pipeline failed. Check logs for details.")
+        logger.error("\n❌ Pipeline failed!")
+        
+        # Show which stage failed and why
+        failed_stages = pipeline.pipeline_stats.get("stage_errors", {})
+        if failed_stages:
+            for stage, error in failed_stages.items():
+                logger.error(f"\n🚫 Stage '{stage}' failed with error:")
+                logger.error(f"   {error}")
+        
+        logger.error(f"\n📝 See full error details in: {log_filename}")
         sys.exit(1)
 
 

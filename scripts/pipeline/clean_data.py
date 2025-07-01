@@ -290,10 +290,10 @@ class CleanDataStage:
             text_dir = None  # No text directory for broken users
             self.stats["broken_users"] += 1
             
-            # Log missing files
-            logger.warning(f"User {user_id} has incomplete data:")
+            # Log missing files at debug level - this is expected for incomplete users
+            logger.debug(f"User {user_id} has incomplete data:")
             if missing_required:
-                logger.warning(f"  Missing required: {missing_required}")
+                logger.debug(f"  Missing required: {missing_required}")
             if missing_optional:
                 logger.debug(f"  Missing optional: {missing_optional}")
                 
@@ -496,8 +496,14 @@ class CleanDataStage:
         # Log summary
         logger.info(f"Processing complete:")
         logger.info(f"  Total users: {self.stats['total_users']}")
-        logger.info(f"  Complete users: {self.stats['complete_users']}")
-        logger.info(f"  Broken users: {self.stats['broken_users']}")
+        if self.stats['total_users'] > 0:
+            complete_pct = self.stats['complete_users']/self.stats['total_users']*100
+            broken_pct = self.stats['broken_users']/self.stats['total_users']*100
+            logger.info(f"  Complete users: {self.stats['complete_users']} ({complete_pct:.1f}%)")
+            logger.info(f"  Incomplete users: {self.stats['broken_users']} ({broken_pct:.1f}%)")
+        else:
+            logger.info(f"  Complete users: {self.stats['complete_users']}")
+            logger.info(f"  Incomplete users: {self.stats['broken_users']}")
         logger.info(f"  Desktop users: {self.stats['desktop_users']}")
         logger.info(f"  Mobile users: {self.stats['mobile_users']}")
         
