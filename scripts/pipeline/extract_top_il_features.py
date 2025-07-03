@@ -49,39 +49,57 @@ class ExtractTopILFeaturesStage:
             "errors": []
         }
         
-    def identify_top_il_features(self, df: pd.DataFrame, k: int = 10) -> List[str]:
+    def identify_top_digrams_from_keypairs(self, keypairs_file: Path, k: int = 10) -> List[str]:
         """
-        Identify the top K most frequent IL features across all records
+        Identify the top K most frequent digrams (key1-key2 pairs) from raw keypairs data
         
-        Strategy:
-        1. Find all IL_* columns
-        2. Count non-null values for each IL feature
-        3. Select top K by frequency
+        Returns list of digrams like ['eKey.space', 'th', 'av', ...]
         """
-        # Get all IL feature columns
-        il_columns = [col for col in df.columns if col.startswith('IL_') and '_' in col[3:]]
+        # Load keypairs data
+        logger.info(f"Loading keypairs data from {keypairs_file}")
         
-        if not il_columns:
-            logger.warning("No IL features found in dataset")
-            return []
+        if keypairs_file.suffix == '.parquet':
+            keypairs_df = pd.read_parquet(keypairs_file)
+        else:
+            keypairs_df = pd.read_csv(keypairs_file)
             
-        # Count non-null values for each IL feature
-        feature_counts = {}
-        for col in il_columns:
-            # Count non-null, non-zero values (assuming 0 might be imputed)
-            non_null_count = ((df[col].notna()) & (df[col] != 0)).sum()
-            feature_counts[col] = non_null_count
-            
-        # Sort by frequency and select top K
-        sorted_features = sorted(feature_counts.items(), key=lambda x: x[1], reverse=True)
-        top_features = [feature for feature, count in sorted_features[:k]]
+        # Filter valid keypairs only
+        valid_keypairs = keypairs_df[keypairs_df['valid']]
         
-        logger.info(f"Top {k} IL features by frequency:")
-        for i, (feature, count) in enumerate(sorted_features[:k]):
-            digram = feature.split('_')[1]  # Extract digram from IL_<digram>_<stat>
-            logger.info(f"  {i+1}. {feature} (digram: {digram}, count: {count})")
+        # Create digram column by concatenating key1 and key2
+        valid_keypairs['digram'] = valid_keypairs['key1'] + valid_keypairs['key2']
+        
+        # Count frequency of each digram
+        digram_counts = valid_keypairs['digram'].value_counts()
+        
+        # Get top K digrams
+        top_digrams = digram_counts.head(k).index.tolist()
+        
+        logger.info(f"Top {k} digrams by frequency in keypairs data:")
+        for i, (digram, count) in enumerate(digram_counts.head(k).items()):
+            logger.info(f"  {i+1}. '{digram}' (count: {count})")
             
-        return top_features
+        return top_digrams
+        
+    def get_statistical_features_for_digrams(self, df: pd.DataFrame, digrams: List[str]) -> List[str]:
+        """
+        Get all statistical feature columns for the given digrams
+        
+        For each digram, includes: _mean, _median, _q1, _q3, _std
+        """
+        stats_suffixes = ['_mean', '_median', '_q1', '_q3', '_std']
+        feature_columns = []
+        
+        for digram in digrams:
+            for suffix in stats_suffixes:
+                feature_name = f"IL_{digram}{suffix}"
+                if feature_name in df.columns:
+                    feature_columns.append(feature_name)
+                else:
+                    logger.warning(f"Feature not found in statistical data: {feature_name}")
+                    
+        logger.info(f"Found {len(feature_columns)} statistical features for {len(digrams)} digrams")
+        return feature_columns
         
     def extract_top_features(self, df: pd.DataFrame, top_features: List[str], 
                            aggregation_level: str) -> pd.DataFrame:
@@ -109,7 +127,8 @@ class ExtractTopILFeaturesStage:
         
         return filtered_df
         
-    def process_feature_type(self, input_dir: Path, feature_type: str, k: int) -> Optional[pd.DataFrame]:
+    def process_feature_type(self, input_dir: Path, keypairs_dir: Path, feature_type: str, 
+                           k: int, top_digrams: List[str]) -> Optional[pd.DataFrame]:
         """Process a single feature type (platform, session, or video)"""
         # Load the statistical features
         feature_file = input_dir / f"statistical_{feature_type}" / "features.csv"
@@ -121,7 +140,7 @@ class ExtractTopILFeaturesStage:
                 logger.error(f"Feature file not found: {feature_file}")
                 return None
                 
-        logger.info(f"Loading features from {feature_file}")
+        logger.info(f"Loading statistical features from {feature_file}")
         
         try:
             if feature_file.suffix == '.parquet':
@@ -131,23 +150,24 @@ class ExtractTopILFeaturesStage:
                 
             logger.info(f"Loaded {len(df)} records with {len(df.columns)} columns")
             
-            # Identify top IL features
-            top_features = self.identify_top_il_features(df, k)
+            # Get the statistical feature columns for our top digrams
+            feature_columns = self.get_statistical_features_for_digrams(df, top_digrams)
             
-            if not top_features:
-                logger.warning(f"No IL features found for {feature_type}")
+            if not feature_columns:
+                logger.warning(f"No matching IL features found for {feature_type}")
                 return None
                 
-            # Extract top features
-            filtered_df = self.extract_top_features(df, top_features, feature_type)
+            # Extract selected features
+            filtered_df = self.extract_top_features(df, feature_columns, feature_type)
             
             # Track statistics
             self.stats["features_processed"][feature_type] = {
                 "original_shape": df.shape,
                 "filtered_shape": filtered_df.shape,
-                "il_features_selected": len([c for c in top_features if c.startswith('IL_')])
+                "il_features_selected": len(feature_columns),
+                "digrams_used": len(top_digrams)
             }
-            self.stats["top_features_selected"][feature_type] = top_features
+            self.stats["top_features_selected"][feature_type] = feature_columns
             
             return filtered_df
             
@@ -159,11 +179,12 @@ class ExtractTopILFeaturesStage:
     def run(self, k: int = 10) -> Path:
         """Execute the extract top IL features stage"""
         logger.info(f"Starting Extract Top IL Features stage for version {self.version_id}")
-        logger.info(f"Extracting top {k} IL features")
+        logger.info(f"Extracting top {k} digrams and their statistical features")
         
         # Setup directories
         artifacts_dir = Path(self.config.get("ARTIFACTS_DIR", "artifacts")) / self.version_id
         input_dir = artifacts_dir / "statistical_features"
+        keypairs_dir = artifacts_dir / "keypairs"
         
         # Handle backward compatibility - check for old "features" directory
         if not input_dir.exists():
@@ -176,6 +197,18 @@ class ExtractTopILFeaturesStage:
                 
         output_dir = artifacts_dir / f"statistical_IL_top_{k}_features"
         metadata_dir = artifacts_dir / "etl_metadata" / f"statistical_IL_top_{k}_features"
+        
+        # First, identify top k digrams from keypairs data
+        keypairs_file = keypairs_dir / "keypairs.parquet"
+        if not keypairs_file.exists():
+            keypairs_file = keypairs_dir / "keypairs.csv"
+            if not keypairs_file.exists():
+                raise FileNotFoundError(f"Keypairs data not found in {keypairs_dir}")
+                
+        top_digrams = self.identify_top_digrams_from_keypairs(keypairs_file, k)
+        
+        # Store top digrams for metadata
+        self.stats["top_digrams"] = top_digrams
             
         # Process each feature type
         feature_types = ['platform', 'session', 'video']
@@ -184,8 +217,8 @@ class ExtractTopILFeaturesStage:
             logger.info(f"\nProcessing {feature_type} level features...")
             start_time = datetime.now()
             
-            # Process the feature type
-            filtered_df = self.process_feature_type(input_dir, feature_type, k)
+            # Process the feature type with the identified top digrams
+            filtered_df = self.process_feature_type(input_dir, keypairs_dir, feature_type, k, top_digrams)
             
             if filtered_df is not None and not self.dry_run:
                 # Save filtered features
@@ -199,11 +232,14 @@ class ExtractTopILFeaturesStage:
                 # Save feature summary
                 summary = {
                     "feature_type": f"statistical_IL_top_{k}_{feature_type}",
-                    "description": f"Top {k} most frequent IL features at {feature_type} level",
+                    "description": f"Statistical features (mean, median, q1, q3, std) for top {k} most frequent digrams",
                     "k": k,
                     "shape": filtered_df.shape,
                     "columns": filtered_df.columns.tolist(),
                     "il_features": [c for c in filtered_df.columns if c.startswith('IL_')],
+                    "top_digrams": top_digrams,
+                    "expected_features": k * 5,  # 5 statistical measures per digram
+                    "actual_features": len([c for c in filtered_df.columns if c.startswith('IL_')]),
                     "extraction_time": (datetime.now() - start_time).total_seconds()
                 }
                 
@@ -211,6 +247,8 @@ class ExtractTopILFeaturesStage:
                     json.dump(summary, f, indent=2)
                     
                 logger.info(f"Saved filtered features to {output_subdir}")
+                logger.info(f"  Expected IL features: {k * 5} (5 stats × {k} digrams)")
+                logger.info(f"  Actual IL features: {len([c for c in filtered_df.columns if c.startswith('IL_')])}")
                 
             self.stats["processing_time"][feature_type] = (datetime.now() - start_time).total_seconds()
             
@@ -225,6 +263,7 @@ class ExtractTopILFeaturesStage:
                 "k": k,
                 "input_dir": str(input_dir),
                 "output_dir": str(output_dir),
+                "top_digrams": self.stats.get("top_digrams", []),
                 "features_processed": self.stats["features_processed"],
                 "top_features_selected": self.stats["top_features_selected"],
                 "processing_time": self.stats["processing_time"],

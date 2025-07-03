@@ -7,15 +7,19 @@ Provides commands to list, search, delete, and archive pipeline versions
 import click
 import sys
 import json
+import shutil
+import subprocess
 from pathlib import Path
 from datetime import datetime, timedelta
 from tabulate import tabulate
+from typing import Dict, Any
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scripts.utils.enhanced_version_manager import EnhancedVersionManager
 from scripts.utils.logger_config import setup_pipeline_logging
+from scripts.utils.config_manager import get_config
 
 import logging
 logger = logging.getLogger(__name__)
@@ -327,6 +331,32 @@ def stats():
             stages = v.get("stages", {})
             failed_stages = [s for s, info in stages.items() if not info.get("completed", True)]
             click.echo(f"  - {v['id'][:30]}... ({', '.join(failed_stages) or 'unknown'})")
+
+
+def delete_version_completely(version_id: str, config: Dict[str, Any], vm: EnhancedVersionManager) -> bool:
+    """
+    Completely delete a version including all artifacts (local and cloud)
+    Used by both purge and cleanup tools
+    """
+    # Delete from version tracking
+    vm.delete_version(version_id, delete_artifacts=False)
+    
+    # Delete local artifacts
+    artifacts_dir = Path(config.get("ARTIFACTS_DIR", "artifacts")) / version_id
+    if artifacts_dir.exists():
+        shutil.rmtree(artifacts_dir)
+    
+    # Delete cloud artifacts if configured
+    bucket_name = config.get("GCS_BUCKET_NAME")
+    if bucket_name:
+        try:
+            cmd = ["gsutil", "-m", "rm", "-r", f"gs://{bucket_name}/artifacts/{version_id}/"]
+            subprocess.run(cmd, capture_output=True, text=True, check=True)
+        except subprocess.CalledProcessError:
+            # Cloud deletion failed, but continue
+            pass
+    
+    return True
 
 
 if __name__ == "__main__":
