@@ -21,7 +21,7 @@ import subprocess
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from scripts.utils.version_manager import VersionManager
+from scripts.utils.enhanced_version_manager import EnhancedVersionManager as VersionManager
 from scripts.utils.cloud_artifact_manager import CloudArtifactManager
 
 logger = logging.getLogger(__name__)

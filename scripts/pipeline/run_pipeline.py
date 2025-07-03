@@ -18,7 +18,7 @@ import json
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from scripts.utils.version_manager import VersionManager
+from scripts.utils.enhanced_version_manager import EnhancedVersionManager as VersionManager
 from scripts.utils.config_manager import get_config
 from scripts.utils.cloud_artifact_manager import CloudArtifactManager
 from scripts.utils.logger_config import setup_pipeline_logging, get_pipeline_logger

@@ -47,7 +47,7 @@ class NumpyEncoder(JSONEncoder):
             return obj.isoformat()
         return super().default(obj)
 
-from scripts.utils.version_manager import VersionManager
+from scripts.utils.enhanced_version_manager import EnhancedVersionManager as VersionManager
 
 logger = logging.getLogger(__name__)
 
