@@ -58,9 +58,9 @@ def print_warning_banner():
 {Colors.RED}This tool will IRREVERSIBLY delete:{Colors.RESET}
   • ALL local version tracking files
   • ALL local artifact directories  
-  • ALL cloud storage artifacts
   • ALL version history and metadata
   • ALL pipeline outputs and logs
+  • Cloud artifacts (ONLY if --include-cloud is used)
 
 {Colors.MAGENTA}{Colors.BOLD}This action CANNOT be undone!{Colors.RESET}
 
@@ -323,13 +323,15 @@ def create_fresh_version_files(config_dir: Path):
 
 @click.command()
 @click.option('--dry-run', is_flag=True, help='Preview what would be deleted without actually deleting')
-@click.option('--skip-cloud', is_flag=True, help='Skip cloud artifact deletion')
+@click.option('--include-cloud', is_flag=True, help='Also delete cloud artifacts (default: local only)')
 @click.option('--force', is_flag=True, help='Skip confirmation prompts (DANGEROUS!)')
-def purge_all_versions(dry_run, skip_cloud, force):
+def purge_all_versions(dry_run, include_cloud, force):
     """
-    Purge ALL version data - local and cloud
+    Purge ALL version data - local only by default
     
     ⚠️  EXTREME CAUTION: This permanently deletes ALL version history! ⚠️
+    
+    By default, only local data is deleted. Use --include-cloud to also delete cloud artifacts.
     """
     # Display warning banner
     print_warning_banner()
@@ -352,7 +354,7 @@ def purge_all_versions(dry_run, skip_cloud, force):
     
     # Get cloud versions
     cloud_versions = []
-    if not skip_cloud:
+    if include_cloud:
         print(f"{Colors.BLUE}Checking cloud storage...{Colors.RESET}")
         cloud_versions = get_cloud_versions(config)
     
@@ -385,7 +387,7 @@ def purge_all_versions(dry_run, skip_cloud, force):
         delete_local_artifacts(artifacts_dir, dry_run)
         
         # Delete cloud artifacts
-        if not skip_cloud and cloud_versions:
+        if include_cloud and cloud_versions:
             delete_cloud_artifacts(cloud_versions, config, dry_run)
         
         # Create fresh version files

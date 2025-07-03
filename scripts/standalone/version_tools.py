@@ -35,7 +35,7 @@ def cli():
 @click.option('--status', type=click.Choice(['all', 'successful', 'failed', 'archived']), 
               default='all', help='Filter by status')
 @click.option('--limit', default=20, help='Maximum number of versions to show')
-@click.option('--format', 'output_format', type=click.Choice(['table', 'json', 'simple']), 
+@click.option('--format', 'output_format', type=click.Choice(['table', 'json', 'simple', 'ids']), 
               default='table', help='Output format')
 def list(status, limit, output_format):
     """List pipeline versions"""
@@ -52,6 +52,10 @@ def list(status, limit, output_format):
         for v in versions:
             status_icon = "✓" if v.get("status") == "completed" else "✗"
             click.echo(f"{status_icon} {v['id']} - {v.get('created_at', 'Unknown date')}")
+    elif output_format == 'ids':
+        # Just output IDs, one per line - perfect for scripting
+        for v in versions:
+            click.echo(v.get('id') or v.get('version_id'))
     else:  # table format
         headers = ["Status", "Version ID", "Created", "Duration", "Stages"]
         rows = []
