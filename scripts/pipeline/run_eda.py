@@ -622,7 +622,7 @@ class RunEDAStage:
         # Get input directories from previous stages
         cleaned_data_dir = artifacts_dir / "cleaned_data"
         keypairs_dir = artifacts_dir / "keypairs"
-        features_dir = artifacts_dir / "features"
+        features_dir = artifacts_dir / "statistical_features"
         
         # Initialize results
         analysis_results = {

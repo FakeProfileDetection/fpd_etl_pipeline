@@ -300,8 +300,8 @@ class ExtractFeaturesStage:
         
         # Setup output directories
         artifacts_dir = Path(self.config.get("ARTIFACTS_DIR", "artifacts")) / self.version_id
-        output_dir = artifacts_dir / "features"
-        metadata_dir = artifacts_dir / "etl_metadata" / "features"
+        output_dir = artifacts_dir / "statistical_features"
+        metadata_dir = artifacts_dir / "etl_metadata" / "statistical_features"
         
         # Load keypair data
         keypair_file = input_dir / "keypairs.parquet"

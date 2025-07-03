@@ -69,7 +69,7 @@ class ConfigManager:
         self.config["RAW_DATA_DIR"] = os.getenv("RAW_DATA_DIR", "./artifacts/{version_id}/raw_data")
         self.config["CLEANED_DATA_DIR"] = os.getenv("CLEANED_DATA_DIR", "./artifacts/{version_id}/cleaned_data")
         self.config["KEYPAIRS_DIR"] = os.getenv("KEYPAIRS_DIR", "./artifacts/{version_id}/keypairs")
-        self.config["FEATURES_DIR"] = os.getenv("FEATURES_DIR", "./artifacts/{version_id}/features")
+        self.config["FEATURES_DIR"] = os.getenv("FEATURES_DIR", "./artifacts/{version_id}/statistical_features")
         
         # Artifact settings
         self.config["ARTIFACT_RETENTION_DAYS"] = int(

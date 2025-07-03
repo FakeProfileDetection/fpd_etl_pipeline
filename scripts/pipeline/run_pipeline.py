@@ -24,7 +24,7 @@ from scripts.utils.cloud_artifact_manager import CloudArtifactManager
 from scripts.utils.logger_config import setup_pipeline_logging, get_pipeline_logger
 
 # Import pipeline stages
-from scripts.pipeline import download_data, clean_data, extract_keypairs, extract_features, run_eda
+from scripts.pipeline import download_data, clean_data, extract_keypairs, extract_features, extract_top_il_features, run_eda
 
 logger = logging.getLogger(__name__)
 
@@ -150,7 +150,7 @@ class Pipeline:
     def run_all_stages(self, stages: List[str]) -> bool:
         """Run all specified stages in order"""
         # Define stage dependencies
-        stage_order = ["download", "clean", "keypairs", "features", "eda"]
+        stage_order = ["download", "clean", "keypairs", "features", "top_il", "eda"]
         
         # Filter and order stages
         stages_to_run = [s for s in stage_order if s in stages]
@@ -198,6 +198,7 @@ class Pipeline:
             "clean": ("clean_data", clean_data.run),
             "keypairs": ("extract_keypairs", extract_keypairs.run),
             "features": ("extract_features", extract_features.run),
+            "top_il": ("extract_top_il_features", extract_top_il_features.run),
             "eda": ("run_eda", run_eda.run)
         }
         
@@ -496,7 +497,7 @@ Pipeline Configuration:
         return
     
     # Determine stages to run
-    all_stages = ["download", "clean", "keypairs", "features", "eda"]
+    all_stages = ["download", "clean", "keypairs", "features", "top_il", "eda"]
     if not stages:
         if mode == 'full':
             # Include all stages including EDA by default, unless --no-eda is specified
