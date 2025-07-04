@@ -144,11 +144,9 @@ class ConfigManager:
         """Get config with sensitive values redacted"""
         safe_config = self.config.copy()
         
-        # Redact sensitive values
+        # Redact only truly sensitive values (credentials paths)
         sensitive_keys = [
-            "GOOGLE_APPLICATION_CREDENTIALS",
-            "PROJECT_ID",
-            "BUCKET_NAME"
+            "GOOGLE_APPLICATION_CREDENTIALS"
         ]
         
         for key in sensitive_keys:

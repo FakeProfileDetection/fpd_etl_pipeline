@@ -7,11 +7,10 @@
 ./setup.sh              # Installs uv, Python 3.12.10, and all dependencies
 source activate.sh      # Activate environment
 
-# 2. Configure
-cp .env.example .env
-# Edit .env with your GCS settings
+# 2. Authenticate with Google Cloud
+gcloud auth application-default login
 
-# 3. Run pipeline
+# 3. Run pipeline (no config needed!)
 ./scripts/dev_workflow.sh run
 
 # 4. Upload (after review)

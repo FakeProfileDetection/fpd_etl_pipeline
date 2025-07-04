@@ -13,7 +13,7 @@ from datetime import datetime
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from scripts.utils.test_data_generator import TestDataGenerator
+from scripts.utils.test_data_generator import FakeDataGenerator
 from scripts.utils.enhanced_version_manager import (
     EnhancedVersionManager as VersionManager,
 )
@@ -25,7 +25,7 @@ def create_sample_users(num_users: int = 5) -> None:
     # Create a test version
     version_manager = VersionManager()
     version_id = f"sample_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    version_manager.create_version(version_id)
+    version_manager.register_version(version_id)
 
     # Setup output directory
     output_dir = Path("artifacts") / version_id / "raw_data" / "web_app_data"
@@ -34,7 +34,7 @@ def create_sample_users(num_users: int = 5) -> None:
     print(f"📁 Creating sample data in: {output_dir}")
 
     # Initialize generator
-    generator = TestDataGenerator()
+    generator = FakeDataGenerator()
 
     # Generate users
     created_files = 0

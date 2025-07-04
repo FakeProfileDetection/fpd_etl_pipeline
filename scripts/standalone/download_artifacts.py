@@ -13,11 +13,11 @@ from typing import List
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from scripts.utils.enhanced_version_manager import (
+from scripts.utils.enhanced_version_manager import (  # noqa: E402
     EnhancedVersionManager as VersionManager,
 )
-from scripts.utils.cloud_artifact_manager import CloudArtifactManager
-from scripts.utils.config_manager import get_config
+from scripts.utils.cloud_artifact_manager import CloudArtifactManager  # noqa: E402
+from scripts.utils.config_manager import get_config  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -59,30 +59,33 @@ def main(
         )
         sys.exit(1)
 
-    # Initialize cloud manager
-    cloud_manager = CloudArtifactManager(
-        project_id=config.get("PROJECT_ID"), bucket_name=config.get("BUCKET_NAME")
-    )
+    # Initialize cloud manager for listing purposes (we'll need version_id later)
+    # For now, just validate config and check cloud availability
+    bucket_name = config.get("BUCKET_NAME")
 
+    # Initialize cloud manager with version_id
+    cloud_manager = CloudArtifactManager(
+        version_id=version_id, bucket_name=bucket_name
+    )
+    
     # Check if version exists in cloud
     try:
-        manifest = cloud_manager.get_artifact_manifest(version_id)
-        if not manifest:
-            logger.error(f"No artifacts found for version {version_id} in cloud")
+        # Get version info from local tracking
+        vm = VersionManager()
+        version_info = vm.get_version(version_id)
+        if not version_info:
+            logger.error(f"Version {version_id} not found")
+            sys.exit(1)
+        
+        click.echo(f"\n📦 Version: {version_id}")
+        if version_info.get("summary", {}).get("artifacts_uploaded"):
+            click.echo("   ☁️  Artifacts available in cloud")
+        else:
+            logger.error(f"No artifacts uploaded for version {version_id}")
             sys.exit(1)
 
-        click.echo(f"\n📦 Found artifacts for version: {version_id}")
-        click.echo(f"   Uploaded at: {manifest.get('upload_timestamp')}")
-        click.echo(f"   Total files: {manifest.get('total_files')}")
-        click.echo(f"   Stages: {', '.join(manifest.get('stages', []))}")
-
-        if manifest.get("include_pii"):
-            click.echo("   ⚠️  Contains PII data")
-        else:
-            click.echo("   🔒 PII excluded")
-
     except Exception as e:
-        logger.error(f"Failed to check artifacts: {e}")
+        logger.error(f"Failed to check version: {e}")
         sys.exit(1)
 
     # Check local directory
@@ -100,13 +103,27 @@ def main(
     click.echo("\n📥 Downloading artifacts...")
 
     try:
-        downloaded = cloud_manager.download_version_artifacts(
-            version_id=version_id,
-            local_dir=Path(output_dir),
-            artifact_types=artifact_types,
-            include_pii=include_pii,
-            force=force,
-        )
+        # Download all stage artifacts
+        downloaded = {}
+        stages_to_download = artifact_types if artifact_types else None
+        
+        # Get list of available stages from version info
+        available_stages = list(version_info.get("stages", {}).keys())
+        if stages_to_download:
+            # Filter to requested stages
+            available_stages = [s for s in available_stages if s in stages_to_download]
+        
+        for stage in available_stages:
+            try:
+                stage_files = cloud_manager.download_stage_artifacts(
+                    stage_name=stage,
+                    local_dir=Path(output_dir) / version_id,
+                    force=force
+                )
+                if stage_files:
+                    downloaded[stage] = stage_files
+            except Exception as e:
+                logger.warning(f"Failed to download {stage}: {e}")
 
         if downloaded:
             # Count downloaded files
@@ -123,12 +140,12 @@ def main(
 
             # Update local version info
             vm = VersionManager()
-            vm.update_version_metadata(
+            vm.update_version(
                 version_id,
-                {
+                summary={
                     "last_downloaded": datetime.now().isoformat(),
                     "downloaded_from": "gcs",
-                },
+                }
             )
 
             click.echo("\n💡 Next steps:")

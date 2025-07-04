@@ -54,9 +54,8 @@ cd fpd_etl_pipeline
 # Activate the environment
 source activate.sh
 
-# Copy and configure environment
-cp .env.example .env
-# Edit .env with your GCS settings
+# No additional configuration needed! The pipeline is ready to use.
+# Default GCS settings are in config/.env.shared
 ```
 
 ### Manual Setup (Alternative)
@@ -71,29 +70,32 @@ source .venv/bin/activate
 # Install dependencies
 uv pip install -r requirements.txt
 
-# Configure environment
-cp .env.example .env
+# No additional configuration needed!
 ```
 
 ## 🔧 Configuration
 
-### Environment Variables
-Create `.env` based on `.env.example`:
-
+### Authentication
+The pipeline uses Google Cloud Application Default Credentials. Make sure you're authenticated:
 ```bash
-# Google Cloud Storage Configuration
-GCS_PROJECT_ID=your-gcp-project-id
-GCS_BUCKET_NAME=your-gcs-bucket-name
+gcloud auth application-default login
+```
 
-# Pipeline Configuration
-ARTIFACTS_DIR=artifacts
-LOG_LEVEL=INFO
+### Environment Variables
+**No manual configuration needed!** The pipeline includes default settings in `config/.env.shared` that work for all team members with proper IAM access.
 
-# Optional: Pipeline defaults
-DEFAULT_TOP_K_FEATURES=10
-DEFAULT_MIN_SEQUENCE_LENGTH=10
+The configuration hierarchy:
+1. `config/.env.base` - Base defaults (in repo)
+2. `config/.env.shared` - Team settings including GCS bucket names (in repo)
+3. `config/.env.local` - Personal overrides (optional, not in repo)
 
-# Processing options (legacy - for compatibility)
+Default settings from `.env.shared`:
+```bash
+# Google Cloud Storage (accessible to team members with IAM permissions)
+PROJECT_ID=fake-profile-detection-460117
+BUCKET_NAME=fake-profile-detection-eda-bucket
+
+# Processing options
 DEVICE_TYPES=desktop          # Options: desktop, mobile, or desktop,mobile
 UPLOAD_ARTIFACTS=false        # Set to true for production
 INCLUDE_PII=false            # Set to true to include demographics

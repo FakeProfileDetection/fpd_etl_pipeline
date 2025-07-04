@@ -13,10 +13,10 @@ from datetime import datetime
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from scripts.utils.enhanced_version_manager import (
+from scripts.utils.enhanced_version_manager import (  # noqa: E402
     EnhancedVersionManager as VersionManager,
 )
-from scripts.utils.config_manager import get_config
+from scripts.utils.config_manager import get_config  # noqa: E402
 
 
 def format_timestamp(iso_timestamp: str) -> str:
@@ -24,7 +24,7 @@ def format_timestamp(iso_timestamp: str) -> str:
     try:
         dt = datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00"))
         return dt.strftime("%Y-%m-%d %H:%M")
-    except:
+    except Exception:
         return iso_timestamp
 
 
@@ -76,7 +76,6 @@ def main(
 
     # Load cloud manager to check uploaded artifacts
     config = get_config()
-    cloud_manager = None
     if config.validate_cloud_config():
         # CloudArtifactManager needs version_id, but we're listing versions
         # so we'll skip cloud checking for now

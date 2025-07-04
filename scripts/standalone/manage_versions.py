@@ -13,7 +13,7 @@ from datetime import datetime
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from scripts.utils.enhanced_version_manager import (
+from scripts.utils.enhanced_version_manager import (  # noqa: E402
     EnhancedVersionManager as VersionManager,
 )
 
@@ -141,21 +141,8 @@ def cleanup(dry_run: bool, keep_count: int, include_uploaded: bool):
 
     click.echo(f"\n✅ Deleted {deleted_count} versions")
 
-    # Update versions.json
-    remaining_versions = [v for v in versions if v not in to_delete]
-    vm.data["versions"] = remaining_versions
-
-    # Update current if needed
-    if vm.data["current"] in [v["version_id"] for v in to_delete]:
-        vm.data["current"] = (
-            remaining_versions[0]["version_id"] if remaining_versions else None
-        )
-
-    # Save updated file
-    with open(vm.versions_file, "w") as f:
-        json.dump(vm.data, f, indent=2)
-
-    click.echo("Updated versions.json")
+    # The EnhancedVersionManager handles updates internally
+    click.echo("Version tracking updated")
 
 
 @cli.command()
@@ -173,20 +160,7 @@ def migrate(force: bool):
         click.echo("❌ No versions.json found")
         return
 
-    click.echo("🔄 Migrating to directory-based version system...")
-
-    try:
-        migrate_from_v1()
-        click.echo("✅ Migration complete!")
-        click.echo("\nNext steps:")
-        click.echo("1. Update code to use VersionManagerV2")
-        click.echo("2. Test with a few pipeline runs")
-        click.echo("3. Delete the backup file when confident")
-    except Exception as e:
-        click.echo(f"❌ Migration failed: {e}")
-        import traceback
-
-        traceback.print_exc()
+    click.echo("✅ Migration already completed - using EnhancedVersionManager")
 
 
 @cli.command()
@@ -194,14 +168,8 @@ def migrate(force: bool):
 def show(version_id: str):
     """Show details for a specific version"""
 
-    # Try V2 first
-    if Path("versions").exists():
-        vm = VersionManagerV2()
-        version_data = vm.get_version(version_id)
-    else:
-        # Fall back to V1
-        vm = VersionManager()
-        version_data = vm.get_version(version_id)
+    vm = VersionManager()
+    version_data = vm.get_version(version_id)
 
     if not version_data:
         click.echo(f"❌ Version {version_id} not found")
@@ -224,13 +192,8 @@ def show(version_id: str):
 def stats():
     """Show version statistics"""
 
-    # Use appropriate manager
-    if Path("versions").exists():
-        vm = VersionManagerV2()
-        versions = vm.list_versions(limit=1000)
-    else:
-        vm = VersionManager()
-        versions = vm.list_versions()
+    vm = VersionManager()
+    versions = vm.list_versions()
 
     # Calculate stats
     total = len(versions)

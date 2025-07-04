@@ -16,10 +16,10 @@ from datetime import datetime
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from scripts.utils.enhanced_version_manager import (
+from scripts.utils.enhanced_version_manager import (  # noqa: E402
     EnhancedVersionManager as VersionManager,
 )
-from scripts.utils.config_manager import get_config
+from scripts.utils.config_manager import get_config  # noqa: E402
 
 logger = logging.getLogger(__name__)
 

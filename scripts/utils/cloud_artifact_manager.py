@@ -218,7 +218,7 @@ class CloudArtifactManager:
     ) -> Dict[str, Path]:
         """Download all artifacts for a stage"""
 
-        downloads = {}
+        downloads: Dict[str, List[Path]] = {}
 
         # Filter artifacts
         stage_artifacts = {

@@ -9,21 +9,27 @@ The FPD ETL Pipeline downloads data from Google Cloud Storage (GCS). This guide 
 
 ## Authentication Steps
 
-### 1. Log in to Google Cloud
+### 1. Set up Application Default Credentials
 ```bash
 # This will open a browser for authentication
-gcloud auth login
+gcloud auth application-default login
 
 # Select your Google Workspace account when prompted
 ```
 
-### 2. Set the Project
+### 2. (Optional) Log in to gcloud CLI
 ```bash
-# Set the FPD project as default
+# Only needed if you want to use gcloud commands directly
+gcloud auth login
+```
+
+### 3. Set the Project (Optional)
+```bash
+# Optional: Set the FPD project as default for gcloud CLI
 gcloud config set project fake-profile-detection-460117
 ```
 
-### 3. Verify Access
+### 4. Verify Access
 ```bash
 # Test your access to the project bucket
 python scripts/standalone/test_gcs_access.py
@@ -78,5 +84,7 @@ echo "GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account-key.json" >> confi
 
 ## Security Notes
 - Never commit service account keys to the repository
-- The `.env.shared` file contains only project/bucket names (no secrets)
-- User-specific credentials go in `.env.local` (gitignored)
+- The `config/.env.shared` file contains project/bucket names (not secrets - these are public to team members)
+- Authentication is handled via Google Cloud's Application Default Credentials
+- Access is controlled by IAM permissions in Google Cloud Console
+- No manual .env configuration is needed - defaults are in `config/.env.shared`
