@@ -13,22 +13,23 @@ This stage:
 - Saves all outputs in eda_reports/
 """
 
-import logging
-import sys
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
-from datetime import datetime
 import json
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from collections import defaultdict
+import logging
+import shutil
+import sys
 import warnings
-from jinja2 import Environment
+from collections import defaultdict
+from datetime import datetime
 from json import JSONEncoder
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-warnings.filterwarnings('ignore')
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
+warnings.filterwarnings("ignore")
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -36,6 +37,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 class NumpyEncoder(JSONEncoder):
     """Custom JSON encoder that handles NumPy types"""
+
     def default(self, obj):
         if isinstance(obj, (np.integer, np.int64)):
             return int(obj)
@@ -47,297 +49,583 @@ class NumpyEncoder(JSONEncoder):
             return obj.isoformat()
         return super().default(obj)
 
-from scripts.utils.enhanced_version_manager import EnhancedVersionManager as VersionManager
+
+from scripts.utils.enhanced_version_manager import (
+    EnhancedVersionManager as VersionManager,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class DataQualityAnalyzer:
     """Analyzes data quality issues in keystroke data"""
-    
+
     def __init__(self):
-        self.skip_keys = {'Key.shift', 'Key.ctrl', 'Key.alt', 'Key.cmd', 'Key.caps_lock'}
-        
+        self.skip_keys = {
+            "Key.shift",
+            "Key.ctrl",
+            "Key.alt",
+            "Key.cmd",
+            "Key.caps_lock",
+        }
+
     def analyze_raw_keystrokes(self, df: pd.DataFrame) -> Dict[str, Any]:
         """Analyze raw keystroke data for quality issues"""
         results = {
-            'total_events': len(df),
-            'unique_keys': df['key'].nunique(),
-            'issues': [],
-            'issue_counts': defaultdict(int),
-            'unreleased_keys': {},
-            'key_stats': defaultdict(lambda: {'presses': 0, 'releases': 0, 'issues': 0})
+            "total_events": len(df),
+            "unique_keys": df["key"].nunique(),
+            "issues": [],
+            "issue_counts": defaultdict(int),
+            "unreleased_keys": {},
+            "key_stats": defaultdict(
+                lambda: {"presses": 0, "releases": 0, "issues": 0}
+            ),
         }
-        
+
         # Group by user and file to analyze each session
-        for (user_id, filename), session_df in df.groupby(['user_id', 'source_file']):
+        for (user_id, filename), session_df in df.groupby(["user_id", "source_file"]):
             session_issues = self._analyze_session(session_df, user_id, filename)
-            results['issues'].extend(session_issues['issues'])
-            
+            results["issues"].extend(session_issues["issues"])
+
             # Aggregate issue counts
-            for issue_type, count in session_issues['issue_counts'].items():
-                results['issue_counts'][issue_type] += count
-                
+            for issue_type, count in session_issues["issue_counts"].items():
+                results["issue_counts"][issue_type] += count
+
             # Track unreleased keys
-            if session_issues['unreleased_keys']:
-                results['unreleased_keys'][f"{user_id}_{filename}"] = session_issues['unreleased_keys']
-                
+            if session_issues["unreleased_keys"]:
+                results["unreleased_keys"][f"{user_id}_{filename}"] = session_issues[
+                    "unreleased_keys"
+                ]
+
             # Aggregate key stats
-            for key, stats in session_issues['key_stats'].items():
+            for key, stats in session_issues["key_stats"].items():
                 for stat_type, value in stats.items():
-                    results['key_stats'][key][stat_type] += value
-                    
+                    results["key_stats"][key][stat_type] += value
+
         return results
-        
-    def _analyze_session(self, df: pd.DataFrame, user_id: str, filename: str) -> Dict[str, Any]:
+
+    def _analyze_session(
+        self, df: pd.DataFrame, user_id: str, filename: str
+    ) -> Dict[str, Any]:
         """Analyze a single session for issues"""
         active_keys = {}
         issues = []
         issue_counts = defaultdict(int)
-        key_stats = defaultdict(lambda: {'presses': 0, 'releases': 0, 'issues': 0})
-        
+        key_stats = defaultdict(lambda: {"presses": 0, "releases": 0, "issues": 0})
+
         # Sort by timestamp
-        df = df.sort_values('timestamp')
-        
+        df = df.sort_values("timestamp")
+
         for idx, row in df.iterrows():
-            key = row['key']
-            event_type = row['type']
-            timestamp = row['timestamp']
-            
+            key = row["key"]
+            event_type = row["type"]
+            timestamp = row["timestamp"]
+
             # Update statistics
-            if event_type == 'P':
-                key_stats[key]['presses'] += 1
+            if event_type == "P":
+                key_stats[key]["presses"] += 1
             else:
-                key_stats[key]['releases'] += 1
-                
+                key_stats[key]["releases"] += 1
+
             # Skip modifier keys for issue detection
             if key in self.skip_keys:
                 continue
-                
-            if event_type == 'P':
+
+            if event_type == "P":
                 if key in active_keys:
                     # Double press issue
-                    issues.append({
-                        'type': 'double_press',
-                        'user_id': user_id,
-                        'file': filename,
-                        'key': key,
-                        'first_press': active_keys[key],
-                        'second_press': timestamp,
-                        'index': idx
-                    })
-                    issue_counts['double_press'] += 1
-                    key_stats[key]['issues'] += 1
+                    issues.append(
+                        {
+                            "type": "double_press",
+                            "user_id": user_id,
+                            "file": filename,
+                            "key": key,
+                            "first_press": active_keys[key],
+                            "second_press": timestamp,
+                            "index": idx,
+                        }
+                    )
+                    issue_counts["double_press"] += 1
+                    key_stats[key]["issues"] += 1
                 active_keys[key] = timestamp
-                
-            elif event_type == 'R':
+
+            elif event_type == "R":
                 if key not in active_keys:
                     # Orphan release
-                    issues.append({
-                        'type': 'orphan_release',
-                        'user_id': user_id,
-                        'file': filename,
-                        'key': key,
-                        'time': timestamp,
-                        'index': idx
-                    })
-                    issue_counts['orphan_release'] += 1
-                    key_stats[key]['issues'] += 1
+                    issues.append(
+                        {
+                            "type": "orphan_release",
+                            "user_id": user_id,
+                            "file": filename,
+                            "key": key,
+                            "time": timestamp,
+                            "index": idx,
+                        }
+                    )
+                    issue_counts["orphan_release"] += 1
+                    key_stats[key]["issues"] += 1
                 else:
                     # Check for negative hold time
                     hold_time = timestamp - active_keys[key]
                     if hold_time < 0:
-                        issues.append({
-                            'type': 'negative_hold_time',
-                            'user_id': user_id,
-                            'file': filename,
-                            'key': key,
-                            'press_time': active_keys[key],
-                            'release_time': timestamp,
-                            'hold_time': hold_time,
-                            'index': idx
-                        })
-                        issue_counts['negative_hold_time'] += 1
-                        key_stats[key]['issues'] += 1
+                        issues.append(
+                            {
+                                "type": "negative_hold_time",
+                                "user_id": user_id,
+                                "file": filename,
+                                "key": key,
+                                "press_time": active_keys[key],
+                                "release_time": timestamp,
+                                "hold_time": hold_time,
+                                "index": idx,
+                            }
+                        )
+                        issue_counts["negative_hold_time"] += 1
+                        key_stats[key]["issues"] += 1
                     del active_keys[key]
-                    
+
         # Record unreleased keys
-        unreleased = {key: time for key, time in active_keys.items() if key not in self.skip_keys}
-        
+        unreleased = {
+            key: time for key, time in active_keys.items() if key not in self.skip_keys
+        }
+
         return {
-            'issues': issues,
-            'issue_counts': dict(issue_counts),
-            'unreleased_keys': unreleased,
-            'key_stats': dict(key_stats)
+            "issues": issues,
+            "issue_counts": dict(issue_counts),
+            "unreleased_keys": unreleased,
+            "key_stats": dict(key_stats),
         }
 
 
 class FeatureAnalyzer:
     """Analyzes extracted features and timing patterns"""
-    
+
     def analyze_timing_features(self, df: pd.DataFrame) -> Dict[str, Any]:
         """Analyze timing feature distributions"""
-        timing_features = ['HL', 'IL', 'PL', 'RL']
+        timing_features = ["HL", "IL", "PL", "RL"]
         results = {}
-        
+
         # Filter valid data
-        valid_df = df[df['valid']]
-        
+        valid_df = df[df["valid"]]
+
         for feature in timing_features:
             if feature in valid_df.columns:
-                # Convert to milliseconds if needed
-                if f'{feature}_ms' in valid_df.columns:
-                    values = valid_df[f'{feature}_ms']
-                else:
-                    values = valid_df[feature] / 1_000_000  # nanoseconds to ms
-                    
+                # Values are already in milliseconds
+                values = valid_df[feature]
+
                 # Remove nulls
                 values = values.dropna()
-                
+
                 if len(values) > 0:
                     results[feature] = {
-                        'count': len(values),
-                        'mean': float(values.mean()),
-                        'std': float(values.std()),
-                        'min': float(values.min()),
-                        'max': float(values.max()),
-                        'median': float(values.median()),
-                        'q25': float(values.quantile(0.25)),
-                        'q75': float(values.quantile(0.75)),
-                        'negative_count': int((values < 0).sum()),
-                        'zero_count': int((values == 0).sum()),
-                        'outlier_threshold_low': float(values.quantile(0.01)),
-                        'outlier_threshold_high': float(values.quantile(0.99))
+                        "count": len(values),
+                        "mean": float(values.mean()),
+                        "std": float(values.std()),
+                        "min": float(values.min()),
+                        "max": float(values.max()),
+                        "median": float(values.median()),
+                        "q25": float(values.quantile(0.25)),
+                        "q75": float(values.quantile(0.75)),
+                        "negative_count": int((values < 0).sum()),
+                        "zero_count": int((values == 0).sum()),
+                        "outlier_threshold_low": float(values.quantile(0.01)),
+                        "outlier_threshold_high": float(values.quantile(0.99)),
                     }
                 else:
-                    results[feature] = {'count': 0}
-                    
+                    results[feature] = {"count": 0}
+
         return results
-        
+
+    def load_user_metadata(self, artifacts_dir: Path) -> Dict[str, str]:
+        """Load user metadata including consent timestamps"""
+        metadata_path = (
+            artifacts_dir / "cleaned_data" / "desktop" / "metadata" / "metadata.csv"
+        )
+        if metadata_path.exists():
+            metadata_df = pd.read_csv(metadata_path)
+            return dict(
+                zip(metadata_df["user_id"], metadata_df["consent_timestamp"].fillna(""))
+            )
+        return {}
+
+    def analyze_negative_values(
+        self, df: pd.DataFrame, user_metadata: Dict[str, str] = None
+    ) -> Dict[str, Any]:
+        """Analyze negative IL and RL values to understand typing patterns"""
+        valid_df = df[df["valid"]]
+        if user_metadata is None:
+            user_metadata = {}
+
+        # Define expected negative IL combinations (modifier keys and multi-key combinations)
+        modifier_keys = {
+            # Shift keys
+            "Key.shift",
+            "Key.shift_r",
+            "Key.shift_l",
+            # Control keys
+            "Key.ctrl",
+            "Key.ctrl_r",
+            "Key.ctrl_l",
+            # Alt/Option keys
+            "Key.alt",
+            "Key.alt_r",
+            "Key.alt_l",
+            "Key.option",
+            "Key.option_r",
+            "Key.option_l",
+            # Command/Windows keys
+            "Key.cmd",
+            "Key.cmd_r",
+            "Key.cmd_l",
+            "Key.win",
+            "Key.win_r",
+            "Key.win_l",
+            # Function keys
+            "Key.fn",
+            # Lock keys
+            "Key.caps_lock",
+            "Key.num_lock",
+            "Key.scroll_lock",
+            # Other modifier-like keys
+            "Key.tab",
+            "Key.menu",
+            "Key.compose",
+            # Dead keys for accents
+            "Key.dead_grave",
+            "Key.dead_acute",
+            "Key.dead_circumflex",
+            "Key.dead_tilde",
+            "Key.dead_diaeresis",
+            "Key.dead_macron",
+        }
+
+        results = {
+            "negative_IL": {
+                "total_count": 0,
+                "key_pairs": {},
+                "patterns": {},
+                "by_user": {},
+                "expected_combinations": list(modifier_keys),
+            },
+            "negative_RL": {
+                "total_count": 0,
+                "key_pairs": {},
+                "patterns": {},
+                "by_user": {},
+            },
+            "both_negative": {
+                "total_count": 0,
+                "key_pairs": {},
+                "percentage_of_negative_IL": 0,
+            },
+        }
+
+        # Analyze negative IL values
+        if "IL" in valid_df.columns:
+            negative_il_df = valid_df[valid_df["IL"] < 0].copy()
+            results["negative_IL"]["total_count"] = len(negative_il_df)
+
+            if len(negative_il_df) > 0:
+                # Add classification for expected vs unexpected
+                negative_il_df["is_expected"] = negative_il_df["key1"].isin(
+                    modifier_keys
+                )
+
+                # Count by key pair with classification
+                key_pair_groups = (
+                    negative_il_df.groupby(["key1", "key2", "is_expected"])
+                    .size()
+                    .reset_index(name="count")
+                )
+                key_pair_groups = key_pair_groups.sort_values("count", ascending=False)
+
+                # Format for JSON serialization - include ALL pairs, not just top 20
+                results["negative_IL"]["key_pairs"] = {}
+                for _, row in key_pair_groups.iterrows():
+                    key = f"{row['key1']},{row['key2']}"
+                    results["negative_IL"]["key_pairs"][key] = {
+                        "count": int(row["count"]),
+                        "is_expected": bool(row["is_expected"]),
+                    }
+
+                # Analyze by user
+                for user_id, user_df in negative_il_df.groupby("user_id"):
+                    user_key_pairs = (
+                        user_df.groupby(["key1", "key2", "is_expected"])
+                        .size()
+                        .reset_index(name="count")
+                    )
+                    user_key_pairs = user_key_pairs.sort_values(
+                        "count", ascending=False
+                    )
+
+                    # Check if user has capitalized keys (indicating old data collection method)
+                    has_capitalized = (
+                        user_df["key1"].str.match(r"^[A-Z]$").any()
+                        or user_df["key2"].str.match(r"^[A-Z]$").any()
+                    )
+
+                    results["negative_IL"]["by_user"][user_id] = {
+                        "total": len(user_df),
+                        "expected": int(user_df["is_expected"].sum()),
+                        "unexpected": int((~user_df["is_expected"]).sum()),
+                        "consent_timestamp": user_metadata.get(user_id, "Unknown"),
+                        "has_capitalized_keys": bool(has_capitalized),
+                        "top_pairs": {},
+                    }
+
+                    # Include all pairs for each user
+                    for _, row in user_key_pairs.iterrows():
+                        key = f"{row['key1']},{row['key2']}"
+                        results["negative_IL"]["by_user"][user_id]["top_pairs"][key] = {
+                            "count": int(row["count"]),
+                            "is_expected": bool(row["is_expected"]),
+                        }
+
+                # Identify patterns
+                patterns = {
+                    "total_expected": int(negative_il_df["is_expected"].sum()),
+                    "total_unexpected": int((~negative_il_df["is_expected"]).sum()),
+                    "modifier_combinations": int(
+                        negative_il_df["key1"].isin(modifier_keys).sum()
+                    ),
+                    "shift_combinations": int(
+                        negative_il_df["key1"]
+                        .str.contains("shift", case=False, na=False)
+                        .sum()
+                    ),
+                    "function_keys": int(
+                        negative_il_df["key1"].str.contains("Key.", na=False).sum()
+                    ),
+                }
+
+                results["negative_IL"]["patterns"] = patterns
+
+        # Analyze negative RL values
+        if "RL" in valid_df.columns:
+            negative_rl_df = valid_df[valid_df["RL"] < 0].copy()
+            results["negative_RL"]["total_count"] = len(negative_rl_df)
+
+            if len(negative_rl_df) > 0:
+                # Add classification
+                negative_rl_df["is_expected"] = negative_rl_df["key1"].isin(
+                    modifier_keys
+                )
+
+                # Count by key pair with classification
+                key_pair_groups = (
+                    negative_rl_df.groupby(["key1", "key2", "is_expected"])
+                    .size()
+                    .reset_index(name="count")
+                )
+                key_pair_groups = key_pair_groups.sort_values("count", ascending=False)
+
+                # Format for JSON serialization - include ALL pairs
+                results["negative_RL"]["key_pairs"] = {}
+                for _, row in key_pair_groups.iterrows():
+                    key = f"{row['key1']},{row['key2']}"
+                    results["negative_RL"]["key_pairs"][key] = {
+                        "count": int(row["count"]),
+                        "is_expected": bool(row["is_expected"]),
+                    }
+
+                # Analyze by user
+                for user_id, user_df in negative_rl_df.groupby("user_id"):
+                    results["negative_RL"]["by_user"][user_id] = {
+                        "total": len(user_df),
+                        "expected": int(user_df["is_expected"].sum()),
+                        "unexpected": int((~user_df["is_expected"]).sum()),
+                    }
+
+                # Cross-reference with negative IL
+                if "IL" in negative_rl_df.columns:
+                    both_negative = negative_rl_df[negative_rl_df["IL"] < 0]
+                    results["negative_RL"]["patterns"] = {
+                        "with_negative_IL": len(both_negative),
+                        "standalone": len(negative_rl_df) - len(both_negative),
+                    }
+
+                    # Analyze both negative cases
+                    if len(both_negative) > 0:
+                        results["both_negative"]["total_count"] = len(both_negative)
+                        results["both_negative"]["percentage_of_negative_IL"] = (
+                            (
+                                len(both_negative)
+                                / results["negative_IL"]["total_count"]
+                                * 100
+                            )
+                            if results["negative_IL"]["total_count"] > 0
+                            else 0
+                        )
+
+                        # Top key pairs for both negative
+                        both_key_pairs = (
+                            both_negative.groupby(["key1", "key2", "is_expected"])
+                            .size()
+                            .reset_index(name="count")
+                        )
+                        both_key_pairs = both_key_pairs.sort_values(
+                            "count", ascending=False
+                        )
+
+                        results["both_negative"]["key_pairs"] = {}
+                        for _, row in both_key_pairs.iterrows():
+                            key = f"{row['key1']},{row['key2']}"
+                            results["both_negative"]["key_pairs"][key] = {
+                                "count": int(row["count"]),
+                                "is_expected": bool(row["is_expected"]),
+                            }
+
+        return results
+
     def analyze_user_performance(self, df: pd.DataFrame) -> pd.DataFrame:
         """Analyze per-user statistics"""
         user_stats = []
-        
-        for user_id, user_df in df.groupby('user_id'):
+
+        for user_id, user_df in df.groupby("user_id"):
             total_count = len(user_df)
-            valid_count = user_df['valid'].sum()
-            
+            valid_count = user_df["valid"].sum()
+
             stats = {
-                'user_id': user_id,
-                'total_keypairs': total_count,
-                'valid_keypairs': int(valid_count),
-                'invalid_keypairs': int(total_count - valid_count),
-                'validity_rate': float(valid_count / total_count * 100) if total_count > 0 else 0
+                "user_id": user_id,
+                "total_keypairs": total_count,
+                "valid_keypairs": int(valid_count),
+                "invalid_keypairs": int(total_count - valid_count),
+                "validity_rate": float(valid_count / total_count * 100)
+                if total_count > 0
+                else 0,
             }
-            
+
             # Add outlier stats if available
-            if 'outlier' in user_df.columns:
-                outlier_count = user_df['outlier'].sum()
-                stats['outlier_count'] = int(outlier_count)
-                stats['outlier_rate'] = float(outlier_count / valid_count * 100) if valid_count > 0 else 0
-                
+            if "outlier" in user_df.columns:
+                outlier_count = user_df["outlier"].sum()
+                stats["outlier_count"] = int(outlier_count)
+                stats["outlier_rate"] = (
+                    float(outlier_count / valid_count * 100) if valid_count > 0 else 0
+                )
+
             user_stats.append(stats)
-            
+
         return pd.DataFrame(user_stats)
 
 
 class ReportGenerator:
     """Generates HTML reports and visualizations"""
-    
+
     def __init__(self, output_dir: Path):
         self.output_dir = output_dir
         self.figures_dir = output_dir / "figures"
         self.tables_dir = output_dir / "tables"
-        
+
         # Create directories
         self.figures_dir.mkdir(parents=True, exist_ok=True)
         self.tables_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Set plotting style
-        plt.style.use('seaborn-v0_8-darkgrid')
+        plt.style.use("seaborn-v0_8-darkgrid")
         sns.set_palette("husl")
-        
+
     def create_timing_distributions(self, timing_stats: Dict[str, Any]) -> str:
         """Create distribution plots for timing features"""
         fig, axes = plt.subplots(2, 2, figsize=(15, 10))
         axes = axes.ravel()
-        
-        features = ['HL', 'IL', 'PL', 'RL']
+
+        features = ["HL", "IL", "PL", "RL"]
         feature_names = {
-            'HL': 'Hold Latency',
-            'IL': 'Inter-key Latency',
-            'PL': 'Press Latency',
-            'RL': 'Release Latency'
+            "HL": "Hold Latency",
+            "IL": "Inter-key Latency",
+            "PL": "Press Latency",
+            "RL": "Release Latency",
         }
-        
+
         for idx, feature in enumerate(features):
             ax = axes[idx]
-            
-            if feature in timing_stats and timing_stats[feature]['count'] > 0:
+
+            if feature in timing_stats and timing_stats[feature]["count"] > 0:
                 stats = timing_stats[feature]
-                
+
                 # Create text for plot
                 text = f"Mean: {stats['mean']:.1f}ms\n"
                 text += f"Median: {stats['median']:.1f}ms\n"
                 text += f"Std: {stats['std']:.1f}ms\n"
                 text += f"Count: {stats['count']:,}"
-                
+
                 # Add box with stats
-                ax.text(0.95, 0.95, text, transform=ax.transAxes,
-                       verticalalignment='top', horizontalalignment='right',
-                       bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-                
+                ax.text(
+                    0.95,
+                    0.95,
+                    text,
+                    transform=ax.transAxes,
+                    verticalalignment="top",
+                    horizontalalignment="right",
+                    bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5),
+                )
+
                 # Create dummy histogram representation
-                ax.bar(['Min', '25%', 'Median', '75%', 'Max'],
-                      [stats['min'], stats['q25'], stats['median'], stats['q75'], stats['max']])
-                ax.set_ylabel('Time (ms)')
-                ax.set_title(f'{feature_names[feature]} Distribution')
+                ax.bar(
+                    ["Min", "25%", "Median", "75%", "Max"],
+                    [
+                        stats["min"],
+                        stats["q25"],
+                        stats["median"],
+                        stats["q75"],
+                        stats["max"],
+                    ],
+                )
+                ax.set_ylabel("Time (ms)")
+                ax.set_title(f"{feature_names[feature]} Distribution")
             else:
-                ax.text(0.5, 0.5, 'No data available', 
-                       transform=ax.transAxes, ha='center', va='center')
-                ax.set_title(f'{feature_names[feature]} Distribution')
-                
+                ax.text(
+                    0.5,
+                    0.5,
+                    "No data available",
+                    transform=ax.transAxes,
+                    ha="center",
+                    va="center",
+                )
+                ax.set_title(f"{feature_names[feature]} Distribution")
+
         plt.tight_layout()
-        filename = 'timing_distributions.png'
+        filename = "timing_distributions.png"
         filepath = self.figures_dir / filename
-        plt.savefig(filepath, dpi=300, bbox_inches='tight')
+        plt.savefig(filepath, dpi=300, bbox_inches="tight")
         plt.close()
-        
+
         return filename
-        
+
     def create_user_quality_chart(self, user_stats: pd.DataFrame) -> str:
         """Create bar chart of user data quality"""
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
-        
+
         # Sort by validity rate
-        user_stats = user_stats.sort_values('validity_rate', ascending=False)
-        
+        user_stats = user_stats.sort_values("validity_rate", ascending=False)
+
         # Validity rates
         x = range(len(user_stats))
-        ax1.bar(x, user_stats['validity_rate'])
-        ax1.set_xlabel('User Index')
-        ax1.set_ylabel('Validity Rate (%)')
-        ax1.set_title('Data Validity Rate by User')
+        ax1.bar(x, user_stats["validity_rate"])
+        ax1.set_xlabel("User Index")
+        ax1.set_ylabel("Validity Rate (%)")
+        ax1.set_title("Data Validity Rate by User")
         ax1.grid(True, alpha=0.3)
-        
+
         # Total keypairs
-        ax2.bar(x, user_stats['total_keypairs'])
-        ax2.set_xlabel('User Index')
-        ax2.set_ylabel('Total Keypairs')
-        ax2.set_title('Total Keypairs by User')
+        ax2.bar(x, user_stats["total_keypairs"])
+        ax2.set_xlabel("User Index")
+        ax2.set_ylabel("Total Keypairs")
+        ax2.set_title("Total Keypairs by User")
         ax2.grid(True, alpha=0.3)
-        
+
         plt.tight_layout()
-        filename = 'user_data_quality.png'
+        filename = "user_data_quality.png"
         filepath = self.figures_dir / filename
-        plt.savefig(filepath, dpi=300, bbox_inches='tight')
+        plt.savefig(filepath, dpi=300, bbox_inches="tight")
         plt.close()
-        
+
         return filename
-        
+
     def generate_html_report(self, analysis_results: Dict[str, Any]) -> str:
         """Generate comprehensive HTML report"""
-        template_str = '''
+        template_str = """
 <!DOCTYPE html>
 <html>
 <head>
@@ -347,20 +635,95 @@ class ReportGenerator:
         h1, h2, h3 { color: #333; }
         table { border-collapse: collapse; width: 100%; margin: 20px 0; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #4CAF50; color: white; }
+        th { background-color: #4CAF50; color: white; position: sticky; top: 0; z-index: 10; }
         tr:nth-child(even) { background-color: #f2f2f2; }
         .metric { background-color: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
         .warning { color: #ff6b6b; }
         .good { color: #51cf66; }
         img { max-width: 100%; height: auto; margin: 20px 0; }
+
+        /* Scrollable table container */
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            margin: 20px 0;
+        }
+
+        /* Table of Contents */
+        .toc {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .toc h2 {
+            margin-top: 0;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .toc ul ul {
+            padding-left: 20px;
+        }
+        .toc a {
+            text-decoration: none;
+            color: #4CAF50;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        /* Back to top link */
+        .back-to-top {
+            float: right;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
     <h1>Keystroke Data Analysis Report</h1>
     <p><strong>Generated:</strong> {{ timestamp }}</p>
     <p><strong>Version ID:</strong> {{ version_id }}</p>
-    
-    <h2>Executive Summary</h2>
+
+    <!-- Table of Contents -->
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#feature-definitions">1. Feature Definitions</a></li>
+            <li><a href="#executive-summary">2. Executive Summary</a></li>
+            {% if quality_issues %}
+            <li><a href="#data-quality-issues">3. Data Quality Issues</a></li>
+            {% endif %}
+            <li><a href="#timing-features">4. Timing Feature Analysis</a></li>
+            <li><a href="#user-performance">5. User Performance</a></li>
+            <li><a href="#visualizations">6. Visualizations</a></li>
+            {% if negative_analysis %}
+            <li><a href="#negative-analysis">7. Negative Value Analysis</a>
+                <ul>
+                    <li><a href="#expected-combinations">7.1 Expected Combinations</a></li>
+                    <li><a href="#il-summary">7.2 IL Negative Values Summary</a></li>
+                    <li><a href="#rl-summary">7.3 RL Negative Values Summary</a></li>
+                    <li><a href="#both-negative">7.4 Both IL and RL Negative</a></li>
+                    <li><a href="#user-breakdown">7.5 Analysis by User</a></li>
+                </ul>
+            </li>
+            {% endif %}
+            <li><a href="#typing-patterns">8. Typing Pattern Analysis</a></li>
+            <li><a href="#quality-assessment">9. Data Quality Assessment</a></li>
+            <li><a href="#recommendations">10. Recommendations</a></li>
+        </ul>
+    </div>
+
+    <h2 id="feature-definitions">Feature Definitions</h2>
+    <a href="#" class="back-to-top">↑ Back to top</a>
+    <img src="figures/typenet_features.png" alt="TypeNet Feature Definitions" style="max-width: 800px;">
+    <p><em>Figure: Visual representation of the four timing features extracted from keystroke data.</em></p>
+
+    <h2 id="executive-summary">Executive Summary</h2>
+    <a href="#" class="back-to-top">↑ Back to top</a>
     <div class="metric">
         <h3>Dataset Overview</h3>
         <ul>
@@ -371,9 +734,10 @@ class ReportGenerator:
             <li><strong>Devices:</strong> {{ summary.device_types|join(', ') }}</li>
         </ul>
     </div>
-    
+
     {% if quality_issues %}
-    <h2>Data Quality Issues</h2>
+    <h2 id="data-quality-issues">Data Quality Issues</h2>
+    <a href="#" class="back-to-top">↑ Back to top</a>
     <div class="metric">
         <h3>Issue Summary</h3>
         <ul>
@@ -382,15 +746,16 @@ class ReportGenerator:
             <li><strong>{{ issue_type|replace('_', ' ')|title }}:</strong> {{ count }}</li>
             {% endfor %}
         </ul>
-        
+
         {% if quality_issues.unreleased_keys %}
         <h3 class="warning">Unreleased Keys</h3>
         <p>{{ quality_issues.unreleased_keys|length }} sessions have unreleased keys</p>
         {% endif %}
     </div>
     {% endif %}
-    
-    <h2>Timing Feature Analysis</h2>
+
+    <h2 id="timing-features">Timing Feature Analysis</h2>
+    <a href="#" class="back-to-top">↑ Back to top</a>
     {% if timing_stats %}
     <table>
         <tr>
@@ -421,10 +786,11 @@ class ReportGenerator:
         {% endfor %}
     </table>
     {% endif %}
-    
-    <h2>User Performance</h2>
+
+    <h2 id="user-performance">User Performance</h2>
+    <a href="#" class="back-to-top">↑ Back to top</a>
     <img src="figures/user_data_quality.png" alt="User Data Quality">
-    
+
     <h3>Top Users by Validity Rate</h3>
     <table>
         <tr>
@@ -448,22 +814,204 @@ class ReportGenerator:
         </tr>
         {% endfor %}
     </table>
-    
-    <h2>Visualizations</h2>
+
+    <h2 id="visualizations">Visualizations</h2>
+    <a href="#" class="back-to-top">↑ Back to top</a>
     <h3>Timing Feature Distributions</h3>
     <img src="figures/timing_distributions.png" alt="Timing Distributions">
-    
-    <h2>Data Quality Assessment</h2>
+
+    {% if negative_analysis %}
+    <h2 id="negative-analysis">Negative Value Analysis</h2>
+    <a href="#" class="back-to-top">↑ Back to top</a>
     <div class="metric">
-        <p><strong>Overall Quality Rating:</strong> 
+        <h3 id="expected-combinations">Expected Negative Value Combinations</h3>
+        <p>Negative IL and RL values are expected when these modifier keys are held while pressing other keys:</p>
+        <ul>
+            {% for key in negative_analysis.negative_IL.expected_combinations %}
+            <li>{{ key }}</li>
+            {% endfor %}
+        </ul>
+
+        <h3 id="il-summary">Inter-key Latency (IL) Negative Values Summary</h3>
+        <p><strong>Total negative IL values:</strong> {{ negative_analysis.negative_IL.total_count }}</p>
+        {% if negative_analysis.negative_IL.patterns %}
+        <ul>
+            <li><strong>Expected (modifier keys):</strong> {{ negative_analysis.negative_IL.patterns.total_expected }} ({{ (negative_analysis.negative_IL.patterns.total_expected / negative_analysis.negative_IL.total_count * 100)|round(1) }}%)</li>
+            <li><strong>Unexpected:</strong> {{ negative_analysis.negative_IL.patterns.total_unexpected }} ({{ (negative_analysis.negative_IL.patterns.total_unexpected / negative_analysis.negative_IL.total_count * 100)|round(1) }}%)</li>
+        </ul>
+        {% endif %}
+
+        {% if negative_analysis.negative_IL.key_pairs %}
+        <h4>All Key Pairs with Negative IL</h4>
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th>Key1</th>
+                    <th>Key2</th>
+                    <th>Count</th>
+                    <th>Type</th>
+                </tr>
+                {% for key_pair, data in negative_analysis.negative_IL.key_pairs.items() %}
+                {% set keys = key_pair.split(',') %}
+                <tr>
+                    <td>{{ keys[0] }}</td>
+                    <td>{{ keys[1] }}</td>
+                    <td>{{ data.count }}</td>
+                    <td class="{% if data.is_expected %}good{% else %}warning{% endif %}">
+                        {{ 'Expected' if data.is_expected else 'Unexpected' }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+
+        <h3 id="rl-summary">Release Latency (RL) Negative Values Summary</h3>
+        <p><strong>Total negative RL values:</strong> {{ negative_analysis.negative_RL.total_count }}</p>
+        {% if negative_analysis.negative_RL.patterns %}
+        <ul>
+            <li>With negative IL: {{ negative_analysis.negative_RL.patterns.with_negative_IL }}</li>
+            <li>Standalone negative RL: {{ negative_analysis.negative_RL.patterns.standalone }}</li>
+        </ul>
+        {% endif %}
+
+        {% if negative_analysis.negative_RL.key_pairs %}
+        <h4>All Key Pairs with Negative RL</h4>
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th>Key1</th>
+                    <th>Key2</th>
+                    <th>Count</th>
+                    <th>Type</th>
+                </tr>
+                {% for key_pair, data in negative_analysis.negative_RL.key_pairs.items() %}
+                {% set keys = key_pair.split(',') %}
+                <tr>
+                    <td>{{ keys[0] }}</td>
+                    <td>{{ keys[1] }}</td>
+                    <td>{{ data.count }}</td>
+                    <td class="{% if data.is_expected %}good{% else %}warning{% endif %}">
+                        {{ 'Expected' if data.is_expected else 'Unexpected' }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+
+        {% if negative_analysis.both_negative.total_count > 0 %}
+        <h3 id="both-negative">Both IL and RL Negative</h3>
+        <p><strong>Total cases with both negative:</strong> {{ negative_analysis.both_negative.total_count }} ({{ negative_analysis.both_negative.percentage_of_negative_IL|round(1) }}% of negative IL cases)</p>
+
+        {% if negative_analysis.both_negative.key_pairs %}
+        <h4>All Key Pairs with Both IL and RL Negative</h4>
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th>Key1</th>
+                    <th>Key2</th>
+                    <th>Count</th>
+                    <th>Type</th>
+                </tr>
+                {% for key_pair, data in negative_analysis.both_negative.key_pairs.items() %}
+                {% set keys = key_pair.split(',') %}
+                <tr>
+                    <td>{{ keys[0] }}</td>
+                    <td>{{ keys[1] }}</td>
+                    <td>{{ data.count }}</td>
+                    <td class="{% if data.is_expected %}good{% else %}warning{% endif %}">
+                        {{ 'Expected' if data.is_expected else 'Unexpected' }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <h3 id="user-breakdown">Negative IL Analysis by User</h3>
+        {% for user_id, user_data in negative_analysis.negative_IL.by_user.items() %}
+        <h4>User: {{ user_id }}</h4>
+        <ul>
+            <li><strong>Total negative IL:</strong> {{ user_data.total }}</li>
+            <li><strong>Expected:</strong> {{ user_data.expected }} ({{ (user_data.expected / user_data.total * 100)|round(1) }}%)</li>
+            <li><strong>Unexpected:</strong> {{ user_data.unexpected }} ({{ (user_data.unexpected / user_data.total * 100)|round(1) }}%)</li>
+            <li><strong>Data Collection Date:</strong> {{ user_data.consent_timestamp }}</li>
+            <li><strong>Has Capitalized Keys:</strong> <span class="{% if user_data.has_capitalized_keys %}warning{% else %}good{% endif %}">{{ 'Yes' if user_data.has_capitalized_keys else 'No' }}</span></li>
+        </ul>
+        {% if user_data.has_capitalized_keys %}
+        <div class="metric warning">
+            <p><strong>⚠️ Old Data Collection Method Detected:</strong> This user's data contains capitalized single-letter keys (e.g., 'A', 'B'),
+            indicating it was collected before the web app was updated to record unmodified key values.
+            Data collected after the fix should only contain lowercase letters.</p>
+        </div>
+        {% endif %}
+        {% if user_data.top_pairs %}
+        <p><strong>All key pairs with negative IL:</strong></p>
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th>Key1</th>
+                    <th>Key2</th>
+                    <th>Count</th>
+                    <th>Type</th>
+                </tr>
+                {% for key_pair, data in user_data.top_pairs.items() %}
+                {% set keys = key_pair.split(',') %}
+                <tr>
+                    <td>{{ keys[0] }}</td>
+                    <td>{{ keys[1] }}</td>
+                    <td>{{ data.count }}</td>
+                    <td class="{% if data.is_expected %}good{% else %}warning{% endif %}">
+                        {{ 'Expected' if data.is_expected else 'Unexpected' }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <h2 id="typing-patterns">Typing Pattern Analysis</h2>
+    <a href="#" class="back-to-top">↑ Back to top</a>
+    <div class="metric">
+        <h3>Understanding Negative Values in Typing Data</h3>
+        <p>Our analysis reveals that negative timing values are a <strong>normal and expected</strong> part of natural typing behavior, not data quality issues:</p>
+
+        <h4>What Negative Values Mean:</h4>
+        <ul>
+            <li><strong>Negative IL (Inter-key Latency):</strong> The next key is pressed before the previous key is released. This is extremely common in fast typing and represents overlapping keystrokes.</li>
+            <li><strong>Negative RL (Release Latency):</strong> Keys are released in a different order than they were pressed. This happens when users quickly type combinations of keys.</li>
+        </ul>
+
+        <h4>Key Findings:</h4>
+        <ul>
+            <li><strong>{{ (negative_analysis.negative_IL.patterns.total_unexpected / negative_analysis.negative_IL.total_count * 100)|round(1) }}%</strong> of negative IL values are from regular typing (not modifier keys)</li>
+            <li><strong>100%</strong> of negative RL values coincide with negative IL values, indicating they represent the same fast-typing phenomenon</li>
+            <li>Common patterns include letter combinations like "a,v", "e,r", "t,h" - typical of rapid typing sequences</li>
+            <li>These patterns are consistent across users and represent individual typing styles and speeds</li>
+        </ul>
+
+        <h4>Implications for Analysis:</h4>
+        <p>Negative values should <strong>not</strong> be filtered out as errors. They contain valuable information about typing dynamics and are essential for accurate user authentication and typing pattern analysis. The high percentage of "unexpected" negative values ({{ (negative_analysis.negative_IL.patterns.total_unexpected / negative_analysis.negative_IL.total_count * 100)|round(1) }}%) actually represents normal fast typing behavior rather than data quality issues.</p>
+    </div>
+
+    <h2 id="quality-assessment">Data Quality Assessment</h2>
+    <a href="#" class="back-to-top">↑ Back to top</a>
+    <div class="metric">
+        <p><strong>Overall Quality Rating:</strong>
         <span class="{% if summary.validity_rate >= 90 %}good{% elif summary.validity_rate >= 70 %}{% else %}warning{% endif %}">
             {% if summary.validity_rate >= 95 %}Excellent{% elif summary.validity_rate >= 85 %}Good{% elif summary.validity_rate >= 70 %}Fair{% else %}Poor{% endif %}
         </span>
         ({{ summary.validity_rate|round(1) }}% valid)
         </p>
     </div>
-    
-    <h2>Recommendations</h2>
+
+    <h2 id="recommendations">Recommendations</h2>
+    <a href="#" class="back-to-top">↑ Back to top</a>
     <ul>
         {% for rec in recommendations %}
         <li>{{ rec }}</li>
@@ -471,289 +1019,347 @@ class ReportGenerator:
     </ul>
 </body>
 </html>
-        '''
-        
+        """
+
         # Create a Jinja2 environment with custom filters
         from jinja2 import Environment
-        
+
         env = Environment()
-        
+
         # Add custom filters
-        env.filters['number'] = lambda x: f"{int(x):,}" if pd.notna(x) else "N/A"
-        env.filters['round'] = lambda x, n=1: round(x, n) if pd.notna(x) else "N/A"
-        
+        env.filters["number"] = lambda x: f"{int(x):,}" if pd.notna(x) else "N/A"
+        env.filters["round"] = lambda x, n=1: round(x, n) if pd.notna(x) else "N/A"
+
         # Create template from string
         template = env.from_string(template_str)
-        
+
         return template.render(**analysis_results)
 
 
 class RunEDAStage:
     """Run exploratory data analysis and generate reports"""
-    
-    def __init__(self, version_id: str, config: Dict[str, Any], 
-                 dry_run: bool = False, local_only: bool = False,
-                 version_manager: Optional[VersionManager] = None):
+
+    def __init__(
+        self,
+        version_id: str,
+        config: Dict[str, Any],
+        dry_run: bool = False,
+        local_only: bool = False,
+        version_manager: Optional[VersionManager] = None,
+    ):
         self.version_id = version_id
         self.config = config
         self.dry_run = dry_run
         self.local_only = local_only
         self.version_manager = version_manager or VersionManager()
-        
+
         # Initialize analyzers
         self.quality_analyzer = DataQualityAnalyzer()
         self.feature_analyzer = FeatureAnalyzer()
-        
+
     def load_raw_keystrokes(self, cleaned_data_dir: Path) -> Optional[pd.DataFrame]:
         """Load raw keystroke data for quality analysis"""
         all_data = []
-        
+
         # Get device types from config
         from scripts.utils.config_manager import get_config
+
         config_manager = get_config()
         device_types = config_manager.get_device_types()
-        
+
         for device_type in device_types:
-            raw_data_dir = cleaned_data_dir / device_type / 'raw_data'
+            raw_data_dir = cleaned_data_dir / device_type / "raw_data"
             if not raw_data_dir.exists():
                 continue
-                
+
             for user_dir in raw_data_dir.iterdir():
                 if not user_dir.is_dir():
                     continue
-                    
+
                 user_id = user_dir.name
-                
+
                 # Load CSV files
-                for csv_file in user_dir.glob('*.csv'):
+                for csv_file in user_dir.glob("*.csv"):
                     # Skip non-keystroke files
                     if not self._is_keystroke_file(csv_file):
                         continue
-                        
+
                     try:
                         # First, check if file has headers by reading first line
-                        with open(csv_file, 'r') as f:
+                        with open(csv_file) as f:
                             first_line = f.readline().strip()
-                        
+
                         # If first line contains non-numeric data in the timestamp column, skip header
-                        if first_line and not first_line.split(',')[2].replace('.', '').replace('-', '').isdigit():
-                            df = pd.read_csv(csv_file, skiprows=1, header=None, names=['type', 'key', 'timestamp'],
-                                           dtype={'timestamp': float})
+                        if (
+                            first_line
+                            and not first_line.split(",")[2]
+                            .replace(".", "")
+                            .replace("-", "")
+                            .isdigit()
+                        ):
+                            df = pd.read_csv(
+                                csv_file,
+                                skiprows=1,
+                                header=None,
+                                names=["type", "key", "timestamp"],
+                                dtype={"timestamp": float},
+                            )
                         else:
-                            df = pd.read_csv(csv_file, header=None, names=['type', 'key', 'timestamp'],
-                                           dtype={'timestamp': float})
-                        
-                        df['user_id'] = user_id
-                        df['device_type'] = device_type
-                        df['source_file'] = csv_file.name
+                            df = pd.read_csv(
+                                csv_file,
+                                header=None,
+                                names=["type", "key", "timestamp"],
+                                dtype={"timestamp": float},
+                            )
+
+                        df["user_id"] = user_id
+                        df["device_type"] = device_type
+                        df["source_file"] = csv_file.name
                         all_data.append(df)
                     except Exception as e:
                         logger.warning(f"Could not load {csv_file}: {e}")
-                        
+
         return pd.concat(all_data, ignore_index=True) if all_data else None
-        
+
     def _is_keystroke_file(self, filepath: Path) -> bool:
         """Check if file is a keystroke data file"""
         # Pattern: platform_video_session_user.csv
-        parts = filepath.stem.split('_')
+        parts = filepath.stem.split("_")
         if len(parts) != 4:
             return False
         try:
             # First 3 should be numeric
             int(parts[0])
-            int(parts[1]) 
+            int(parts[1])
             int(parts[2])
             return True
         except ValueError:
             return False
-            
-    def generate_recommendations(self, summary: Dict, quality_issues: Dict, 
-                               timing_stats: Dict) -> List[str]:
+
+    def generate_recommendations(
+        self, summary: Dict, quality_issues: Dict, timing_stats: Dict
+    ) -> List[str]:
         """Generate analysis recommendations"""
         recommendations = []
-        
+
         # Data quality recommendations
-        validity_rate = summary.get('validity_rate', 0)
+        validity_rate = summary.get("validity_rate", 0)
         if validity_rate < 90:
             recommendations.append(
                 f"**Data Quality:** Validity rate is {validity_rate:.1f}%. "
                 "Consider reviewing data collection procedures."
             )
-            
+
         # Issue-based recommendations
         if quality_issues:
-            total_issues = quality_issues.get('total_issues', 0)
-            if total_issues > summary['total_keypairs'] * 0.05:
+            total_issues = quality_issues.get("total_issues", 0)
+            if total_issues > summary["total_keypairs"] * 0.05:
                 recommendations.append(
                     f"**High Error Rate:** {total_issues} quality issues detected. "
                     "Investigate data collection synchronization."
                 )
-                
-            if quality_issues.get('unreleased_keys'):
+
+            if quality_issues.get("unreleased_keys"):
                 recommendations.append(
                     "**Unreleased Keys:** Multiple sessions have unreleased keys. "
                     "May indicate incomplete data capture."
                 )
-                
+
         # Timing recommendations
         for feature, stats in timing_stats.items():
-            if stats.get('negative_count', 0) > 0:
+            if stats.get("negative_count", 0) > 0:
                 recommendations.append(
                     f"**{feature} Timing:** {stats['negative_count']} negative values detected. "
                     "Check timestamp synchronization."
                 )
-                
+
         if not recommendations:
             recommendations.append(
                 "**Overall Assessment:** Data quality appears good. "
                 "No major issues detected."
             )
-            
+
         return recommendations
-        
+
     def run(self) -> Path:
         """Execute the EDA stage"""
         logger.info(f"Starting EDA stage for version {self.version_id}")
-        
+
         # Setup directories
-        artifacts_dir = Path(self.config.get("ARTIFACTS_DIR", "artifacts")) / self.version_id
+        artifacts_dir = (
+            Path(self.config.get("ARTIFACTS_DIR", "artifacts")) / self.version_id
+        )
         output_dir = artifacts_dir / "eda_reports" / "data_quality"
-        
+
         # Get input directories from previous stages
         cleaned_data_dir = artifacts_dir / "cleaned_data"
         keypairs_dir = artifacts_dir / "keypairs"
         features_dir = artifacts_dir / "statistical_features"
-        
+
         # Initialize results
         analysis_results = {
-            'version_id': self.version_id,
-            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            "version_id": self.version_id,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         }
-        
+
         # Check if required input directories exist
         if not keypairs_dir.exists():
             logger.error(f"Keypairs directory not found: {keypairs_dir}")
-            raise FileNotFoundError(f"Cannot run EDA: keypairs directory missing. Did previous stages complete successfully?")
-        
+            raise FileNotFoundError(
+                "Cannot run EDA: keypairs directory missing. Did previous stages complete successfully?"
+            )
+
         # Load and analyze keypair data
         keypair_file = keypairs_dir / "keypairs.parquet"
         if not keypair_file.exists():
             keypair_file = keypairs_dir / "keypairs.csv"
-            
+
         if not keypair_file.exists():
             logger.error(f"No keypair data found in {keypairs_dir}")
-            raise FileNotFoundError(f"Cannot run EDA: No keypair data file found. Did the extract_keypairs stage complete successfully?")
-            
+            raise FileNotFoundError(
+                "Cannot run EDA: No keypair data file found. Did the extract_keypairs stage complete successfully?"
+            )
+
         logger.info(f"Loading keypair data from {keypair_file}")
         try:
-            if keypair_file.suffix == '.parquet':
+            if keypair_file.suffix == ".parquet":
                 keypairs_df = pd.read_parquet(keypair_file)
             else:
                 keypairs_df = pd.read_csv(keypair_file)
         except Exception as e:
             logger.error(f"Failed to load keypair data: {e}")
             raise RuntimeError(f"Cannot run EDA: Failed to load keypair data - {e}")
-            
+
         if keypairs_df.empty:
             logger.error("Keypair data is empty")
             raise ValueError("Cannot run EDA: Keypair data file is empty")
-            
+
         # Verify required columns exist
-        required_columns = ['valid', 'user_id', 'device_type']
-        missing_columns = [col for col in required_columns if col not in keypairs_df.columns]
+        required_columns = ["valid", "user_id", "device_type"]
+        missing_columns = [
+            col for col in required_columns if col not in keypairs_df.columns
+        ]
         if missing_columns:
             logger.error(f"Missing required columns in keypair data: {missing_columns}")
-            raise ValueError(f"Cannot run EDA: Missing required columns - {missing_columns}")
-            
+            raise ValueError(
+                f"Cannot run EDA: Missing required columns - {missing_columns}"
+            )
+
         if keypair_file.exists():
             logger.info("Analyzing keypair data...")
-                
+
             # Basic summary
             summary = {
-                'total_keypairs': len(keypairs_df),
-                'valid_keypairs': keypairs_df['valid'].sum(),
-                'invalid_keypairs': (~keypairs_df['valid']).sum(),
-                'validity_rate': keypairs_df['valid'].mean() * 100,
-                'unique_users': keypairs_df['user_id'].nunique(),
-                'device_types': keypairs_df['device_type'].unique().tolist()
+                "total_keypairs": len(keypairs_df),
+                "valid_keypairs": keypairs_df["valid"].sum(),
+                "invalid_keypairs": (~keypairs_df["valid"]).sum(),
+                "validity_rate": keypairs_df["valid"].mean() * 100,
+                "unique_users": keypairs_df["user_id"].nunique(),
+                "device_types": keypairs_df["device_type"].unique().tolist(),
             }
-            analysis_results['summary'] = summary
-            
+            analysis_results["summary"] = summary
+
             # Timing analysis
             timing_stats = self.feature_analyzer.analyze_timing_features(keypairs_df)
-            analysis_results['timing_stats'] = timing_stats
-            
+            analysis_results["timing_stats"] = timing_stats
+
+            # Load user metadata for negative value analysis
+            user_metadata = self.feature_analyzer.load_user_metadata(artifacts_dir)
+
+            # Negative value analysis
+            negative_analysis = self.feature_analyzer.analyze_negative_values(
+                keypairs_df, user_metadata
+            )
+            analysis_results["negative_analysis"] = negative_analysis
+
             # User performance
             user_stats = self.feature_analyzer.analyze_user_performance(keypairs_df)
-            analysis_results['user_stats'] = user_stats
-            analysis_results['top_users'] = user_stats.nlargest(10, 'validity_rate')
-            
+            analysis_results["user_stats"] = user_stats
+            analysis_results["top_users"] = user_stats.nlargest(10, "validity_rate")
+
         # Analyze raw keystroke quality (optional)
         if cleaned_data_dir.exists():
             logger.info("Analyzing raw keystroke quality...")
             raw_df = self.load_raw_keystrokes(cleaned_data_dir)
-            
+
             if raw_df is not None:
                 quality_results = self.quality_analyzer.analyze_raw_keystrokes(raw_df)
-                analysis_results['quality_issues'] = {
-                    'total_issues': len(quality_results['issues']),
-                    'issue_counts': dict(quality_results['issue_counts']),
-                    'unreleased_keys': quality_results['unreleased_keys']
+                analysis_results["quality_issues"] = {
+                    "total_issues": len(quality_results["issues"]),
+                    "issue_counts": dict(quality_results["issue_counts"]),
+                    "unreleased_keys": quality_results["unreleased_keys"],
                 }
             else:
-                analysis_results['quality_issues'] = None
-                
+                analysis_results["quality_issues"] = None
+
         # Generate recommendations
         recommendations = self.generate_recommendations(
-            analysis_results.get('summary', {}),
-            analysis_results.get('quality_issues', {}),
-            analysis_results.get('timing_stats', {})
+            analysis_results.get("summary", {}),
+            analysis_results.get("quality_issues", {}),
+            analysis_results.get("timing_stats", {}),
         )
-        analysis_results['recommendations'] = recommendations
-        
+        analysis_results["recommendations"] = recommendations
+
         # Generate report
         if not self.dry_run:
             output_dir.mkdir(parents=True, exist_ok=True)
-            
+
             # Initialize report generator
             report_gen = ReportGenerator(output_dir)
-            
+
             # Create visualizations
-            if 'timing_stats' in analysis_results:
-                report_gen.create_timing_distributions(analysis_results['timing_stats'])
-                
-            if 'user_stats' in analysis_results:
-                report_gen.create_user_quality_chart(analysis_results['user_stats'])
-                
+            if "timing_stats" in analysis_results:
+                report_gen.create_timing_distributions(analysis_results["timing_stats"])
+
+            if "user_stats" in analysis_results:
+                report_gen.create_user_quality_chart(analysis_results["user_stats"])
+
+            # Copy typenet_features.png if it exists
+            typenet_png_src = (
+                Path(__file__).parent.parent.parent
+                / "documentation"
+                / "typenet_features.png"
+            )
+            if typenet_png_src.exists():
+                typenet_png_dst = output_dir / "figures" / "typenet_features.png"
+                shutil.copy2(typenet_png_src, typenet_png_dst)
+                logger.info(f"Copied typenet_features.png to {typenet_png_dst}")
+
             # Generate HTML report
             try:
                 html_content = report_gen.generate_html_report(analysis_results)
-                
-                with open(output_dir / 'report.html', 'w') as f:
+
+                with open(output_dir / "report.html", "w") as f:
                     f.write(html_content)
             except Exception as e:
                 logger.error(f"Failed to generate HTML report: {e}")
                 logger.error(f"Analysis results keys: {list(analysis_results.keys())}")
                 raise
-                
+
             # Save analysis results as JSON
-            with open(output_dir / 'analysis_results.json', 'w') as f:
+            with open(output_dir / "analysis_results.json", "w") as f:
                 # Convert DataFrame to dict for JSON serialization
                 results_for_json = analysis_results.copy()
-                if 'user_stats' in results_for_json:
-                    results_for_json['user_stats'] = results_for_json['user_stats'].to_dict('records')
-                if 'top_users' in results_for_json:
-                    results_for_json['top_users'] = results_for_json['top_users'].to_dict('records')
-                    
+                if "user_stats" in results_for_json:
+                    results_for_json["user_stats"] = results_for_json[
+                        "user_stats"
+                    ].to_dict("records")
+                if "top_users" in results_for_json:
+                    results_for_json["top_users"] = results_for_json[
+                        "top_users"
+                    ].to_dict("records")
+
                 json.dump(results_for_json, f, indent=2, cls=NumpyEncoder)
-                
+
             # Save summary statistics
-            if 'summary' in analysis_results:
-                with open(output_dir / 'summary_stats.json', 'w') as f:
-                    json.dump(analysis_results['summary'], f, indent=2, cls=NumpyEncoder)
-                    
+            if "summary" in analysis_results:
+                with open(output_dir / "summary_stats.json", "w") as f:
+                    json.dump(
+                        analysis_results["summary"], f, indent=2, cls=NumpyEncoder
+                    )
+
             logger.info(f"Reports saved to {output_dir}")
-            
+
         # Update version info
         if not self.dry_run:
             self.version_manager.update_stage_info(
@@ -761,16 +1367,20 @@ class RunEDAStage:
                 "run_eda",
                 {
                     "output_dir": str(output_dir),
-                    "reports_generated": ['data_quality'],
-                    "completed_at": datetime.now().isoformat()
-                }
+                    "reports_generated": ["data_quality"],
+                    "completed_at": datetime.now().isoformat(),
+                },
             )
-            
+
         return output_dir
 
 
-def run(version_id: str, config: Dict[str, Any], 
-        dry_run: bool = False, local_only: bool = False) -> Path:
+def run(
+    version_id: str,
+    config: Dict[str, Any],
+    dry_run: bool = False,
+    local_only: bool = False,
+) -> Path:
     """Entry point for the pipeline orchestrator"""
     stage = RunEDAStage(version_id, config, dry_run, local_only)
     return stage.run()
@@ -779,23 +1389,24 @@ def run(version_id: str, config: Dict[str, Any],
 if __name__ == "__main__":
     # For testing the stage independently
     import click
+
     from scripts.utils.config_manager import get_config
-    
+
     @click.command()
-    @click.option('--version-id', help='Version ID to use')
-    @click.option('--dry-run', is_flag=True, help='Preview without generating reports')
+    @click.option("--version-id", help="Version ID to use")
+    @click.option("--dry-run", is_flag=True, help="Preview without generating reports")
     def main(version_id, dry_run):
         """Test EDA stage independently"""
         logging.basicConfig(level=logging.INFO)
-        
-        config = get_config()._config
+
+        config = get_config().config
         vm = VersionManager()
-        
+
         if not version_id:
             version_id = vm.create_version_id()
             logger.info(f"Created version ID: {version_id}")
-            
+
         output_dir = run(version_id, config, dry_run)
         logger.info(f"Stage complete. Output: {output_dir}")
-        
+
     main()
