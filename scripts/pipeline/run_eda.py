@@ -1125,12 +1125,38 @@ class ReportGenerator:
             float: right;
             font-size: 0.9em;
         }
+        
+        /* Code blocks */
+        pre {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            overflow-x: auto;
+        }
+        
+        code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
     <h1>Keystroke Data Analysis Report</h1>
     <p><strong>Generated:</strong> {{ timestamp }}</p>
     <p><strong>Version ID:</strong> {{ version_id }}</p>
+    
+    <!-- Data Sources -->
+    <div class="metric">
+        <h3>Data Sources</h3>
+        <p>All data used in this report can be found at the following locations:</p>
+        <ul>
+            <li><strong>Keypairs Data:</strong> <code>{{ data_paths.keypairs }}</code></li>
+            <li><strong>User Metadata:</strong> <code>{{ data_paths.metadata }}</code></li>
+            <li><strong>Raw Keystroke Data:</strong> <code>{{ data_paths.raw_data }}</code></li>
+            <li><strong>Analysis Results (JSON):</strong> <code>{{ data_paths.analysis_results }}</code></li>
+        </ul>
+    </div>
 
     <!-- Table of Contents -->
     <div class="toc">
@@ -1161,6 +1187,7 @@ class ReportGenerator:
             <li><a href="#typing-patterns">9. Typing Pattern Analysis</a></li>
             <li><a href="#quality-assessment">10. Data Quality Assessment</a></li>
             <li><a href="#recommendations">11. Recommendations</a></li>
+            <li><a href="#reproducibility">12. Reproducing This Analysis</a></li>
         </ul>
     </div>
 
@@ -1204,6 +1231,7 @@ class ReportGenerator:
 
     <h2 id="timing-features">Timing Feature Analysis</h2>
     <a href="#" class="back-to-top">↑ Back to top</a>
+    <p><small>Data source: <code>{{ data_paths.keypairs }}</code></small></p>
     {% if timing_stats %}
     <table>
         <tr>
@@ -1237,6 +1265,7 @@ class ReportGenerator:
 
     <h2 id="user-performance">User Performance</h2>
     <a href="#" class="back-to-top">↑ Back to top</a>
+    <p><small>Data source: <code>{{ data_paths.keypairs }}</code></small></p>
     <img src="figures/user_data_quality.png" alt="User Data Quality">
 
     <h3>Top Users by Validity Rate</h3>
@@ -1265,6 +1294,7 @@ class ReportGenerator:
 
     <h2 id="visualizations">Visualizations</h2>
     <a href="#" class="back-to-top">↑ Back to top</a>
+    <p><small>Data source: <code>{{ data_paths.keypairs }}</code></small></p>
     <h3>Timing Feature Distributions - All Valid Data</h3>
     <img src="figures/timing_distributions_all_data.png" alt="Timing Distributions - All Data">
 
@@ -1354,6 +1384,7 @@ class ReportGenerator:
     {% if negative_analysis %}
     <h2 id="negative-analysis">Negative Value Analysis</h2>
     <a href="#" class="back-to-top">↑ Back to top</a>
+    <p><small>Data sources: <code>{{ data_paths.keypairs }}</code>, <code>{{ data_paths.metadata }}</code></small></p>
     <div class="metric">
         <h3 id="expected-combinations">Expected Negative Value Combinations</h3>
         <p>Negative IL and RL values are expected when these modifier keys are held while pressing other keys:</p>
@@ -1548,6 +1579,51 @@ class ReportGenerator:
         <li>{{ rec }}</li>
         {% endfor %}
     </ul>
+    
+    <h2 id="reproducibility">Reproducing This Analysis</h2>
+    <a href="#" class="back-to-top">↑ Back to top</a>
+    <div class="metric">
+        <h3>Loading the Data</h3>
+        <p>To reproduce any analysis or create additional visualizations, use the following Python code:</p>
+        <pre><code>import pandas as pd
+import json
+
+# Load keypairs data
+keypairs_df = pd.read_parquet('{{ data_paths.keypairs }}')
+
+# Load user metadata
+metadata_df = pd.read_csv('{{ data_paths.metadata }}')
+
+# Load analysis results
+with open('{{ data_paths.analysis_results }}', 'r') as f:
+    analysis_results = json.load(f)
+
+# Filter valid keypairs only
+valid_df = keypairs_df[keypairs_df['valid']]
+
+# Example: Create custom analysis
+print(f"Total keypairs: {len(keypairs_df)}")
+print(f"Valid keypairs: {len(valid_df)}")
+print(f"Unique users: {keypairs_df['user_id'].nunique()}")
+</code></pre>
+        
+        <h3>Generating Additional Plots</h3>
+        <p>Example code for creating custom visualizations:</p>
+        <pre><code>import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Example: Distribution of Hold Latency by user
+plt.figure(figsize=(12, 6))
+for user_id in valid_df['user_id'].unique()[:5]:  # First 5 users
+    user_data = valid_df[valid_df['user_id'] == user_id]['HL']
+    plt.hist(user_data, bins=50, alpha=0.5, label=f'User {user_id[:8]}...')
+plt.xlabel('Hold Latency (ms)')
+plt.ylabel('Frequency')
+plt.title('Hold Latency Distribution by User')
+plt.legend()
+plt.show()
+</code></pre>
+    </div>
 </body>
 </html>
         """
@@ -1836,6 +1912,14 @@ class RunEDAStage:
             analysis_results.get("timing_stats", {}),
         )
         analysis_results["recommendations"] = recommendations
+        
+        # Add data paths for reproducibility
+        analysis_results["data_paths"] = {
+            "keypairs": str(keypair_file) if 'keypair_file' in locals() else str(keypairs_dir / "keypairs.parquet"),
+            "metadata": str(cleaned_data_dir / "desktop" / "metadata" / "metadata.csv"),
+            "raw_data": str(cleaned_data_dir),
+            "analysis_results": str(output_dir / "analysis_results.json"),
+        }
 
         # Generate report
         if not self.dry_run:
