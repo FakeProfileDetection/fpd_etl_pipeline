@@ -4,16 +4,17 @@ Manage Pipeline Versions
 Clean up old versions and migrate to new system
 """
 
-import sys
-import click
 import json
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
+
+import click
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from scripts.utils.enhanced_version_manager import (  # noqa: E402
+from scripts.utils.enhanced_version_manager import (
     EnhancedVersionManager as VersionManager,
 )
 

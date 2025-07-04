@@ -4,19 +4,19 @@ Create Sample Data for Testing
 Generates realistic sample data matching the expected web app format
 """
 
-import sys
 import json
 import random
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from scripts.utils.test_data_generator import FakeDataGenerator
 from scripts.utils.enhanced_version_manager import (
     EnhancedVersionManager as VersionManager,
 )
+from scripts.utils.test_data_generator import FakeDataGenerator
 
 
 def create_sample_users(num_users: int = 5) -> None:

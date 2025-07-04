@@ -3,13 +3,13 @@ Cloud artifact management for Google Cloud Storage
 Handles upload/download of artifacts with metadata tracking
 """
 
-import json
 import hashlib
-from pathlib import Path
-from typing import Dict, List, Optional, Any, Callable
-from datetime import datetime
+import json
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional
 
 try:
     from google.cloud import storage
@@ -67,7 +67,7 @@ class CloudArtifactManager:
         # Try loading from local cache first
         if self.local_manifest_path.exists():
             try:
-                with open(self.local_manifest_path, "r") as f:
+                with open(self.local_manifest_path) as f:
                     return json.load(f)
             except Exception as e:
                 logger.warning(f"Failed to load local manifest: {e}")

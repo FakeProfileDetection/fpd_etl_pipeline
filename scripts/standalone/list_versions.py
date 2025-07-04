@@ -4,19 +4,20 @@ List Available Pipeline Versions
 Shows all versions with their status and metadata
 """
 
-import sys
-import click
 import json
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
+
+import click
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from scripts.utils.enhanced_version_manager import (  # noqa: E402
+from scripts.utils.config_manager import get_config
+from scripts.utils.enhanced_version_manager import (
     EnhancedVersionManager as VersionManager,
 )
-from scripts.utils.config_manager import get_config  # noqa: E402
 
 
 def format_timestamp(iso_timestamp: str) -> str:

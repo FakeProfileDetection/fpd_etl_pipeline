@@ -4,20 +4,21 @@ Download Pipeline Artifacts from GCS
 Downloads processed artifacts for local analysis
 """
 
-import sys
-import click
 import logging
+import sys
 from pathlib import Path
 from typing import List
+
+import click
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from scripts.utils.enhanced_version_manager import (  # noqa: E402
+from scripts.utils.cloud_artifact_manager import CloudArtifactManager
+from scripts.utils.config_manager import get_config
+from scripts.utils.enhanced_version_manager import (
     EnhancedVersionManager as VersionManager,
 )
-from scripts.utils.cloud_artifact_manager import CloudArtifactManager  # noqa: E402
-from scripts.utils.config_manager import get_config  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -64,10 +65,8 @@ def main(
     bucket_name = config.get("BUCKET_NAME")
 
     # Initialize cloud manager with version_id
-    cloud_manager = CloudArtifactManager(
-        version_id=version_id, bucket_name=bucket_name
-    )
-    
+    cloud_manager = CloudArtifactManager(version_id=version_id, bucket_name=bucket_name)
+
     # Check if version exists in cloud
     try:
         # Get version info from local tracking
@@ -76,7 +75,7 @@ def main(
         if not version_info:
             logger.error(f"Version {version_id} not found")
             sys.exit(1)
-        
+
         click.echo(f"\n📦 Version: {version_id}")
         if version_info.get("summary", {}).get("artifacts_uploaded"):
             click.echo("   ☁️  Artifacts available in cloud")
@@ -106,19 +105,19 @@ def main(
         # Download all stage artifacts
         downloaded = {}
         stages_to_download = artifact_types if artifact_types else None
-        
+
         # Get list of available stages from version info
         available_stages = list(version_info.get("stages", {}).keys())
         if stages_to_download:
             # Filter to requested stages
             available_stages = [s for s in available_stages if s in stages_to_download]
-        
+
         for stage in available_stages:
             try:
                 stage_files = cloud_manager.download_stage_artifacts(
                     stage_name=stage,
                     local_dir=Path(output_dir) / version_id,
-                    force=force
+                    force=force,
                 )
                 if stage_files:
                     downloaded[stage] = stage_files
@@ -145,7 +144,7 @@ def main(
                 summary={
                     "last_downloaded": datetime.now().isoformat(),
                     "downloaded_from": "gcs",
-                }
+                },
             )
 
             click.echo("\n💡 Next steps:")

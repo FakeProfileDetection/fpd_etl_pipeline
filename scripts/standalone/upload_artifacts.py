@@ -4,22 +4,23 @@ Upload Pipeline Artifacts to GCS
 Creates a tar.gz archive of artifacts and uploads to cloud storage
 """
 
-import sys
-import click
 import logging
-import tarfile
 import subprocess
+import sys
+import tarfile
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
-from datetime import datetime
+
+import click
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from scripts.utils.enhanced_version_manager import (  # noqa: E402
+from scripts.utils.config_manager import get_config
+from scripts.utils.enhanced_version_manager import (
     EnhancedVersionManager as VersionManager,
 )
-from scripts.utils.config_manager import get_config  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
