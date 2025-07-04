@@ -478,36 +478,40 @@ class FeatureAnalyzer:
 
         return results
 
-    def analyze_extreme_hold_latency(self, df: pd.DataFrame, threshold_ms: float = 5000) -> Dict[str, Any]:
+    def analyze_extreme_hold_latency(
+        self, df: pd.DataFrame, threshold_ms: float = 5000
+    ) -> Dict[str, Any]:
         """Analyze extreme Hold Latency outliers
-        
+
         Args:
             df: Keypairs dataframe
             threshold_ms: Threshold for extreme HL values (default 5000ms = 5 seconds)
         """
         # Filter valid data with HL values
         valid_df = df[df["valid"] & df["HL"].notna()].copy()
-        
+
         # Find extreme HL values
         extreme_hl = valid_df[valid_df["HL"] > threshold_ms].copy()
-        
+
         results = {
             "threshold_ms": threshold_ms,
             "total_extreme_count": len(extreme_hl),
-            "percentage_of_valid": (len(extreme_hl) / len(valid_df) * 100) if len(valid_df) > 0 else 0,
-            "extreme_cases": []
+            "percentage_of_valid": (len(extreme_hl) / len(valid_df) * 100)
+            if len(valid_df) > 0
+            else 0,
+            "extreme_cases": [],
         }
-        
+
         if len(extreme_hl) > 0:
             # Sort by HL value descending
             extreme_hl = extreme_hl.sort_values("HL", ascending=False)
-            
+
             # Analyze key distribution
             key_counts = extreme_hl["key1"].value_counts()
             results["key_distribution"] = {
                 key: int(count) for key, count in key_counts.head(20).items()
             }
-            
+
             # Get top extreme cases
             for _, row in extreme_hl.head(50).iterrows():
                 case = {
@@ -516,17 +520,17 @@ class FeatureAnalyzer:
                     "hl_ms": float(row["HL"]),
                     "hl_seconds": float(row["HL"] / 1000),
                     "next_key": row["key2"] if "key2" in row else "N/A",
-                    "device_type": row.get("device_type", "unknown")
+                    "device_type": row.get("device_type", "unknown"),
                 }
-                
+
                 # Add session info if available
                 if "session_id" in row:
                     case["session_id"] = int(row["session_id"])
                 if "video_id" in row:
                     case["video_id"] = int(row["video_id"])
-                
+
                 results["extreme_cases"].append(case)
-            
+
             # Statistical summary of extreme cases
             results["extreme_stats"] = {
                 "mean_ms": float(extreme_hl["HL"].mean()),
@@ -534,25 +538,29 @@ class FeatureAnalyzer:
                 "max_ms": float(extreme_hl["HL"].max()),
                 "max_seconds": float(extreme_hl["HL"].max() / 1000),
                 "min_ms": float(extreme_hl["HL"].min()),
-                "std_ms": float(extreme_hl["HL"].std())
+                "std_ms": float(extreme_hl["HL"].std()),
             }
-            
+
             # User distribution
             users_with_extreme = extreme_hl["user_id"].nunique()
             total_users = valid_df["user_id"].nunique()
             results["user_stats"] = {
                 "users_with_extreme_hl": users_with_extreme,
                 "total_users": total_users,
-                "percentage_users_affected": (users_with_extreme / total_users * 100) if total_users > 0 else 0
+                "percentage_users_affected": (users_with_extreme / total_users * 100)
+                if total_users > 0
+                else 0,
             }
-            
+
             # Analyze by user
-            user_extreme_counts = extreme_hl.groupby("user_id").size().sort_values(ascending=False)
+            user_extreme_counts = (
+                extreme_hl.groupby("user_id").size().sort_values(ascending=False)
+            )
             results["users_most_affected"] = [
                 {"user_id": user_id, "count": int(count)}
                 for user_id, count in user_extreme_counts.head(10).items()
             ]
-        
+
         return results
 
     def analyze_user_performance(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -602,11 +610,13 @@ class ReportGenerator:
         plt.style.use("seaborn-v0_8-darkgrid")
         sns.set_palette("husl")
 
-    def create_timing_distributions(self, timing_stats: Dict[str, Any], keypairs_df: pd.DataFrame = None) -> str:
+    def create_timing_distributions(
+        self, timing_stats: Dict[str, Any], keypairs_df: pd.DataFrame = None
+    ) -> str:
         """Create insightful distribution plots for timing features"""
         # Create two separate figures: one with all data, one without outliers
         filenames = []
-        
+
         features = ["HL", "IL", "PL", "RL"]
         feature_names = {
             "HL": "Hold Latency",
@@ -614,26 +624,30 @@ class ReportGenerator:
             "PL": "Press Latency",
             "RL": "Release Latency",
         }
-        
+
         # If we have the actual data, use it for better visualizations
         if keypairs_df is not None and not keypairs_df.empty:
             valid_df = keypairs_df[keypairs_df["valid"]].copy()
-            
+
             # Create two versions: with all data and without outliers
             for include_outliers in [True, False]:
                 fig = plt.figure(figsize=(16, 12))
                 fig.suptitle(
-                    "Timing Feature Distributions - All Valid Data" if include_outliers 
-                    else "Timing Feature Distributions - Outliers Removed", 
-                    fontsize=16
+                    "Timing Feature Distributions - All Valid Data"
+                    if include_outliers
+                    else "Timing Feature Distributions - Outliers Removed",
+                    fontsize=16,
                 )
-                
+
                 for idx, feature in enumerate(features):
                     ax = plt.subplot(3, 2, idx + 1)
-                    
-                    if feature in valid_df.columns and valid_df[feature].notna().sum() > 0:
+
+                    if (
+                        feature in valid_df.columns
+                        and valid_df[feature].notna().sum() > 0
+                    ):
                         data_all = valid_df[feature].dropna()
-                        
+
                         if include_outliers:
                             data = data_all
                         else:
@@ -643,33 +657,51 @@ class ReportGenerator:
                             iqr = q3 - q1
                             lower_bound = q1 - 3 * iqr
                             upper_bound = q3 + 3 * iqr
-                            
+
                             # Keep negative values for IL and RL (they're meaningful)
                             if feature in ["IL", "RL"]:
-                                data = data_all[(data_all >= lower_bound) & (data_all <= upper_bound)]
+                                data = data_all[
+                                    (data_all >= lower_bound)
+                                    & (data_all <= upper_bound)
+                                ]
                             else:
-                                data = data_all[(data_all >= 0) & (data_all <= upper_bound)]
-                        
+                                data = data_all[
+                                    (data_all >= 0) & (data_all <= upper_bound)
+                                ]
+
                         # Create histogram with appropriate scale
                         if feature == "HL" and data.max() > 1000:
                             # For HL with wide range, use log scale
-                            bins = np.logspace(np.log10(max(1, data.min())), 
-                                             np.log10(data.max()), 50)
-                            ax.hist(data, bins=bins, alpha=0.7, edgecolor='black', color='skyblue')
-                            ax.set_xscale('log')
+                            bins = np.logspace(
+                                np.log10(max(1, data.min())), np.log10(data.max()), 50
+                            )
+                            ax.hist(
+                                data,
+                                bins=bins,
+                                alpha=0.7,
+                                edgecolor="black",
+                                color="skyblue",
+                            )
+                            ax.set_xscale("log")
                         else:
                             # For others, use regular scale
-                            ax.hist(data, bins=50, alpha=0.7, edgecolor='black', color='skyblue')
-                        
+                            ax.hist(
+                                data,
+                                bins=50,
+                                alpha=0.7,
+                                edgecolor="black",
+                                color="skyblue",
+                            )
+
                         ax.set_xlabel(f"{feature_names[feature]} (ms)")
                         ax.set_ylabel("Frequency")
                         ax.set_title(f"{feature_names[feature]} Distribution")
-                        
+
                         # Calculate statistics on the displayed data
                         mean_val = data.mean()
                         median_val = data.median()
                         std_val = data.std()
-                        
+
                         # Add statistics box
                         stats_text = f"Mean: {mean_val:.1f}ms\n"
                         stats_text += f"Median: {median_val:.1f}ms\n"
@@ -679,47 +711,83 @@ class ReportGenerator:
                         if not include_outliers:
                             outlier_count = len(data_all) - len(data)
                             stats_text += f"\nOutliers removed: {outlier_count}"
-                        
-                        ax.text(0.95, 0.95, stats_text, transform=ax.transAxes,
-                               verticalalignment='top', horizontalalignment='right',
-                               bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5),
-                               fontsize=9)
-                        
+
+                        ax.text(
+                            0.95,
+                            0.95,
+                            stats_text,
+                            transform=ax.transAxes,
+                            verticalalignment="top",
+                            horizontalalignment="right",
+                            bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5),
+                            fontsize=9,
+                        )
+
                         # Add statistical lines
                         # Add median line
-                        ax.axvline(median_val, color='red', linestyle='--', 
-                                 label=f'Median: {median_val:.1f}ms', alpha=0.8, linewidth=2)
-                        
+                        ax.axvline(
+                            median_val,
+                            color="red",
+                            linestyle="--",
+                            label=f"Median: {median_val:.1f}ms",
+                            alpha=0.8,
+                            linewidth=2,
+                        )
+
                         # Add mean line
-                        ax.axvline(mean_val, color='green', linestyle='-', 
-                                 label=f'Mean: {mean_val:.1f}ms', alpha=0.8, linewidth=2)
-                        
+                        ax.axvline(
+                            mean_val,
+                            color="green",
+                            linestyle="-",
+                            label=f"Mean: {mean_val:.1f}ms",
+                            alpha=0.8,
+                            linewidth=2,
+                        )
+
                         # Add standard deviation lines only if they're within reasonable bounds
                         if mean_val - std_val > data.min() * 0.8:
-                            ax.axvline(mean_val - std_val, color='green', linestyle=':', 
-                                     label=f'Mean - SD', alpha=0.6, linewidth=1.5)
+                            ax.axvline(
+                                mean_val - std_val,
+                                color="green",
+                                linestyle=":",
+                                label="Mean - SD",
+                                alpha=0.6,
+                                linewidth=1.5,
+                            )
                         if mean_val + std_val < data.max() * 1.2:
-                            ax.axvline(mean_val + std_val, color='green', linestyle=':', 
-                                     label=f'Mean + SD', alpha=0.6, linewidth=1.5)
-                        
+                            ax.axvline(
+                                mean_val + std_val,
+                                color="green",
+                                linestyle=":",
+                                label="Mean + SD",
+                                alpha=0.6,
+                                linewidth=1.5,
+                            )
+
                         # Position legend based on data distribution
                         if feature == "HL" and mean_val > median_val * 2:
                             # Skewed distribution, put legend on left
-                            ax.legend(loc='upper left', fontsize=8)
+                            ax.legend(loc="upper left", fontsize=8)
                         else:
                             # Use best location
-                            ax.legend(loc='best', fontsize=8)
-                        
+                            ax.legend(loc="best", fontsize=8)
+
                         ax.grid(True, alpha=0.3)
                     else:
-                        ax.text(0.5, 0.5, "No data available", transform=ax.transAxes,
-                               ha='center', va='center')
+                        ax.text(
+                            0.5,
+                            0.5,
+                            "No data available",
+                            transform=ax.transAxes,
+                            ha="center",
+                            va="center",
+                        )
                         ax.set_title(f"{feature_names[feature]} Distribution")
-            
+
                 # Add box plots for better quartile visualization (bottom row)
                 ax5 = plt.subplot(3, 2, 5)
                 ax6 = plt.subplot(3, 2, 6)
-                
+
                 # Prepare data for box plots
                 box_data = []
                 box_labels = []
@@ -736,22 +804,29 @@ class ReportGenerator:
                                 iqr = q3 - q1
                                 lower_bound = q1 - 3 * iqr
                                 upper_bound = q3 + 3 * iqr
-                                
+
                                 if feature in ["IL", "RL"]:
-                                    data = data_all[(data_all >= lower_bound) & (data_all <= upper_bound)]
+                                    data = data_all[
+                                        (data_all >= lower_bound)
+                                        & (data_all <= upper_bound)
+                                    ]
                                 else:
-                                    data = data_all[(data_all >= 0) & (data_all <= upper_bound)]
-                            
+                                    data = data_all[
+                                        (data_all >= 0) & (data_all <= upper_bound)
+                                    ]
+
                             box_data.append(data)
                             box_labels.append(feature)
-                
+
                 if box_data:
                     # Box plot for all features
-                    ax5.boxplot(box_data, labels=box_labels, showfliers=not include_outliers)
+                    ax5.boxplot(
+                        box_data, labels=box_labels, showfliers=not include_outliers
+                    )
                     ax5.set_ylabel("Time (ms)")
                     ax5.set_title("Timing Feature Distributions (Box Plot)")
                     ax5.grid(True, alpha=0.3)
-                    
+
                     # Violin plot for better distribution shape visualization
                     parts = ax6.violinplot(box_data, showmeans=True, showmedians=True)
                     ax6.set_xticks(range(1, len(box_labels) + 1))
@@ -759,14 +834,14 @@ class ReportGenerator:
                     ax6.set_ylabel("Time (ms)")
                     ax6.set_title("Timing Feature Distributions (Violin Plot)")
                     ax6.grid(True, alpha=0.3)
-                    
+
                     # Color the violin plots
-                    for pc in parts['bodies']:
-                        pc.set_facecolor('lightblue')
+                    for pc in parts["bodies"]:
+                        pc.set_facecolor("lightblue")
                         pc.set_alpha(0.7)
-                
+
                 plt.tight_layout()
-                
+
                 # Save the figure
                 suffix = "_all_data" if include_outliers else "_no_outliers"
                 filename = f"timing_distributions{suffix}.png"
@@ -774,77 +849,107 @@ class ReportGenerator:
                 plt.savefig(filepath, dpi=300, bbox_inches="tight")
                 plt.close()
                 filenames.append(filename)
-        
+
         else:
             # Fallback to using summary statistics only
             for idx, feature in enumerate(features):
                 ax = plt.subplot(2, 2, idx + 1)
-                
+
                 if feature in timing_stats and timing_stats[feature]["count"] > 0:
                     stats = timing_stats[feature]
-                    
+
                     # Create a better visualization using the statistics
                     # Show the quartiles as a box plot style visualization
                     positions = [1]
-                    box_data = [[stats["min"], stats["q25"], stats["median"], 
-                               stats["q75"], stats["max"]]]
-                    
-                    bp = ax.boxplot(box_data, positions=positions, widths=0.6,
-                                   patch_artist=True, showfliers=False)
-                    
+                    box_data = [
+                        [
+                            stats["min"],
+                            stats["q25"],
+                            stats["median"],
+                            stats["q75"],
+                            stats["max"],
+                        ]
+                    ]
+
+                    bp = ax.boxplot(
+                        box_data,
+                        positions=positions,
+                        widths=0.6,
+                        patch_artist=True,
+                        showfliers=False,
+                    )
+
                     # Color the box
-                    for patch in bp['boxes']:
-                        patch.set_facecolor('lightblue')
+                    for patch in bp["boxes"]:
+                        patch.set_facecolor("lightblue")
                         patch.set_alpha(0.7)
-                    
+
                     # Add mean as a point
-                    ax.scatter([1], [stats["mean"]], color='red', s=100, zorder=3,
-                             label=f'Mean: {stats["mean"]:.1f}ms')
-                    
+                    ax.scatter(
+                        [1],
+                        [stats["mean"]],
+                        color="red",
+                        s=100,
+                        zorder=3,
+                        label=f'Mean: {stats["mean"]:.1f}ms',
+                    )
+
                     ax.set_xlim(0.5, 1.5)
                     ax.set_xticks([1])
                     ax.set_xticklabels([feature])
                     ax.set_ylabel("Time (ms)")
                     ax.set_title(f"{feature_names[feature]} Distribution")
-                    
+
                     # Add statistics text
                     stats_text = f"Count: {stats['count']:,}\n"
                     stats_text += f"Std: {stats['std']:.1f}ms"
-                    if stats.get('negative_count', 0) > 0:
+                    if stats.get("negative_count", 0) > 0:
                         stats_text += f"\nNegative: {stats['negative_count']:,}"
-                    
-                    ax.text(0.95, 0.95, stats_text, transform=ax.transAxes,
-                           verticalalignment='top', horizontalalignment='right',
-                           bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-                    
+
+                    ax.text(
+                        0.95,
+                        0.95,
+                        stats_text,
+                        transform=ax.transAxes,
+                        verticalalignment="top",
+                        horizontalalignment="right",
+                        bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5),
+                    )
+
                     ax.legend()
-                    ax.grid(True, alpha=0.3, axis='y')
+                    ax.grid(True, alpha=0.3, axis="y")
                 else:
-                    ax.text(0.5, 0.5, "No data available", transform=ax.transAxes,
-                           ha='center', va='center')
+                    ax.text(
+                        0.5,
+                        0.5,
+                        "No data available",
+                        transform=ax.transAxes,
+                        ha="center",
+                        va="center",
+                    )
                     ax.set_title(f"{feature_names[feature]} Distribution")
-        
+
                 plt.tight_layout()
                 filename = "timing_distributions.png"
                 filepath = self.figures_dir / filename
                 plt.savefig(filepath, dpi=300, bbox_inches="tight")
                 plt.close()
                 filenames.append(filename)
-        
+
         # Return the list of filenames (will be multiple if we have actual data)
         return filenames if filenames else ["timing_distributions.png"]
 
     def create_user_quality_chart(self, user_stats: pd.DataFrame) -> str:
         """Create scalable visualization of user data quality"""
         num_users = len(user_stats)
-        
+
         # Sort by validity rate
         user_stats = user_stats.sort_values("validity_rate", ascending=False)
-        
+
         if num_users <= 20:
             # For small number of users, use bar charts
             fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
-            
+
             # Validity rates
             x = range(len(user_stats))
             ax1.bar(x, user_stats["validity_rate"])
@@ -852,75 +957,107 @@ class ReportGenerator:
             ax1.set_ylabel("Validity Rate (%)")
             ax1.set_title("Data Validity Rate by User")
             ax1.grid(True, alpha=0.3)
-            
+
             # Total keypairs
             ax2.bar(x, user_stats["total_keypairs"])
             ax2.set_xlabel("User Index")
             ax2.set_ylabel("Total Keypairs")
             ax2.set_title("Total Keypairs by User")
             ax2.grid(True, alpha=0.3)
-            
+
         else:
             # For large number of users, use different visualizations
             fig = plt.figure(figsize=(15, 10))
-            
+
             # 1. Validity rate distribution (histogram)
             ax1 = plt.subplot(2, 2, 1)
-            ax1.hist(user_stats["validity_rate"], bins=20, edgecolor='black', alpha=0.7)
+            ax1.hist(user_stats["validity_rate"], bins=20, edgecolor="black", alpha=0.7)
             ax1.set_xlabel("Validity Rate (%)")
             ax1.set_ylabel("Number of Users")
             ax1.set_title("Distribution of Validity Rates")
             ax1.grid(True, alpha=0.3)
-            
+
             # Add statistics
             mean_validity = user_stats["validity_rate"].mean()
             median_validity = user_stats["validity_rate"].median()
-            ax1.axvline(mean_validity, color='red', linestyle='--', label=f'Mean: {mean_validity:.1f}%')
-            ax1.axvline(median_validity, color='green', linestyle='--', label=f'Median: {median_validity:.1f}%')
+            ax1.axvline(
+                mean_validity,
+                color="red",
+                linestyle="--",
+                label=f"Mean: {mean_validity:.1f}%",
+            )
+            ax1.axvline(
+                median_validity,
+                color="green",
+                linestyle="--",
+                label=f"Median: {median_validity:.1f}%",
+            )
             ax1.legend()
-            
+
             # 2. Keypair count distribution (log scale)
             ax2 = plt.subplot(2, 2, 2)
-            ax2.hist(user_stats["total_keypairs"], bins=30, edgecolor='black', alpha=0.7)
+            ax2.hist(
+                user_stats["total_keypairs"], bins=30, edgecolor="black", alpha=0.7
+            )
             ax2.set_xlabel("Total Keypairs")
             ax2.set_ylabel("Number of Users")
             ax2.set_title("Distribution of Keypair Counts")
-            ax2.set_yscale('log')
+            ax2.set_yscale("log")
             ax2.grid(True, alpha=0.3)
-            
+
             # 3. Scatter plot: validity rate vs keypair count
             ax3 = plt.subplot(2, 2, 3)
-            ax3.scatter(user_stats["total_keypairs"], user_stats["validity_rate"], alpha=0.6)
+            ax3.scatter(
+                user_stats["total_keypairs"], user_stats["validity_rate"], alpha=0.6
+            )
             ax3.set_xlabel("Total Keypairs")
             ax3.set_ylabel("Validity Rate (%)")
             ax3.set_title("Validity Rate vs. Data Volume")
             ax3.grid(True, alpha=0.3)
-            
+
             # Color points by validity rate
-            colors = ['red' if v < 80 else 'yellow' if v < 95 else 'green' 
-                     for v in user_stats["validity_rate"]]
-            ax3.scatter(user_stats["total_keypairs"], user_stats["validity_rate"], 
-                       c=colors, alpha=0.6)
-            
+            colors = [
+                "red" if v < 80 else "yellow" if v < 95 else "green"
+                for v in user_stats["validity_rate"]
+            ]
+            ax3.scatter(
+                user_stats["total_keypairs"],
+                user_stats["validity_rate"],
+                c=colors,
+                alpha=0.6,
+            )
+
             # 4. Top/Bottom performers
             ax4 = plt.subplot(2, 2, 4)
             top_10 = user_stats.head(10)["validity_rate"]
             bottom_10 = user_stats.tail(10)["validity_rate"]
-            
+
             positions = list(range(10))
             width = 0.35
-            
-            ax4.barh([p - width/2 for p in positions], top_10, width, 
-                    label='Top 10', color='green', alpha=0.7)
-            ax4.barh([p + width/2 for p in positions], bottom_10, width, 
-                    label='Bottom 10', color='red', alpha=0.7)
-            
+
+            ax4.barh(
+                [p - width / 2 for p in positions],
+                top_10,
+                width,
+                label="Top 10",
+                color="green",
+                alpha=0.7,
+            )
+            ax4.barh(
+                [p + width / 2 for p in positions],
+                bottom_10,
+                width,
+                label="Bottom 10",
+                color="red",
+                alpha=0.7,
+            )
+
             ax4.set_yticks(positions)
             ax4.set_yticklabels([f"Rank {i+1}" for i in range(10)])
             ax4.set_xlabel("Validity Rate (%)")
             ax4.set_title("Top 10 vs Bottom 10 Users")
             ax4.legend()
-            ax4.grid(True, alpha=0.3, axis='x')
+            ax4.grid(True, alpha=0.3, axis="x")
 
         plt.tight_layout()
         filename = "user_data_quality.png"
@@ -1031,6 +1168,7 @@ class ReportGenerator:
     <a href="#" class="back-to-top">↑ Back to top</a>
     <img src="figures/typenet_features.png" alt="TypeNet Feature Definitions" style="max-width: 800px;">
     <p><em>Figure: Visual representation of the four timing features extracted from keystroke data.</em></p>
+    <p><small>Source: Acien, A., Morales, A., Monaco, J. V., Vera-Rodríguez, R., & Fiérrez, J. (2021, January 14). TypeNet: Deep Learning Keystroke Biometrics. arXiv. <a href="https://arxiv.org/abs/2101.05570" target="_blank">https://arxiv.org/abs/2101.05570</a></small></p>
 
     <h2 id="executive-summary">Executive Summary</h2>
     <a href="#" class="back-to-top">↑ Back to top</a>
@@ -1129,7 +1267,7 @@ class ReportGenerator:
     <a href="#" class="back-to-top">↑ Back to top</a>
     <h3>Timing Feature Distributions - All Valid Data</h3>
     <img src="figures/timing_distributions_all_data.png" alt="Timing Distributions - All Data">
-    
+
     <h3>Timing Feature Distributions - Outliers Removed</h3>
     <img src="figures/timing_distributions_no_outliers.png" alt="Timing Distributions - No Outliers">
 
@@ -1144,7 +1282,7 @@ class ReportGenerator:
             <li><strong>Percentage of valid keypairs:</strong> {{ extreme_hl_analysis.percentage_of_valid|round(2) }}%</li>
             <li><strong>Users affected:</strong> {{ extreme_hl_analysis.user_stats.users_with_extreme_hl }} out of {{ extreme_hl_analysis.user_stats.total_users }} ({{ extreme_hl_analysis.user_stats.percentage_users_affected|round(1) }}%)</li>
         </ul>
-        
+
         {% if extreme_hl_analysis.extreme_stats %}
         <h3>Extreme Hold Latency Statistics</h3>
         <ul>
@@ -1154,7 +1292,7 @@ class ReportGenerator:
             <li><strong>Minimum (of extremes):</strong> {{ extreme_hl_analysis.extreme_stats.min_ms|number }} ms</li>
         </ul>
         {% endif %}
-        
+
         {% if extreme_hl_analysis.key_distribution %}
         <h3>Most Common Keys with Extreme Hold Times</h3>
         <table>
@@ -1170,7 +1308,7 @@ class ReportGenerator:
             {% endfor %}
         </table>
         {% endif %}
-        
+
         {% if extreme_hl_analysis.extreme_cases %}
         <h3>Top Extreme Cases</h3>
         <div class="table-container">
@@ -1194,7 +1332,7 @@ class ReportGenerator:
             </table>
         </div>
         {% endif %}
-        
+
         {% if extreme_hl_analysis.users_most_affected %}
         <h3>Users Most Affected</h3>
         <table>
@@ -1664,7 +1802,7 @@ class RunEDAStage:
                 keypairs_df, user_metadata
             )
             analysis_results["negative_analysis"] = negative_analysis
-            
+
             # Extreme Hold Latency analysis
             extreme_hl_analysis = self.feature_analyzer.analyze_extreme_hold_latency(
                 keypairs_df, threshold_ms=5000
@@ -1710,8 +1848,8 @@ class RunEDAStage:
             if "timing_stats" in analysis_results:
                 # Pass keypairs_df for better visualizations
                 report_gen.create_timing_distributions(
-                    analysis_results["timing_stats"], 
-                    keypairs_df if 'keypairs_df' in locals() else None
+                    analysis_results["timing_stats"],
+                    keypairs_df if "keypairs_df" in locals() else None,
                 )
 
             if "user_stats" in analysis_results:
