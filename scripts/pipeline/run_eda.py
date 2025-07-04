@@ -251,230 +251,149 @@ class FeatureAnalyzer:
     def analyze_negative_values(
         self, df: pd.DataFrame, user_metadata: Dict[str, str] = None
     ) -> Dict[str, Any]:
-        """Analyze negative IL and RL values to understand typing patterns"""
+        """Analyze negative IL and RL values with scalable summary format"""
         valid_df = df[df["valid"]]
         if user_metadata is None:
             user_metadata = {}
 
-        # Define expected negative IL combinations (modifier keys and multi-key combinations)
+        # Define expected negative IL combinations (modifier keys)
         modifier_keys = {
-            # Shift keys
-            "Key.shift",
-            "Key.shift_r",
-            "Key.shift_l",
-            # Control keys
-            "Key.ctrl",
-            "Key.ctrl_r",
-            "Key.ctrl_l",
-            # Alt/Option keys
-            "Key.alt",
-            "Key.alt_r",
-            "Key.alt_l",
-            "Key.option",
-            "Key.option_r",
-            "Key.option_l",
-            # Command/Windows keys
-            "Key.cmd",
-            "Key.cmd_r",
-            "Key.cmd_l",
-            "Key.win",
-            "Key.win_r",
-            "Key.win_l",
-            # Function keys
-            "Key.fn",
-            # Lock keys
-            "Key.caps_lock",
-            "Key.num_lock",
-            "Key.scroll_lock",
-            # Other modifier-like keys
-            "Key.tab",
-            "Key.menu",
-            "Key.compose",
-            # Dead keys for accents
-            "Key.dead_grave",
-            "Key.dead_acute",
-            "Key.dead_circumflex",
-            "Key.dead_tilde",
-            "Key.dead_diaeresis",
-            "Key.dead_macron",
+            "Key.shift", "Key.shift_r", "Key.shift_l",
+            "Key.ctrl", "Key.ctrl_r", "Key.ctrl_l",
+            "Key.alt", "Key.alt_r", "Key.alt_l",
+            "Key.option", "Key.option_r", "Key.option_l",
+            "Key.cmd", "Key.cmd_r", "Key.cmd_l",
+            "Key.win", "Key.win_r", "Key.win_l",
+            "Key.fn", "Key.caps_lock", "Key.tab",
         }
 
         results = {
+            "summary": {
+                "total_users": valid_df["user_id"].nunique(),
+                "users_with_negative_il": 0,
+                "users_with_negative_rl": 0,
+                "modifier_keys": sorted(list(modifier_keys)),
+            },
             "negative_IL": {
                 "total_count": 0,
-                "key_pairs": {},
-                "patterns": {},
-                "by_user": {},
-                "expected_combinations": list(modifier_keys),
+                "expected_count": 0,
+                "unexpected_count": 0,
+                "top_patterns": [],  # List format for easier HTML rendering
             },
             "negative_RL": {
                 "total_count": 0,
-                "key_pairs": {},
-                "patterns": {},
-                "by_user": {},
+                "with_negative_IL": 0,
+                "standalone": 0,
+                "top_patterns": [],
             },
-            "both_negative": {
-                "total_count": 0,
-                "key_pairs": {},
-                "percentage_of_negative_IL": 0,
-            },
+            "user_summary": [],  # Scalable summary table
         }
 
         # Analyze negative IL values
+        negative_il_by_user = {}
         if "IL" in valid_df.columns:
             negative_il_df = valid_df[valid_df["IL"] < 0].copy()
             results["negative_IL"]["total_count"] = len(negative_il_df)
 
             if len(negative_il_df) > 0:
-                # Add classification for expected vs unexpected
-                negative_il_df["is_expected"] = negative_il_df["key1"].isin(
-                    modifier_keys
-                )
+                # Add classification
+                negative_il_df["is_expected"] = negative_il_df["key1"].isin(modifier_keys)
+                
+                # Overall counts
+                results["negative_IL"]["expected_count"] = int(negative_il_df["is_expected"].sum())
+                results["negative_IL"]["unexpected_count"] = int((~negative_il_df["is_expected"]).sum())
 
-                # Count by key pair with classification
-                key_pair_groups = (
-                    negative_il_df.groupby(["key1", "key2", "is_expected"])
-                    .size()
-                    .reset_index(name="count")
-                )
-                key_pair_groups = key_pair_groups.sort_values("count", ascending=False)
-
-                # Format for JSON serialization - include ALL pairs, not just top 20
-                results["negative_IL"]["key_pairs"] = {}
-                for _, row in key_pair_groups.iterrows():
-                    key = f"{row['key1']},{row['key2']}"
-                    results["negative_IL"]["key_pairs"][key] = {
+                # Top patterns (limit to 15 for scalability)
+                key_pairs = negative_il_df.groupby(["key1", "key2", "is_expected"]).size().reset_index(name="count")
+                key_pairs = key_pairs.sort_values("count", ascending=False).head(15)
+                
+                results["negative_IL"]["top_patterns"] = [
+                    {
+                        "pattern": f"{row['key1']} → {row['key2']}",
                         "count": int(row["count"]),
-                        "is_expected": bool(row["is_expected"]),
+                        "type": "expected" if row["is_expected"] else "unexpected"
                     }
+                    for _, row in key_pairs.iterrows()
+                ]
 
-                # Analyze by user
+                # Group by user for summary
                 for user_id, user_df in negative_il_df.groupby("user_id"):
-                    user_key_pairs = (
-                        user_df.groupby(["key1", "key2", "is_expected"])
-                        .size()
-                        .reset_index(name="count")
-                    )
-                    user_key_pairs = user_key_pairs.sort_values(
-                        "count", ascending=False
-                    )
-
-                    # Check if user has capitalized keys (indicating old data collection method)
-                    has_capitalized = (
-                        user_df["key1"].str.match(r"^[A-Z]$").any()
-                        or user_df["key2"].str.match(r"^[A-Z]$").any()
-                    )
-
-                    results["negative_IL"]["by_user"][user_id] = {
+                    # Get top 3 patterns for this user
+                    user_patterns = user_df.groupby(["key1", "key2"]).size().nlargest(3)
+                    top_patterns_str = ", ".join([f"{k1}→{k2}" for (k1, k2) in user_patterns.index[:3]])
+                    
+                    negative_il_by_user[user_id] = {
                         "total": len(user_df),
                         "expected": int(user_df["is_expected"].sum()),
                         "unexpected": int((~user_df["is_expected"]).sum()),
-                        "consent_timestamp": user_metadata.get(user_id, "Unknown"),
-                        "has_capitalized_keys": bool(has_capitalized),
-                        "top_pairs": {},
+                        "top_patterns": top_patterns_str
                     }
 
-                    # Include all pairs for each user
-                    for _, row in user_key_pairs.iterrows():
-                        key = f"{row['key1']},{row['key2']}"
-                        results["negative_IL"]["by_user"][user_id]["top_pairs"][key] = {
-                            "count": int(row["count"]),
-                            "is_expected": bool(row["is_expected"]),
-                        }
-
-                # Identify patterns
-                patterns = {
-                    "total_expected": int(negative_il_df["is_expected"].sum()),
-                    "total_unexpected": int((~negative_il_df["is_expected"]).sum()),
-                    "modifier_combinations": int(
-                        negative_il_df["key1"].isin(modifier_keys).sum()
-                    ),
-                    "shift_combinations": int(
-                        negative_il_df["key1"]
-                        .str.contains("shift", case=False, na=False)
-                        .sum()
-                    ),
-                    "function_keys": int(
-                        negative_il_df["key1"].str.contains("Key.", na=False).sum()
-                    ),
-                }
-
-                results["negative_IL"]["patterns"] = patterns
-
         # Analyze negative RL values
+        negative_rl_by_user = {}
         if "RL" in valid_df.columns:
             negative_rl_df = valid_df[valid_df["RL"] < 0].copy()
             results["negative_RL"]["total_count"] = len(negative_rl_df)
 
             if len(negative_rl_df) > 0:
-                # Add classification
-                negative_rl_df["is_expected"] = negative_rl_df["key1"].isin(
-                    modifier_keys
-                )
-
-                # Count by key pair with classification
-                key_pair_groups = (
-                    negative_rl_df.groupby(["key1", "key2", "is_expected"])
-                    .size()
-                    .reset_index(name="count")
-                )
-                key_pair_groups = key_pair_groups.sort_values("count", ascending=False)
-
-                # Format for JSON serialization - include ALL pairs
-                results["negative_RL"]["key_pairs"] = {}
-                for _, row in key_pair_groups.iterrows():
-                    key = f"{row['key1']},{row['key2']}"
-                    results["negative_RL"]["key_pairs"][key] = {
-                        "count": int(row["count"]),
-                        "is_expected": bool(row["is_expected"]),
-                    }
-
-                # Analyze by user
-                for user_id, user_df in negative_rl_df.groupby("user_id"):
-                    results["negative_RL"]["by_user"][user_id] = {
-                        "total": len(user_df),
-                        "expected": int(user_df["is_expected"].sum()),
-                        "unexpected": int((~user_df["is_expected"]).sum()),
-                    }
-
-                # Cross-reference with negative IL
+                # Check overlap with negative IL
                 if "IL" in negative_rl_df.columns:
                     both_negative = negative_rl_df[negative_rl_df["IL"] < 0]
-                    results["negative_RL"]["patterns"] = {
-                        "with_negative_IL": len(both_negative),
-                        "standalone": len(negative_rl_df) - len(both_negative),
+                    results["negative_RL"]["with_negative_IL"] = len(both_negative)
+                    results["negative_RL"]["standalone"] = len(negative_rl_df) - len(both_negative)
+
+                # Top patterns
+                key_pairs = negative_rl_df.groupby(["key1", "key2"]).size().reset_index(name="count")
+                key_pairs = key_pairs.sort_values("count", ascending=False).head(15)
+                
+                results["negative_RL"]["top_patterns"] = [
+                    {
+                        "pattern": f"{row['key1']} → {row['key2']}",
+                        "count": int(row["count"])
+                    }
+                    for _, row in key_pairs.iterrows()
+                ]
+
+                # Group by user
+                for user_id, user_df in negative_rl_df.groupby("user_id"):
+                    negative_rl_by_user[user_id] = {
+                        "total": len(user_df),
+                        "with_negative_il": len(user_df[user_df["IL"] < 0]) if "IL" in user_df.columns else 0
                     }
 
-                    # Analyze both negative cases
-                    if len(both_negative) > 0:
-                        results["both_negative"]["total_count"] = len(both_negative)
-                        results["both_negative"]["percentage_of_negative_IL"] = (
-                            (
-                                len(both_negative)
-                                / results["negative_IL"]["total_count"]
-                                * 100
-                            )
-                            if results["negative_IL"]["total_count"] > 0
-                            else 0
-                        )
-
-                        # Top key pairs for both negative
-                        both_key_pairs = (
-                            both_negative.groupby(["key1", "key2", "is_expected"])
-                            .size()
-                            .reset_index(name="count")
-                        )
-                        both_key_pairs = both_key_pairs.sort_values(
-                            "count", ascending=False
-                        )
-
-                        results["both_negative"]["key_pairs"] = {}
-                        for _, row in both_key_pairs.iterrows():
-                            key = f"{row['key1']},{row['key2']}"
-                            results["both_negative"]["key_pairs"][key] = {
-                                "count": int(row["count"]),
-                                "is_expected": bool(row["is_expected"]),
-                            }
+        # Create scalable user summary table
+        all_users = set(negative_il_by_user.keys()) | set(negative_rl_by_user.keys())
+        results["summary"]["users_with_negative_il"] = len(negative_il_by_user)
+        results["summary"]["users_with_negative_rl"] = len(negative_rl_by_user)
+        
+        for user_id in sorted(all_users):
+            user_row = {
+                "user_id": user_id,  # Full user ID for search/copy
+                "total_keypairs": int(len(valid_df[valid_df["user_id"] == user_id])),
+                "negative_il_total": 0,
+                "negative_il_expected": 0,
+                "negative_il_unexpected": 0,
+                "negative_il_percent": 0.0,
+                "negative_rl_total": 0,
+                "negative_rl_percent": 0.0,
+                "top_il_patterns": "",
+                "timestamp": user_metadata.get(user_id, "") if user_metadata else ""
+            }
+            
+            if user_id in negative_il_by_user:
+                il_data = negative_il_by_user[user_id]
+                user_row["negative_il_total"] = il_data["total"]
+                user_row["negative_il_expected"] = il_data["expected"]
+                user_row["negative_il_unexpected"] = il_data["unexpected"]
+                user_row["negative_il_percent"] = round(il_data["total"] / user_row["total_keypairs"] * 100, 1)
+                user_row["top_il_patterns"] = il_data["top_patterns"]
+                
+            if user_id in negative_rl_by_user:
+                rl_data = negative_rl_by_user[user_id]
+                user_row["negative_rl_total"] = rl_data["total"]
+                user_row["negative_rl_percent"] = round(rl_data["total"] / user_row["total_keypairs"] * 100, 1)
+            
+            results["user_summary"].append(user_row)
 
         return results
 
@@ -1125,7 +1044,7 @@ class ReportGenerator:
             float: right;
             font-size: 0.9em;
         }
-        
+
         /* Code blocks */
         pre {
             background-color: #f5f5f5;
@@ -1134,7 +1053,7 @@ class ReportGenerator:
             padding: 10px;
             overflow-x: auto;
         }
-        
+
         code {
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 0.9em;
@@ -1145,7 +1064,7 @@ class ReportGenerator:
     <h1>Keystroke Data Analysis Report</h1>
     <p><strong>Generated:</strong> {{ timestamp }}</p>
     <p><strong>Version ID:</strong> {{ version_id }}</p>
-    
+
     <!-- Data Sources -->
     <div class="metric">
         <h3>Data Sources</h3>
@@ -1177,10 +1096,9 @@ class ReportGenerator:
             <li><a href="#negative-analysis">8. Negative Value Analysis</a>
                 <ul>
                     <li><a href="#expected-combinations">8.1 Expected Combinations</a></li>
-                    <li><a href="#il-summary">8.2 IL Negative Values Summary</a></li>
-                    <li><a href="#rl-summary">8.3 RL Negative Values Summary</a></li>
-                    <li><a href="#both-negative">8.4 Both IL and RL Negative</a></li>
-                    <li><a href="#user-breakdown">8.5 Analysis by User</a></li>
+                    <li><a href="#il-summary">8.2 IL Negative Values</a></li>
+                    <li><a href="#rl-summary">8.3 RL Negative Values</a></li>
+                    <li><a href="#user-breakdown">8.4 User Summary</a></li>
                 </ul>
             </li>
             {% endif %}
@@ -1386,155 +1304,139 @@ class ReportGenerator:
     <a href="#" class="back-to-top">↑ Back to top</a>
     <p><small>Data sources: <code>{{ data_paths.keypairs }}</code>, <code>{{ data_paths.metadata }}</code></small></p>
     <div class="metric">
+        <h3>Summary</h3>
+        <ul>
+            <li><strong>Total users analyzed:</strong> {{ negative_analysis.summary.total_users }}</li>
+            <li><strong>Users with negative IL values:</strong> {{ negative_analysis.summary.users_with_negative_il }} ({{ (negative_analysis.summary.users_with_negative_il / negative_analysis.summary.total_users * 100)|round(1) }}%)</li>
+            <li><strong>Users with negative RL values:</strong> {{ negative_analysis.summary.users_with_negative_rl }} ({{ (negative_analysis.summary.users_with_negative_rl / negative_analysis.summary.total_users * 100)|round(1) }}%)</li>
+        </ul>
+
         <h3 id="expected-combinations">Expected Negative Value Combinations</h3>
         <p>Negative IL and RL values are expected when these modifier keys are held while pressing other keys:</p>
+        <p><code>{{ negative_analysis.summary.modifier_keys|join(', ') }}</code></p>
+
+        <h3 id="il-summary">Inter-key Latency (IL) Negative Values</h3>
         <ul>
-            {% for key in negative_analysis.negative_IL.expected_combinations %}
-            <li>{{ key }}</li>
+            <li><strong>Total negative IL values:</strong> {{ negative_analysis.negative_IL.total_count }}</li>
+            <li><strong>Expected (modifier keys):</strong> {{ negative_analysis.negative_IL.expected_count }} ({{ (negative_analysis.negative_IL.expected_count / negative_analysis.negative_IL.total_count * 100)|round(1) }}%)</li>
+            <li><strong>Unexpected (fast typing):</strong> {{ negative_analysis.negative_IL.unexpected_count }} ({{ (negative_analysis.negative_IL.unexpected_count / negative_analysis.negative_IL.total_count * 100)|round(1) }}%)</li>
+        </ul>
+
+        {% if negative_analysis.negative_IL.top_patterns %}
+        <h4>Top Negative IL Patterns</h4>
+        <table>
+            <tr>
+                <th>Pattern</th>
+                <th>Count</th>
+                <th>Type</th>
+            </tr>
+            {% for pattern in negative_analysis.negative_IL.top_patterns %}
+            <tr>
+                <td>{{ pattern.pattern }}</td>
+                <td>{{ pattern.count }}</td>
+                <td class="{% if pattern.type == 'expected' %}good{% else %}{% endif %}">{{ pattern.type|title }}</td>
+            </tr>
             {% endfor %}
-        </ul>
+        </table>
+        {% endif %}
 
-        <h3 id="il-summary">Inter-key Latency (IL) Negative Values Summary</h3>
-        <p><strong>Total negative IL values:</strong> {{ negative_analysis.negative_IL.total_count }}</p>
-        {% if negative_analysis.negative_IL.patterns %}
+        <h3 id="rl-summary">Release Latency (RL) Negative Values</h3>
         <ul>
-            <li><strong>Expected (modifier keys):</strong> {{ negative_analysis.negative_IL.patterns.total_expected }} ({{ (negative_analysis.negative_IL.patterns.total_expected / negative_analysis.negative_IL.total_count * 100)|round(1) }}%)</li>
-            <li><strong>Unexpected:</strong> {{ negative_analysis.negative_IL.patterns.total_unexpected }} ({{ (negative_analysis.negative_IL.patterns.total_unexpected / negative_analysis.negative_IL.total_count * 100)|round(1) }}%)</li>
+            <li><strong>Total negative RL values:</strong> {{ negative_analysis.negative_RL.total_count }}</li>
+            <li><strong>With negative IL:</strong> {{ negative_analysis.negative_RL.with_negative_IL }} ({{ (negative_analysis.negative_RL.with_negative_IL / negative_analysis.negative_RL.total_count * 100)|round(1) }}%)</li>
+            <li><strong>Standalone negative RL:</strong> {{ negative_analysis.negative_RL.standalone }}</li>
         </ul>
+
+        {% if negative_analysis.negative_RL.top_patterns %}
+        <h4>Top Negative RL Patterns</h4>
+        <table>
+            <tr>
+                <th>Pattern</th>
+                <th>Count</th>
+            </tr>
+            {% for pattern in negative_analysis.negative_RL.top_patterns %}
+            <tr>
+                <td>{{ pattern.pattern }}</td>
+                <td>{{ pattern.count }}</td>
+            </tr>
+            {% endfor %}
+        </table>
         {% endif %}
 
-        {% if negative_analysis.negative_IL.key_pairs %}
-        <h4>All Key Pairs with Negative IL</h4>
+        <h3 id="user-breakdown">User Summary</h3>
+        <p>Click on column headers to sort. Full user IDs are provided for easy searching.</p>
         <div class="table-container">
-            <table>
-                <tr>
-                    <th>Key1</th>
-                    <th>Key2</th>
-                    <th>Count</th>
-                    <th>Type</th>
-                </tr>
-                {% for key_pair, data in negative_analysis.negative_IL.key_pairs.items() %}
-                {% set keys = key_pair.split(',') %}
-                <tr>
-                    <td>{{ keys[0] }}</td>
-                    <td>{{ keys[1] }}</td>
-                    <td>{{ data.count }}</td>
-                    <td class="{% if data.is_expected %}good{% else %}warning{% endif %}">
-                        {{ 'Expected' if data.is_expected else 'Unexpected' }}
-                    </td>
-                </tr>
-                {% endfor %}
+            <table id="user-negative-summary" style="cursor: pointer;">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0, 'user-negative-summary')">User ID</th>
+                        <th onclick="sortTable(1, 'user-negative-summary', 'numeric')">Total Keypairs</th>
+                        <th onclick="sortTable(2, 'user-negative-summary', 'numeric')">Neg IL Total</th>
+                        <th onclick="sortTable(3, 'user-negative-summary', 'numeric')">Neg IL Expected</th>
+                        <th onclick="sortTable(4, 'user-negative-summary', 'numeric')">Neg IL Unexpected</th>
+                        <th onclick="sortTable(5, 'user-negative-summary', 'numeric')">Neg IL %</th>
+                        <th onclick="sortTable(6, 'user-negative-summary', 'numeric')">Neg RL Total</th>
+                        <th onclick="sortTable(7, 'user-negative-summary', 'numeric')">Neg RL %</th>
+                        <th>Top IL Patterns</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in negative_analysis.user_summary %}
+                    <tr>
+                        <td style="font-family: monospace;">{{ user.user_id }}</td>
+                        <td>{{ user.total_keypairs }}</td>
+                        <td>{{ user.negative_il_total }}</td>
+                        <td>{{ user.negative_il_expected }}</td>
+                        <td>{{ user.negative_il_unexpected }}</td>
+                        <td>{{ user.negative_il_percent }}%</td>
+                        <td>{{ user.negative_rl_total }}</td>
+                        <td>{{ user.negative_rl_percent }}%</td>
+                        <td style="font-size: 0.9em;">{{ user.top_il_patterns }}</td>
+                        <td style="font-size: 0.9em;">{{ user.timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
             </table>
         </div>
-        {% endif %}
-
-        <h3 id="rl-summary">Release Latency (RL) Negative Values Summary</h3>
-        <p><strong>Total negative RL values:</strong> {{ negative_analysis.negative_RL.total_count }}</p>
-        {% if negative_analysis.negative_RL.patterns %}
-        <ul>
-            <li>With negative IL: {{ negative_analysis.negative_RL.patterns.with_negative_IL }}</li>
-            <li>Standalone negative RL: {{ negative_analysis.negative_RL.patterns.standalone }}</li>
-        </ul>
-        {% endif %}
-
-        {% if negative_analysis.negative_RL.key_pairs %}
-        <h4>All Key Pairs with Negative RL</h4>
-        <div class="table-container">
-            <table>
-                <tr>
-                    <th>Key1</th>
-                    <th>Key2</th>
-                    <th>Count</th>
-                    <th>Type</th>
-                </tr>
-                {% for key_pair, data in negative_analysis.negative_RL.key_pairs.items() %}
-                {% set keys = key_pair.split(',') %}
-                <tr>
-                    <td>{{ keys[0] }}</td>
-                    <td>{{ keys[1] }}</td>
-                    <td>{{ data.count }}</td>
-                    <td class="{% if data.is_expected %}good{% else %}warning{% endif %}">
-                        {{ 'Expected' if data.is_expected else 'Unexpected' }}
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-        {% endif %}
-
-        {% if negative_analysis.both_negative.total_count > 0 %}
-        <h3 id="both-negative">Both IL and RL Negative</h3>
-        <p><strong>Total cases with both negative:</strong> {{ negative_analysis.both_negative.total_count }} ({{ negative_analysis.both_negative.percentage_of_negative_IL|round(1) }}% of negative IL cases)</p>
-
-        {% if negative_analysis.both_negative.key_pairs %}
-        <h4>All Key Pairs with Both IL and RL Negative</h4>
-        <div class="table-container">
-            <table>
-                <tr>
-                    <th>Key1</th>
-                    <th>Key2</th>
-                    <th>Count</th>
-                    <th>Type</th>
-                </tr>
-                {% for key_pair, data in negative_analysis.both_negative.key_pairs.items() %}
-                {% set keys = key_pair.split(',') %}
-                <tr>
-                    <td>{{ keys[0] }}</td>
-                    <td>{{ keys[1] }}</td>
-                    <td>{{ data.count }}</td>
-                    <td class="{% if data.is_expected %}good{% else %}warning{% endif %}">
-                        {{ 'Expected' if data.is_expected else 'Unexpected' }}
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-        {% endif %}
-        {% endif %}
-
-        <h3 id="user-breakdown">Negative IL Analysis by User</h3>
-        {% for user_id, user_data in negative_analysis.negative_IL.by_user.items() %}
-        <h4>User: {{ user_id }}</h4>
-        <ul>
-            <li><strong>Total negative IL:</strong> {{ user_data.total }}</li>
-            <li><strong>Expected:</strong> {{ user_data.expected }} ({{ (user_data.expected / user_data.total * 100)|round(1) }}%)</li>
-            <li><strong>Unexpected:</strong> {{ user_data.unexpected }} ({{ (user_data.unexpected / user_data.total * 100)|round(1) }}%)</li>
-            <li><strong>Data Collection Date:</strong> {{ user_data.consent_timestamp }}</li>
-            <li><strong>Has Capitalized Keys:</strong> <span class="{% if user_data.has_capitalized_keys %}warning{% else %}good{% endif %}">{{ 'Yes' if user_data.has_capitalized_keys else 'No' }}</span></li>
-        </ul>
-        {% if user_data.has_capitalized_keys %}
-        <div class="metric warning">
-            <p><strong>⚠️ Old Data Collection Method Detected:</strong> This user's data contains capitalized single-letter keys (e.g., 'A', 'B'),
-            indicating it was collected before the web app was updated to record unmodified key values.
-            Data collected after the fix should only contain lowercase letters.</p>
-        </div>
-        {% endif %}
-        {% if user_data.top_pairs %}
-        <p><strong>All key pairs with negative IL:</strong></p>
-        <div class="table-container">
-            <table>
-                <tr>
-                    <th>Key1</th>
-                    <th>Key2</th>
-                    <th>Count</th>
-                    <th>Type</th>
-                </tr>
-                {% for key_pair, data in user_data.top_pairs.items() %}
-                {% set keys = key_pair.split(',') %}
-                <tr>
-                    <td>{{ keys[0] }}</td>
-                    <td>{{ keys[1] }}</td>
-                    <td>{{ data.count }}</td>
-                    <td class="{% if data.is_expected %}good{% else %}warning{% endif %}">
-                        {{ 'Expected' if data.is_expected else 'Unexpected' }}
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-        {% endif %}
-        {% endfor %}
     </div>
+
+    <script>
+    function sortTable(columnIndex, tableId, type = 'text') {
+        var table = document.getElementById(tableId);
+        var tbody = table.getElementsByTagName('tbody')[0];
+        var rows = Array.from(tbody.getElementsByTagName('tr'));
+        
+        var ascending = table.getAttribute('data-sort-column') == columnIndex && 
+                       table.getAttribute('data-sort-order') == 'asc';
+        
+        rows.sort(function(a, b) {
+            var aValue = a.cells[columnIndex].innerText.trim();
+            var bValue = b.cells[columnIndex].innerText.trim();
+            
+            if (type === 'numeric') {
+                aValue = parseFloat(aValue.replace('%', '')) || 0;
+                bValue = parseFloat(bValue.replace('%', '')) || 0;
+                return ascending ? bValue - aValue : aValue - bValue;
+            } else {
+                return ascending ? 
+                    bValue.localeCompare(aValue) : 
+                    aValue.localeCompare(bValue);
+            }
+        });
+        
+        while (tbody.firstChild) {
+            tbody.removeChild(tbody.firstChild);
+        }
+        
+        rows.forEach(function(row) {
+            tbody.appendChild(row);
+        });
+        
+        table.setAttribute('data-sort-column', columnIndex);
+        table.setAttribute('data-sort-order', ascending ? 'desc' : 'asc');
+    }
+    </script>
     {% endif %}
 
     <h2 id="typing-patterns">Typing Pattern Analysis</h2>
@@ -1551,14 +1453,14 @@ class ReportGenerator:
 
         <h4>Key Findings:</h4>
         <ul>
-            <li><strong>{{ (negative_analysis.negative_IL.patterns.total_unexpected / negative_analysis.negative_IL.total_count * 100)|round(1) }}%</strong> of negative IL values are from regular typing (not modifier keys)</li>
-            <li><strong>100%</strong> of negative RL values coincide with negative IL values, indicating they represent the same fast-typing phenomenon</li>
-            <li>Common patterns include letter combinations like "a,v", "e,r", "t,h" - typical of rapid typing sequences</li>
+            <li><strong>{{ (negative_analysis.negative_IL.unexpected_count / negative_analysis.negative_IL.total_count * 100)|round(1) }}%</strong> of negative IL values are from regular typing (not modifier keys)</li>
+            <li><strong>{{ (negative_analysis.negative_RL.with_negative_IL / negative_analysis.negative_RL.total_count * 100)|round(1) }}%</strong> of negative RL values coincide with negative IL values, indicating they represent the same fast-typing phenomenon</li>
+            <li>Common patterns include letter combinations that are typical of rapid typing sequences</li>
             <li>These patterns are consistent across users and represent individual typing styles and speeds</li>
         </ul>
 
         <h4>Implications for Analysis:</h4>
-        <p>Negative values should <strong>not</strong> be filtered out as errors. They contain valuable information about typing dynamics and are essential for accurate user authentication and typing pattern analysis. The high percentage of "unexpected" negative values ({{ (negative_analysis.negative_IL.patterns.total_unexpected / negative_analysis.negative_IL.total_count * 100)|round(1) }}%) actually represents normal fast typing behavior rather than data quality issues.</p>
+        <p>Negative values should <strong>not</strong> be filtered out as errors. They contain valuable information about typing dynamics and are essential for accurate user authentication and typing pattern analysis. The high percentage of "unexpected" negative values ({{ (negative_analysis.negative_IL.unexpected_count / negative_analysis.negative_IL.total_count * 100)|round(1) }}%) actually represents normal fast typing behavior rather than data quality issues.</p>
     </div>
 
     <h2 id="quality-assessment">Data Quality Assessment</h2>
@@ -1579,7 +1481,7 @@ class ReportGenerator:
         <li>{{ rec }}</li>
         {% endfor %}
     </ul>
-    
+
     <h2 id="reproducibility">Reproducing This Analysis</h2>
     <a href="#" class="back-to-top">↑ Back to top</a>
     <div class="metric">
@@ -1606,7 +1508,7 @@ print(f"Total keypairs: {len(keypairs_df)}")
 print(f"Valid keypairs: {len(valid_df)}")
 print(f"Unique users: {keypairs_df['user_id'].nunique()}")
 </code></pre>
-        
+
         <h3>Generating Additional Plots</h3>
         <p>Example code for creating custom visualizations:</p>
         <pre><code>import matplotlib.pyplot as plt
@@ -1912,10 +1814,12 @@ class RunEDAStage:
             analysis_results.get("timing_stats", {}),
         )
         analysis_results["recommendations"] = recommendations
-        
+
         # Add data paths for reproducibility
         analysis_results["data_paths"] = {
-            "keypairs": str(keypair_file) if 'keypair_file' in locals() else str(keypairs_dir / "keypairs.parquet"),
+            "keypairs": str(keypair_file)
+            if "keypair_file" in locals()
+            else str(keypairs_dir / "keypairs.parquet"),
             "metadata": str(cleaned_data_dir / "desktop" / "metadata" / "metadata.csv"),
             "raw_data": str(cleaned_data_dir),
             "analysis_results": str(output_dir / "analysis_results.json"),
