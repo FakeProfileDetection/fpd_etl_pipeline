@@ -1,0 +1,7 @@
+[tool.ruff]
+# Ignore E402 (module import not at top) for scripts that need sys.path manipulation
+per-file-ignores = { "scripts/standalone/*.py" = ["E402"], "scripts/pipeline/*.py" = ["E402"] }
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C90", "RUF"]
+ignore = ["E722"]  # Allow bare except for backwards compatibility
