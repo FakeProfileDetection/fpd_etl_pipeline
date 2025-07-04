@@ -38,39 +38,62 @@ This pipeline processes keystroke dynamics data collected from a web application
 ## 🚀 Installation
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.12.10 (managed automatically by setup script)
 - Google Cloud SDK (for data download)
 - Git
 
-### Setup
+### Quick Setup (Recommended)
 ```bash
 # Clone the repository
 git clone https://github.com/FakeProfileDetection/fpd_etl_pipeline.git
 cd fpd_etl_pipeline
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Run automated setup (installs uv, Python 3.12.10, and all dependencies)
+./setup.sh
+
+# Activate the environment
+source activate.sh
+
+# Copy and configure environment
+cp .env.example .env
+# Edit .env with your GCS settings
+```
+
+### Manual Setup (Alternative)
+```bash
+# Install uv package manager
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create virtual environment with Python 3.12.10
+uv venv --python 3.12.10 .venv
+source .venv/bin/activate
 
 # Install dependencies
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 
-# Copy configuration template
-cp config/.env.base config/.env.local
-# Edit config/.env.local with your settings
+# Configure environment
+cp .env.example .env
 ```
 
 ## 🔧 Configuration
 
 ### Environment Variables
-Create `config/.env.local` based on `.env.base`:
+Create `.env` based on `.env.example`:
 
 ```bash
-# Essential for cloud data access
-PROJECT_ID=your-gcp-project
-BUCKET_NAME=your-gcs-bucket
+# Google Cloud Storage Configuration
+GCS_PROJECT_ID=your-gcp-project-id
+GCS_BUCKET_NAME=your-gcs-bucket-name
 
-# Processing options
+# Pipeline Configuration
+ARTIFACTS_DIR=artifacts
+LOG_LEVEL=INFO
+
+# Optional: Pipeline defaults
+DEFAULT_TOP_K_FEATURES=10
+DEFAULT_MIN_SEQUENCE_LENGTH=10
+
+# Processing options (legacy - for compatibility)
 DEVICE_TYPES=desktop          # Options: desktop, mobile, or desktop,mobile
 UPLOAD_ARTIFACTS=false        # Set to true for production
 INCLUDE_PII=false            # Set to true to include demographics
@@ -107,6 +130,14 @@ python scripts/pipeline/run_pipeline.py -s keypairs
 - Handles missing data with imputation
 ```bash
 python scripts/pipeline/run_pipeline.py -s features
+```
+
+### 4a. Extract Top-k IL Features (`top_il_features`)
+- Identifies top-k most frequent digrams (key pairs) from keystroke data
+- Extracts 5 statistical measures (mean, median, q1, q3, std) for each digram
+- Creates feature sets with k×5 features total
+```bash
+python scripts/pipeline/run_pipeline.py -s top_il_features --top-k 20
 ```
 
 ### 5. Run EDA (`eda`)
@@ -198,10 +229,13 @@ artifacts/
     ├── keypairs/           # Extracted timing features
     │   ├── keypairs.parquet
     │   └── keypairs.csv
-    ├── features/           # ML-ready features
+    ├── statistical_features/  # ML-ready statistical features
     │   ├── typenet_ml_user_platform/
     │   ├── typenet_ml_session/
     │   └── typenet_ml_video/
+    ├── statistical_IL_top_k_features/  # Top-k digram features
+    │   ├── top_10_features.parquet
+    │   └── top_10_features.csv
     ├── reports/            # EDA reports and plots
     └── etl_metadata/       # Processing logs and stats
 ```
@@ -487,11 +521,11 @@ python -m pdb scripts/pipeline/run_pipeline.py -s clean
 def process_user_text_files(user_dir: Path) -> pd.DataFrame:
     """Extract features from user .txt files"""
     text_files = list(user_dir.glob("*.txt"))
-    
+
     features = []
     for txt_file in text_files:
         content = txt_file.read_text()
-        
+
         # Extract features
         feature_dict = {
             'user_id': user_dir.name,
@@ -502,7 +536,7 @@ def process_user_text_files(user_dir: Path) -> pd.DataFrame:
             # Add more features
         }
         features.append(feature_dict)
-    
+
     return pd.DataFrame(features)
 ```
 
@@ -618,43 +652,91 @@ For a user's data to be considered complete:
 
 ## 🗂️ Version Management
 
-### Managing Versions
+### Enhanced Version Management System
 
-The pipeline tracks all processing runs with version IDs. Use the `manage_versions.py` script to:
+The pipeline now uses an enhanced version management system that minimizes git conflicts and supports team collaboration:
 
+#### Version Tools CLI (`version_tools.py`)
 ```bash
-# Show version statistics
-python scripts/standalone/manage_versions.py stats
+# List versions with different formats
+python scripts/standalone/version_tools.py list              # Table format
+python scripts/standalone/version_tools.py list --format ids # Just IDs (for scripting)
+python scripts/standalone/version_tools.py list --format json # JSON output
 
-# Clean up old versions (keeps 10 most recent by default)
-python scripts/standalone/manage_versions.py cleanup
+# Show detailed version info
+python scripts/standalone/version_tools.py show 2025-06-29_16-14-37_loris-mbp
 
-# Dry run to see what would be deleted
-python scripts/standalone/manage_versions.py cleanup --dry-run
+# Delete specific version
+python scripts/standalone/version_tools.py delete VERSION_ID --artifacts
 
-# Keep more versions
-python scripts/standalone/manage_versions.py cleanup --keep-count 20
+# Archive old versions
+python scripts/standalone/version_tools.py archive VERSION_ID
 
-# Show details for a specific version
-python scripts/standalone/manage_versions.py show 2025-06-29_16-14-37_loris-mbpcablercncom
+# Clean up failed versions older than 7 days
+python scripts/standalone/version_tools.py cleanup --days 7
+
+# Search for specific failures
+python scripts/standalone/version_tools.py search --stage-failed download_data
+
+# Show statistics
+python scripts/standalone/version_tools.py stats
 ```
 
-### Version Storage (Planned Enhancement)
+### Development-Only Cleanup Tools ⚠️
 
-Currently using a single `versions.json` file. Future migration to directory structure:
+**WARNING**: These tools are ONLY for solo developers during development. NEVER use in production or shared environments!
+
+#### Selective Cleanup (`cleanup_dev_versions.py`)
+```bash
+# Clean up failed versions
+python scripts/standalone/cleanup_dev_versions.py --failed-only
+
+# Clean up versions older than 3 days
+python scripts/standalone/cleanup_dev_versions.py --days-old 3
+
+# Interactive cleanup (choose which to delete)
+python scripts/standalone/cleanup_dev_versions.py --interactive
+
+# Dry run to preview
+python scripts/standalone/cleanup_dev_versions.py --dry-run
 ```
-versions/
-├── index.json              # Current version and quick lookups
-├── 2025-06-29_16-14-37.json  # Individual version files
-├── 2025-06-29_17-10-25.json
-└── ...
+
+#### Nuclear Option (`purge_development_versions.py`) 🔥
+```bash
+# ⚠️ EXTREME CAUTION: Deletes ALL version data!
+# Triple confirmation required
+python scripts/standalone/purge_development_versions.py
+
+# Preview what would be deleted
+python scripts/standalone/purge_development_versions.py --dry-run
+
+# Include cloud artifacts in deletion (opt-in)
+python scripts/standalone/purge_development_versions.py --include-cloud
+
+# Skip confirmations (DANGEROUS!)
+python scripts/standalone/purge_development_versions.py --force
+```
+
+### Version Storage Structure
+
+The enhanced system uses separate files to minimize conflicts:
+```
+config/
+├── versions_successful.json    # Successful runs only
+├── versions_failed.json        # Failed runs
+├── versions_archived.json      # Archived versions
+├── current_version.txt         # Current version pointer
+└── versions/                   # Individual version details
+    ├── 2025-06-29_16-14-37.json
+    ├── 2025-06-29_17-10-25.json
+    └── ...
 ```
 
 Benefits:
-- Better performance with many versions
-- Easier to manage individual versions
-- Supports parallel access
-- Simpler cleanup operations
+- Git-friendly: Each version creates its own file
+- Team-friendly: Minimal merge conflicts
+- Auto-cleanup: Failed versions cleaned after 7 days
+- Scalable: Handles hundreds of versions efficiently
 
 ## 🚀 Quick Command Reference
 
@@ -701,6 +783,12 @@ python scripts/pipeline/run_pipeline.py \
     -s features \
     --feature-types your_new_feature \
     --version-id test_$(date +%s)
+
+# Development cleanup
+python scripts/standalone/version_tools.py cleanup --days 1  # Clean old failed versions
+python scripts/standalone/cleanup_dev_versions.py --interactive  # Selective cleanup
+# Nuclear option (use with extreme caution):
+# python scripts/standalone/purge_development_versions.py --dry-run
 ```
 
 ## 📚 Additional Documentation
@@ -710,6 +798,9 @@ python scripts/pipeline/run_pipeline.py \
 - [Troubleshooting Guide](docs/troubleshooting.md) - Common issues and solutions
 - [GCS Setup Guide](docs/gcs_setup.md) - Cloud storage configuration
 - [Data Schema](documentation/schema.md) - File formats and structures
+- [Version Management](documentation/versioning.md) - Detailed version system documentation
+- [Development Tools](docs/development_tools.md) - Cleanup and purge tools guide
+- [Quick Reference](QUICK_REFERENCE.md) - Common commands cheat sheet
 
 ## 📄 License
 
@@ -719,5 +810,5 @@ This project is part of the Fake Profile Detection research. See LICENSE for det
 
 For questions about:
 - **Pipeline usage**: Contact the development team
-- **Data analysis**: Contact the data science team  
+- **Data analysis**: Contact the data science team
 - **Research**: Contact the principal investigators

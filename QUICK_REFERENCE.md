@@ -4,14 +4,12 @@
 
 ```bash
 # 1. Setup (first time only)
-python setup_project.py
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
+./setup.sh              # Installs uv, Python 3.12.10, and all dependencies
+source activate.sh      # Activate environment
 
 # 2. Configure
-cp config/.env.base config/.env.local
-# Edit config/.env.local with your settings
+cp .env.example .env
+# Edit .env with your GCS settings
 
 # 3. Run pipeline
 ./scripts/dev_workflow.sh run
@@ -24,7 +22,10 @@ cp config/.env.base config/.env.local
 
 ```
 fpd_etl_pipeline/
-├── config/              # Configuration files
+├── config/              # Configuration & version tracking
+│   ├── versions_successful.json
+│   ├── versions_failed.json
+│   └── versions/       # Individual version files
 ├── scripts/
 │   ├── pipeline/        # Pipeline stages
 │   ├── standalone/      # Utility scripts
@@ -32,6 +33,7 @@ fpd_etl_pipeline/
 ├── features/           # Feature extractors
 ├── eda/               # EDA reports
 ├── artifacts/         # Local outputs (gitignored)
+├── .venv/             # Virtual environment (gitignored)
 └── docs/              # Documentation
 ```
 
@@ -44,6 +46,9 @@ python scripts/pipeline/run_pipeline.py --mode full
 
 # Run specific stages
 python scripts/pipeline/run_pipeline.py -s clean -s features
+
+# Run with top-k IL features
+python scripts/pipeline/run_pipeline.py -s top_il_features --top-k 20
 
 # Run with uploads (production)
 python scripts/pipeline/run_pipeline.py --mode full --upload-artifacts
@@ -85,14 +90,36 @@ python scripts/standalone/download_artifacts.py --list-only
 python scripts/standalone/upload_artifacts.py
 ```
 
+### Version Management
+```bash
+# List versions (various formats)
+python scripts/standalone/version_tools.py list              # Table
+python scripts/standalone/version_tools.py list --format ids # Just IDs
+python scripts/standalone/version_tools.py list --format json # JSON
+
+# Show version details
+python scripts/standalone/version_tools.py show VERSION_ID
+
+# Clean up old versions
+python scripts/standalone/version_tools.py cleanup --days 7
+
+# Development cleanup (BE CAREFUL!)
+python scripts/standalone/cleanup_dev_versions.py --interactive
+python scripts/standalone/purge_development_versions.py --dry-run
+```
+
 ## ⚙️ Configuration
 
-### Key Settings in `.env.local`
+### Key Settings in `.env`
 ```bash
 # Cloud settings
-PROJECT_ID="your-gcp-project"
-BUCKET_NAME="your-bucket"
-GOOGLE_APPLICATION_CREDENTIALS="/path/to/credentials.json"
+GCS_PROJECT_ID="your-gcp-project"
+GCS_BUCKET_NAME="your-bucket"
+
+# Pipeline settings
+ARTIFACTS_DIR=artifacts
+LOG_LEVEL=INFO
+DEFAULT_TOP_K_FEATURES=10
 
 # Safe defaults
 UPLOAD_ARTIFACTS=false    # Don't upload by default
@@ -124,6 +151,12 @@ INCLUDE_PII=false        # Exclude PII by default
    - Runs registered feature extractors
    - Supports multiple feature types
    - Can run only new extractors
+   - Outputs to `statistical_features/`
+
+4a. **Extract Top-k IL Features** (`extract_top_il_features.py`)
+   - Finds top k most frequent digrams
+   - Extracts 5 statistical measures per digram
+   - Creates k×5 feature sets
 
 5. **Run EDA** (`05_run_eda.py`)
    - Generates analysis reports
@@ -142,12 +175,21 @@ INCLUDE_PII=false        # Exclude PII by default
 
 Versions follow format: `YYYY-MM-DD_HH-MM-SS_hostname`
 
+The enhanced version system uses separate files:
+- `config/versions_successful.json` - Successful runs
+- `config/versions_failed.json` - Failed runs
+- `config/versions/` - Individual version details
+- `config/current_version.txt` - Current version pointer
+
 ```bash
 # Check current version
-cat versions.json | jq '.current'
+cat config/current_version.txt
 
-# List recent versions
-cat versions.json | jq '.versions[:5]'
+# List all versions
+python scripts/standalone/version_tools.py list
+
+# Get version IDs for scripting
+python scripts/standalone/version_tools.py list --format ids
 ```
 
 ## 🐛 Troubleshooting
@@ -213,4 +255,3 @@ python scripts/pipeline/02_clean_data.py
 ---
 
 For questions or issues, check the implementation plan or create an issue on GitHub.
-
