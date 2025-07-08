@@ -258,13 +258,27 @@ class FeatureAnalyzer:
 
         # Define expected negative IL combinations (modifier keys)
         modifier_keys = {
-            "Key.shift", "Key.shift_r", "Key.shift_l",
-            "Key.ctrl", "Key.ctrl_r", "Key.ctrl_l",
-            "Key.alt", "Key.alt_r", "Key.alt_l",
-            "Key.option", "Key.option_r", "Key.option_l",
-            "Key.cmd", "Key.cmd_r", "Key.cmd_l",
-            "Key.win", "Key.win_r", "Key.win_l",
-            "Key.fn", "Key.caps_lock", "Key.tab",
+            "Key.shift",
+            "Key.shift_r",
+            "Key.shift_l",
+            "Key.ctrl",
+            "Key.ctrl_r",
+            "Key.ctrl_l",
+            "Key.alt",
+            "Key.alt_r",
+            "Key.alt_l",
+            "Key.option",
+            "Key.option_r",
+            "Key.option_l",
+            "Key.cmd",
+            "Key.cmd_r",
+            "Key.cmd_l",
+            "Key.win",
+            "Key.win_r",
+            "Key.win_l",
+            "Key.fn",
+            "Key.caps_lock",
+            "Key.tab",
         }
 
         results = {
@@ -297,21 +311,31 @@ class FeatureAnalyzer:
 
             if len(negative_il_df) > 0:
                 # Add classification
-                negative_il_df["is_expected"] = negative_il_df["key1"].isin(modifier_keys)
-                
+                negative_il_df["is_expected"] = negative_il_df["key1"].isin(
+                    modifier_keys
+                )
+
                 # Overall counts
-                results["negative_IL"]["expected_count"] = int(negative_il_df["is_expected"].sum())
-                results["negative_IL"]["unexpected_count"] = int((~negative_il_df["is_expected"]).sum())
+                results["negative_IL"]["expected_count"] = int(
+                    negative_il_df["is_expected"].sum()
+                )
+                results["negative_IL"]["unexpected_count"] = int(
+                    (~negative_il_df["is_expected"]).sum()
+                )
 
                 # Top patterns (limit to 15 for scalability)
-                key_pairs = negative_il_df.groupby(["key1", "key2", "is_expected"]).size().reset_index(name="count")
+                key_pairs = (
+                    negative_il_df.groupby(["key1", "key2", "is_expected"])
+                    .size()
+                    .reset_index(name="count")
+                )
                 key_pairs = key_pairs.sort_values("count", ascending=False).head(15)
-                
+
                 results["negative_IL"]["top_patterns"] = [
                     {
                         "pattern": f"{row['key1']} → {row['key2']}",
                         "count": int(row["count"]),
-                        "type": "expected" if row["is_expected"] else "unexpected"
+                        "type": "expected" if row["is_expected"] else "unexpected",
                     }
                     for _, row in key_pairs.iterrows()
                 ]
@@ -320,13 +344,15 @@ class FeatureAnalyzer:
                 for user_id, user_df in negative_il_df.groupby("user_id"):
                     # Get top 3 patterns for this user
                     user_patterns = user_df.groupby(["key1", "key2"]).size().nlargest(3)
-                    top_patterns_str = ", ".join([f"{k1}→{k2}" for (k1, k2) in user_patterns.index[:3]])
-                    
+                    top_patterns_str = ", ".join(
+                        [f"{k1}→{k2}" for (k1, k2) in user_patterns.index[:3]]
+                    )
+
                     negative_il_by_user[user_id] = {
                         "total": len(user_df),
                         "expected": int(user_df["is_expected"].sum()),
                         "unexpected": int((~user_df["is_expected"]).sum()),
-                        "top_patterns": top_patterns_str
+                        "top_patterns": top_patterns_str,
                     }
 
         # Analyze negative RL values
@@ -340,16 +366,22 @@ class FeatureAnalyzer:
                 if "IL" in negative_rl_df.columns:
                     both_negative = negative_rl_df[negative_rl_df["IL"] < 0]
                     results["negative_RL"]["with_negative_IL"] = len(both_negative)
-                    results["negative_RL"]["standalone"] = len(negative_rl_df) - len(both_negative)
+                    results["negative_RL"]["standalone"] = len(negative_rl_df) - len(
+                        both_negative
+                    )
 
                 # Top patterns
-                key_pairs = negative_rl_df.groupby(["key1", "key2"]).size().reset_index(name="count")
+                key_pairs = (
+                    negative_rl_df.groupby(["key1", "key2"])
+                    .size()
+                    .reset_index(name="count")
+                )
                 key_pairs = key_pairs.sort_values("count", ascending=False).head(15)
-                
+
                 results["negative_RL"]["top_patterns"] = [
                     {
                         "pattern": f"{row['key1']} → {row['key2']}",
-                        "count": int(row["count"])
+                        "count": int(row["count"]),
                     }
                     for _, row in key_pairs.iterrows()
                 ]
@@ -358,14 +390,16 @@ class FeatureAnalyzer:
                 for user_id, user_df in negative_rl_df.groupby("user_id"):
                     negative_rl_by_user[user_id] = {
                         "total": len(user_df),
-                        "with_negative_il": len(user_df[user_df["IL"] < 0]) if "IL" in user_df.columns else 0
+                        "with_negative_il": len(user_df[user_df["IL"] < 0])
+                        if "IL" in user_df.columns
+                        else 0,
                     }
 
         # Create scalable user summary table
         all_users = set(negative_il_by_user.keys()) | set(negative_rl_by_user.keys())
         results["summary"]["users_with_negative_il"] = len(negative_il_by_user)
         results["summary"]["users_with_negative_rl"] = len(negative_rl_by_user)
-        
+
         for user_id in sorted(all_users):
             user_row = {
                 "user_id": user_id,  # Full user ID for search/copy
@@ -377,22 +411,26 @@ class FeatureAnalyzer:
                 "negative_rl_total": 0,
                 "negative_rl_percent": 0.0,
                 "top_il_patterns": "",
-                "timestamp": user_metadata.get(user_id, "") if user_metadata else ""
+                "timestamp": user_metadata.get(user_id, "") if user_metadata else "",
             }
-            
+
             if user_id in negative_il_by_user:
                 il_data = negative_il_by_user[user_id]
                 user_row["negative_il_total"] = il_data["total"]
                 user_row["negative_il_expected"] = il_data["expected"]
                 user_row["negative_il_unexpected"] = il_data["unexpected"]
-                user_row["negative_il_percent"] = round(il_data["total"] / user_row["total_keypairs"] * 100, 1)
+                user_row["negative_il_percent"] = round(
+                    il_data["total"] / user_row["total_keypairs"] * 100, 1
+                )
                 user_row["top_il_patterns"] = il_data["top_patterns"]
-                
+
             if user_id in negative_rl_by_user:
                 rl_data = negative_rl_by_user[user_id]
                 user_row["negative_rl_total"] = rl_data["total"]
-                user_row["negative_rl_percent"] = round(rl_data["total"] / user_row["total_keypairs"] * 100, 1)
-            
+                user_row["negative_rl_percent"] = round(
+                    rl_data["total"] / user_row["total_keypairs"] * 100, 1
+                )
+
             results["user_summary"].append(user_row)
 
         return results
@@ -1406,33 +1444,33 @@ class ReportGenerator:
         var table = document.getElementById(tableId);
         var tbody = table.getElementsByTagName('tbody')[0];
         var rows = Array.from(tbody.getElementsByTagName('tr'));
-        
-        var ascending = table.getAttribute('data-sort-column') == columnIndex && 
+
+        var ascending = table.getAttribute('data-sort-column') == columnIndex &&
                        table.getAttribute('data-sort-order') == 'asc';
-        
+
         rows.sort(function(a, b) {
             var aValue = a.cells[columnIndex].innerText.trim();
             var bValue = b.cells[columnIndex].innerText.trim();
-            
+
             if (type === 'numeric') {
                 aValue = parseFloat(aValue.replace('%', '')) || 0;
                 bValue = parseFloat(bValue.replace('%', '')) || 0;
                 return ascending ? bValue - aValue : aValue - bValue;
             } else {
-                return ascending ? 
-                    bValue.localeCompare(aValue) : 
+                return ascending ?
+                    bValue.localeCompare(aValue) :
                     aValue.localeCompare(bValue);
             }
         });
-        
+
         while (tbody.firstChild) {
             tbody.removeChild(tbody.firstChild);
         }
-        
+
         rows.forEach(function(row) {
             tbody.appendChild(row);
         });
-        
+
         table.setAttribute('data-sort-column', columnIndex);
         table.setAttribute('data-sort-order', ascending ? 'desc' : 'asc');
     }

@@ -38,20 +38,35 @@ class UserMetadata:
     """Stores user demographic and device information"""
 
     user_id: str
+    # Demographics fields
     email: str = ""
     gender: str = ""
-    age_range: str = ""
+    age: str = ""  # Changed from age_range for compatibility
     handedness: str = ""
     education: str = ""
     consent_email_for_future: bool = False
+    submission_timestamp: str = ""
+    
+    # Device info fields
     is_mobile: bool = False
     device_type: str = "unknown"
     user_agent: str = ""
     screen_width: int = 0
     screen_height: int = 0
+    window_width: int = 0
+    window_height: int = 0
+    touch_capable: bool = False
     platform: str = ""
-    submission_timestamp: str = ""
+    vendor: str = ""
+    
+    # Consent fields
+    consented: str = ""
     consent_timestamp: str = ""
+    consent_user_agent: str = ""
+    consent_url: str = ""
+    
+    # Data quality fields
+    has_timestamp_files: bool = False  # Indicates broken data
 
     @classmethod
     def from_demographics(cls, user_id: str, demo_data: Dict) -> "UserMetadata":
@@ -61,17 +76,21 @@ class UserMetadata:
             user_id=user_id,
             email=demo_data.get("email", ""),
             gender=demo_data.get("gender", ""),
-            age_range=demo_data.get("age_range", ""),
+            age=demo_data.get("age", demo_data.get("age_range", "")),  # Handle both fields
             handedness=demo_data.get("handedness", ""),
             education=demo_data.get("education", ""),
             consent_email_for_future=demo_data.get("consent_email_for_future", False),
-            is_mobile=demo_data.get("is_mobile", False),
-            device_type=demo_data.get("device_type", "unknown"),
+            submission_timestamp=demo_data.get("submission_timestamp", ""),
+            is_mobile=demo_data.get("is_mobile", device_info.get("isMobile", False)),
+            device_type=demo_data.get("device_type", device_info.get("deviceType", "unknown")),
             user_agent=device_info.get("userAgent", ""),
             screen_width=device_info.get("screenWidth", 0),
             screen_height=device_info.get("screenHeight", 0),
+            window_width=device_info.get("windowWidth", 0),
+            window_height=device_info.get("windowHeight", 0),
+            touch_capable=device_info.get("touchCapable", False),
             platform=device_info.get("platform", ""),
-            submission_timestamp=demo_data.get("submission_timestamp", ""),
+            vendor=device_info.get("vendor", ""),
         )
 
 
@@ -91,9 +110,9 @@ class CleanDataStage:
 
     # Expected keystroke files per platform
     PLATFORM_SEQUENCES = {
-        "f": [0, 3, 6, 9, 12, 15],  # Facebook
-        "i": [1, 4, 7, 10, 13, 16],  # Instagram
-        "t": [2, 5, 8, 11, 14, 17],  # Twitter
+        "facebook": [0, 3, 6, 9, 12, 15],  # Facebook
+        "instagram": [1, 4, 7, 10, 13, 16],  # Instagram
+        "twitter": [2, 5, 8, 11, 14, 17],  # Twitter
     }
 
     # Sequence to video/session mapping
@@ -153,13 +172,15 @@ class CleanDataStage:
         # - f_3741e927ab7d45a7ca19ed47a3eb5864_0.csv (platform files)
         # - 3741e927ab7d45a7ca19ed47a3eb5864_consent.json (metadata files)
         # - 1_1_1_3741e927ab7d45a7ca19ed47a3eb5864.csv (TypeNet format)
+        # - 06967d28_4d00f793fa2a988dfa53eef2a9155837_start_time.json (short prefix format)
+        # - 2025-07-06T19-29-57-241Z_3b1da76c_bf369b54edeaf668131aff2c16eee9f9_consent.json (timestamp format)
 
-        # Try platform file pattern first
+        # Try platform file pattern
         match = re.search(r"[fit]_([a-f0-9]{32})_\d+", filename)
         if match:
             return match.group(1)
 
-        # Try metadata file pattern
+        # Try metadata file pattern (standard)
         match = re.search(r"^([a-f0-9]{32})_", filename)
         if match:
             return match.group(1)
@@ -169,7 +190,28 @@ class CleanDataStage:
         if match:
             return match.group(1)
 
+        # Check for short prefix format (broken files) - 8 char prefix
+        match = re.search(r"^[a-f0-9]{8}_([a-f0-9]{32})_", filename)
+        if match:
+            return match.group(1)
+
+        # Check for timestamp format (broken files) - still extract user ID
+        match = re.search(r"[0-9T\-Z]+_[a-f0-9]+_([a-f0-9]{32})_", filename)
+        if match:
+            return match.group(1)
+
         return None
+    
+    def has_timestamp_files(self, files: List[Path]) -> bool:
+        """Check if any files have timestamp prefix or short prefix (indicating broken data)"""
+        for file in files:
+            # Check for timestamp format
+            if re.match(r"^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z_", file.name):
+                return True
+            # Check for short prefix format (8 hex chars)
+            if re.match(r"^[a-f0-9]{8}_[a-f0-9]{32}_", file.name):
+                return True
+        return False
 
     def group_files_by_user(self, input_dir: Path) -> Dict[str, List[Path]]:
         """Group all files by user ID"""
@@ -199,6 +241,11 @@ class CleanDataStage:
         missing_required = []
         missing_optional = []
 
+        # First check if user has timestamp files (broken data)
+        if self.has_timestamp_files(files):
+            missing_required.append("User has timestamp-prefixed files (broken data from web app error)")
+            return False, missing_required, missing_optional
+
         # Check required metadata files
         for meta_file in self.REQUIRED_METADATA_FILES:
             expected = f"{user_id}_{meta_file}"
@@ -211,14 +258,17 @@ class CleanDataStage:
             if expected not in file_names:
                 missing_optional.append(expected)
 
-        # Check keystroke files - ALL platforms must be complete (18 total files)
+        # Check keystroke files - handle new format with f_, i_, t_ prefixes
         complete_platforms = 0
         platform_completeness = {}
 
         for platform, sequences in self.PLATFORM_SEQUENCES.items():
             platform_files = []
+            prefix = platform[0]  # 'f' for facebook, 'i' for instagram, 't' for twitter
+
             for seq in sequences:
-                csv_file = f"{platform}_{user_id}_{seq}.csv"
+                csv_file = f"{prefix}_{user_id}_{seq}.csv"
+
                 if csv_file in file_names:
                     platform_files.append(seq)
 
@@ -245,9 +295,16 @@ class CleanDataStage:
 
     def read_demographics(self, user_id: str, files: List[Path]) -> Optional[Dict]:
         """Read and parse demographics JSON for a user"""
+        # Try old format first
         demo_file = next(
             (f for f in files if f.name == f"{user_id}_demographics.json"), None
         )
+
+        # Try new format if old format not found
+        if not demo_file:
+            demo_file = next(
+                (f for f in files if f"{user_id}_demographics.json" in f.name), None
+            )
 
         if not demo_file:
             return None
@@ -262,19 +319,25 @@ class CleanDataStage:
             )
             return None
 
-    def read_consent(self, user_id: str, files: List[Path]) -> Optional[str]:
-        """Read and parse consent JSON for a user to get timestamp"""
+    def read_consent(self, user_id: str, files: List[Path]) -> Optional[Dict]:
+        """Read and parse consent JSON for a user"""
+        # Try old format first
         consent_file = next(
             (f for f in files if f.name == f"{user_id}_consent.json"), None
         )
+
+        # Try new format if old format not found
+        if not consent_file:
+            consent_file = next(
+                (f for f in files if f"{user_id}_consent.json" in f.name), None
+            )
 
         if not consent_file:
             return None
 
         try:
             with open(consent_file) as f:
-                consent_data = json.load(f)
-                return consent_data.get("timestamp", "")
+                return json.load(f)
         except Exception as e:
             logger.error(f"Error reading consent for {user_id}: {e}")
             return None
@@ -335,7 +398,8 @@ class CleanDataStage:
             self.stats["complete_users"] += 1
         else:
             csv_dir = output_base / device_type / "broken_data" / user_id
-            text_dir = None  # No text directory for broken users
+            # Broken users also get text directory under broken_data
+            text_dir = output_base / device_type / "broken_data" / "text" / user_id
             self.stats["broken_users"] += 1
 
             # Log missing files at debug level - this is expected for incomplete users
@@ -361,7 +425,7 @@ class CleanDataStage:
                 # These files (consent, demographics, etc.) are not copied to user dirs
                 continue
 
-            # Process text files - move to text directory (complete users only)
+            # Process text files - move to text directory
             elif filename.endswith("_raw.txt"):
                 if text_dir and not self.dry_run:
                     # Convert filename format for text files
@@ -415,11 +479,15 @@ class CleanDataStage:
         """Generate metadata CSV files for complete and broken users"""
         for device_type in ["desktop", "mobile"]:
             device_dir = output_base / device_type
-            metadata_dir = device_dir / "metadata"
+            
+            # Create metadata directories for both raw_data and broken_data
+            raw_metadata_dir = device_dir / "metadata"
+            broken_metadata_dir = device_dir / "broken_data" / "metadata"
 
-            # Always create metadata directory and files (even if empty)
+            # Always create metadata directories
             if not self.dry_run:
-                metadata_dir.mkdir(parents=True, exist_ok=True)
+                raw_metadata_dir.mkdir(parents=True, exist_ok=True)
+                broken_metadata_dir.mkdir(parents=True, exist_ok=True)
 
             # Lists of users
             complete_users = []
@@ -428,26 +496,45 @@ class CleanDataStage:
             # Collect user lists
             raw_data_dir = device_dir / "raw_data"
             if raw_data_dir.exists():
-                complete_users = [d.name for d in raw_data_dir.iterdir() if d.is_dir()]
+                complete_users = [
+                    d.name for d in raw_data_dir.iterdir() 
+                    if d.is_dir() and re.match(r'^[a-f0-9]{32}$', d.name)
+                ]
 
             broken_data_dir = device_dir / "broken_data"
             if broken_data_dir.exists():
-                broken_users = [d.name for d in broken_data_dir.iterdir() if d.is_dir()]
+                broken_users = [
+                    d.name for d in broken_data_dir.iterdir() 
+                    if d.is_dir() and re.match(r'^[a-f0-9]{32}$', d.name)
+                ]
 
             # Write user lists
             if not self.dry_run:
-                with open(metadata_dir / "complete_users.txt", "w") as f:
+                with open(raw_metadata_dir / "complete_users.txt", "w") as f:
                     f.write("\n".join(sorted(complete_users)))
 
-                with open(metadata_dir / "broken_users.txt", "w") as f:
+                with open(raw_metadata_dir / "broken_users.txt", "w") as f:
                     f.write("\n".join(sorted(broken_users)))
 
-                # Write metadata CSV
-                with open(metadata_dir / "metadata.csv", "w") as f:
-                    # Write header
-                    f.write(
-                        "user_id,email,gender,age_range,handedness,education,device_type,platform,status,consent_timestamp\n"
-                    )
+                # Define all metadata fields
+                csv_headers = [
+                    "user_id", "status", 
+                    # Demographics
+                    "email", "gender", "age", "handedness", "education", 
+                    "consent_email_for_future", "submission_timestamp",
+                    # Device info
+                    "is_mobile", "device_type", "user_agent", 
+                    "screen_width", "screen_height", "window_width", "window_height",
+                    "touch_capable", "platform", "vendor",
+                    # Consent info
+                    "consented", "consent_timestamp", "consent_user_agent", "consent_url",
+                    # Data quality
+                    "has_timestamp_files"
+                ]
+
+                # Write main metadata CSV
+                with open(raw_metadata_dir / "metadata.csv", "w") as f:
+                    f.write(",".join(csv_headers) + "\n")
 
                     # Write user data
                     for user_id in complete_users + broken_users:
@@ -455,13 +542,52 @@ class CleanDataStage:
                         meta = user_metadata.get(user_id)
 
                         if meta:
-                            f.write(
-                                f"{user_id},{meta.email},{meta.gender},{meta.age_range},"
-                                f"{meta.handedness},{meta.education},{meta.device_type},"
-                                f"{meta.platform},{status},{meta.consent_timestamp}\n"
-                            )
+                            row = [
+                                user_id, status,
+                                meta.email, meta.gender, meta.age, meta.handedness, meta.education,
+                                str(meta.consent_email_for_future), meta.submission_timestamp,
+                                str(meta.is_mobile), meta.device_type, meta.user_agent,
+                                str(meta.screen_width), str(meta.screen_height), 
+                                str(meta.window_width), str(meta.window_height),
+                                str(meta.touch_capable), meta.platform, meta.vendor,
+                                meta.consented, meta.consent_timestamp, 
+                                meta.consent_user_agent, meta.consent_url,
+                                str(meta.has_timestamp_files)
+                            ]
+                            # Escape commas in fields
+                            row = [f'"{field}"' if "," in str(field) else str(field) for field in row]
+                            f.write(",".join(row) + "\n")
                         else:
-                            f.write(f"{user_id},,,,,,,{status},\n")
+                            # Write empty row with just user_id and status
+                            empty_row = [user_id, status] + [""] * (len(csv_headers) - 2)
+                            f.write(",".join(empty_row) + "\n")
+
+                # Write broken users metadata CSV
+                if broken_users:
+                    with open(broken_metadata_dir / "metadata.csv", "w") as f:
+                        f.write(",".join(csv_headers) + "\n")
+
+                        for user_id in broken_users:
+                            meta = user_metadata.get(user_id)
+                            if meta:
+                                row = [
+                                    user_id, "broken",
+                                    meta.email, meta.gender, meta.age, meta.handedness, meta.education,
+                                    str(meta.consent_email_for_future), meta.submission_timestamp,
+                                    str(meta.is_mobile), meta.device_type, meta.user_agent,
+                                    str(meta.screen_width), str(meta.screen_height),
+                                    str(meta.window_width), str(meta.window_height),
+                                    str(meta.touch_capable), meta.platform, meta.vendor,
+                                    meta.consented, meta.consent_timestamp,
+                                    meta.consent_user_agent, meta.consent_url,
+                                    str(meta.has_timestamp_files)
+                                ]
+                                # Escape commas in fields
+                                row = [f'"{field}"' if "," in str(field) else str(field) for field in row]
+                                f.write(",".join(row) + "\n")
+                            else:
+                                empty_row = [user_id, "broken"] + [""] * (len(csv_headers) - 2)
+                                f.write(",".join(empty_row) + "\n")
 
     def run(self, input_dir: Path) -> Path:
         """Execute the clean data stage"""
@@ -486,9 +612,16 @@ class CleanDataStage:
         # Create base directory structure (even if no users found)
         if not self.dry_run:
             for device_type in ["desktop", "mobile"]:
-                for subdir in ["raw_data", "broken_data", "metadata", "text"]:
+                # Create raw_data structure
+                for subdir in ["raw_data", "metadata", "text"]:
                     dir_path = output_base / device_type / subdir
                     dir_path.mkdir(parents=True, exist_ok=True)
+                
+                # Create broken_data structure with its own subdirectories
+                broken_base = output_base / device_type / "broken_data"
+                broken_base.mkdir(parents=True, exist_ok=True)
+                (broken_base / "metadata").mkdir(parents=True, exist_ok=True)
+                (broken_base / "text").mkdir(parents=True, exist_ok=True)
 
         # Group files by user
         user_files = self.group_files_by_user(input_dir)
@@ -499,22 +632,28 @@ class CleanDataStage:
         user_metadata = {}
         for user_id, files in user_files.items():
             try:
-                # Read demographics for metadata
+                # Read demographics and consent data
                 demographics = self.read_demographics(user_id, files)
-                consent_timestamp = self.read_consent(user_id, files)
+                consent_data = self.read_consent(user_id, files)
 
+                # Create metadata object
                 if demographics:
                     user_metadata[user_id] = UserMetadata.from_demographics(
                         user_id, demographics
                     )
-                    # Add consent timestamp
-                    if consent_timestamp:
-                        user_metadata[user_id].consent_timestamp = consent_timestamp
-                elif consent_timestamp:
-                    # Create minimal metadata with just consent timestamp
-                    user_metadata[user_id] = UserMetadata(
-                        user_id=user_id, consent_timestamp=consent_timestamp
-                    )
+                else:
+                    # Create minimal metadata with just user_id
+                    user_metadata[user_id] = UserMetadata(user_id=user_id)
+
+                # Add consent data if available
+                if consent_data:
+                    user_metadata[user_id].consented = consent_data.get("consented", "")
+                    user_metadata[user_id].consent_timestamp = consent_data.get("timestamp", "")
+                    user_metadata[user_id].consent_user_agent = consent_data.get("userAgent", "")
+                    user_metadata[user_id].consent_url = consent_data.get("url", "")
+
+                # Check if user has timestamp files (broken data)
+                user_metadata[user_id].has_timestamp_files = self.has_timestamp_files(files)
 
                 # Process user files
                 self.process_user(user_id, files, output_base)

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exploiting LLMs for Better Code</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/white.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/plugin/highlight/monokai.min.css">
+
+    <style>
+        .reveal h1, .reveal h2, .reveal h3 {
+            color: #2c3e50;
+        }
+        .reveal .slides section .fragment.highlight-current-blue.current-fragment {
+            color: #1e88e5;
+            font-weight: bold;
+        }
+        .reveal pre {
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+            font-size: 0.7em;
+        }
+        .reveal pre code {
+            max-height: 500px;
+        }
+        .two-column {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .column {
+            flex: 1;
+            margin: 0 10px;
+        }
+        .metric-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .prompt-example {
+            background: #e3f2fd;
+            border-left: 4px solid #1976d2;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 0.8em;
+            text-align: left;
+        }
+        .lesson-learned {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: left;
+        }
+        .reveal ul {
+            display: block;
+            margin-left: 1em;
+        }
+        .reveal .slide-number {
+            font-size: 0.7em;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Title Slide -->
+            <section>
+                <h1>Exploiting LLMs for Better Code</h1>
+                <h3>An example of using Claude to re-design and refactor an ETL pipeline</h3>
+                <p>4 July 2025</p>
+                <p><small>Lori Pickering</small></p>
+            </section>
+
+            <!-- Overview -->
+            <section>
+                <h2>Overview</h2>
+                <ul>
+                    <li class="fragment">It's not all Vibing (yet)</li>
+                    <li class="fragment">Before the LLMs (preparatory work)</li>
+                    <li class="fragment">Starting small with Claude</li>
+                    <li class="fragment">Assisted refactoring with Claude</li>
+                    <li class="fragment">Assisted planning with Claude</li>
+                    <li class="fragment">Assisted vibing with Claude Code for refactoring</li>
+                    <li class="fragment">Interactive vibing with Claude for EDA</li>
+                </ul>
+            </section>
+
+            <!-- Definitions -->
+            <section>
+                <h2>Definitions</h2>
+                <div class="metric-box fragment">
+                    <h3>Vibing Coding</h3>
+                    <p>Coding primarily with natural language prompts. In this context, providing the LLM with prompts and letting the LLM write the code.</p>
+                </div>
+                <div class="metric-box fragment">
+                    <h3>AI-Assisted Coding</h3>
+                    <p>Includes vibing. But in this context, a combination of human and LLM coding.</p>
+                </div>
+            </section>
+
+            <!-- Before The LLM -->
+            <section>
+                <section>
+                    <h2>Before The LLM</h2>
+                    <h3>What did we do?</h3>
+                    <ul>
+                        <li>A colleague and I wrote code to extract, clean, and analyze the data</li>
+                        <li>No LLMs, just pure human coding</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Benefits</h3>
+                    <ul>
+                        <li>Provided key insights into the data</li>
+                        <li>Identified issues with current data collection methodology</li>
+                        <li>Learned: LLMs are not quite ready for starting from scratch (but they're close)</li>
+                    </ul>
+                    <div class="lesson-learned fragment">
+                        <strong>Key Learning:</strong> Domain understanding and initial exploration by humans provides crucial context for effective LLM assistance
+                    </div>
+                </section>
+            </section>
+
+            <!-- Starting Small with Claude -->
+            <section>
+                <section>
+                    <h2>Starting Small with Claude</h2>
+                    <h3>What did we do?</h3>
+                    <p>Provide Claude with context for research:</p>
+                    <ul>
+                        <li>Research context</li>
+                        <li>Related research papers</li>
+                        <li>Raw data examples</li>
+                        <li>Processed data examples</li>
+                        <li>Examples of issues in the data</li>
+                        <li>Team member skill-level and experience</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Tasks for Claude</h3>
+                    <ul>
+                        <li>Debug errors</li>
+                        <li>Check code for correctness</li>
+                        <li>Refactor single functions</li>
+                    </ul>
+                    <div class="metric-box fragment">
+                        <h4>Benefits</h4>
+                        <p>Understanding of what Claude needs to work best, how to supervise Claude to get the best results</p>
+                    </div>
+                </section>
+            </section>
+
+            <!-- Assisted Refactoring with Claude -->
+            <section>
+                <section>
+                    <h2>Assisted Refactoring with Claude</h2>
+                    <h3>What did we do?</h3>
+                    <ul>
+                        <li>Provide Claude with same context</li>
+                        <li>Ask Claude to check for bugs, issues</li>
+                        <li>Ask Claude to refactor code and provide better visualizations</li>
+                        <li>Review code changes, review outputs</li>
+                        <li>It's still an iterative process</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Benefits</h3>
+                    <ul>
+                        <li>Claude provided new ideas (HTML report was Claude's idea)</li>
+                        <li>Better quality code, but it's still OUR (mostly) code</li>
+                    </ul>
+                    <div class="fragment">
+                        <h4>Example: HTML Report Generation</h4>
+                        <pre><code class="language-python"># Claude suggested converting console outputs to HTML
+def generate_html_report(self, analysis_results: Dict[str, Any]) -> str:
+    """Generate comprehensive HTML report"""
+    template = self.create_html_template()
+    return self.render_template(template, analysis_results)</code></pre>
+                    </div>
+                </section>
+            </section>
+
+            <!-- Transition: Now What? -->
+            <section>
+                <h2>Now what?</h2>
+                <div class="two-column">
+                    <div class="column">
+                        <h3>What we've done so far:</h3>
+                        <ul>
+                            <li>Re-envision our data collection strategy</li>
+                            <li>Build a web app to collect data</li>
+                            <li>Use current script to analyze extracted web data</li>
+                            <li>Manually build code to filter web data</li>
+                        </ul>
+                    </div>
+                    <div class="column fragment">
+                        <h3>What's next?</h3>
+                        <p>Merge all of our code into an ETL pipeline (one command does it all) using Claude Code</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Assisted Planning with Claude -->
+            <section>
+                <section>
+                    <h2>Assisted Planning with Claude</h2>
+                    <h3>What did we do?</h3>
+                    <ul>
+                        <li>Provide Claude with context and existing code</li>
+                        <li>Ask Claude for advice (DO NOT CODE YET) on building a more robust, production quality ETL pipeline</li>
+                        <li>Iterate (a lot) with Claude, reviewing advice, suggesting improvements</li>
+                        <li><strong>Important:</strong> Providing Claude with use case examples</li>
+                        <li>Several hours of work</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Planning Phase Benefits</h3>
+                    <div class="metric-box">
+                        <p>I now have a plan and I'm confident it addresses all use cases.</p>
+                        <p>I'm ready to refactor.</p>
+                    </div>
+                    <div class="lesson-learned fragment">
+                        <strong>Key Learning:</strong> Separating planning from implementation helps Claude understand the big picture before diving into code
+                    </div>
+                </section>
+            </section>
+
+            <!-- Assisted Vibing with Claude Code -->
+            <section>
+                <section>
+                    <h2>Assisted Vibing with Claude Code</h2>
+                    <h3>Setup Phase</h3>
+                    <ul>
+                        <li>Install Claude Code ($200/month for max plan)</li>
+                        <li>Copy all prompts and responses into new repo</li>
+                        <li>Copy old code into temp_old_code subdirectory</li>
+                        <li>Create a long, context-laden prompt</li>
+                        <li>Iterate with Claude to generate claude.md context file (DO NOT CODE YET)</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Implementation Phase</h3>
+                    <ul>
+                        <li>Ask Claude to start coding</li>
+                        <li>Iterate–iterate–iterate</li>
+                        <li>Check files and directory structure (not code) - Iterate</li>
+                        <li>Check all generated artifacts - Iterate</li>
+                        <li>Check all logs - Iterate</li>
+                        <li>Run scripts and check outputs - Iterate</li>
+                        <li>And, iterate</li>
+                    </ul>
+                </section>
+            </section>
+
+            <!-- Real Examples from Our Session -->
+            <section>
+                <section>
+                    <h2>Real Examples: Prompt Engineering</h2>
+                    <h3>Effective Prompt Structure</h3>
+                    <div class="prompt-example">
+                        &lt;analysis&gt;<br>
+                        In the negative IL tables, I see that some keys are capital...<br>
+                        We need to find the date that the data was collected...<br>
+                        &lt;/analysis&gt;
+                    </div>
+                    <p class="fragment">Using structured tags helps Claude understand context vs. action items</p>
+                </section>
+
+                <section>
+                    <h3>Iterative Refinement</h3>
+                    <div class="prompt-example">
+                        &lt;fix&gt;<br>
+                        Rather than change the web data collection app, let's do more data cleaning at the keypairs stage. Ensure that all keys in the keypairs extraction are lowercase letters<br>
+                        &lt;/fix&gt;
+                    </div>
+                    <p class="fragment">Clear, actionable directives with specific locations</p>
+                </section>
+
+                <section>
+                    <h3>Scalability Concerns</h3>
+                    <div class="prompt-example">
+                        &lt;modification&gt;<br>
+                        User Performance section in report: Currently, there are only a handful of users. We expect at least 100 users and possibly thousands. The current charts may not scale...<br>
+                        &lt;/modification&gt;
+                    </div>
+                    <p class="fragment">Providing future context helps Claude make better architectural decisions</p>
+                </section>
+            </section>
+
+            <!-- Code Quality Examples -->
+            <section>
+                <section>
+                    <h2>Code Quality: Before & After</h2>
+                    <h3>Before: Simple Analysis</h3>
+                    <pre><code class="language-python"># Original approach - works for small datasets
+for user_id, user_data in negative_il_data.items():
+    print(f"User {user_id}:")
+    for key_pair, count in user_data.items():
+        print(f"  {key_pair}: {count}")</code></pre>
+                </section>
+
+                <section>
+                    <h3>After: Scalable Solution</h3>
+                    <pre><code class="language-python"># Claude's scalable approach
+results["user_summary"] = []
+for user_id in sorted(all_users):
+    user_row = {
+        "user_id": user_id,  # Full ID for searchability
+        "total_keypairs": int(len(valid_df[valid_df["user_id"] == user_id])),
+        "negative_il_total": 0,
+        "negative_il_percent": 0.0,
+        "top_il_patterns": "",
+        # ... more fields
+    }
+    results["user_summary"].append(user_row)</code></pre>
+                </section>
+
+                <section>
+                    <h3>Added Features</h3>
+                    <ul>
+                        <li>Sortable HTML tables with JavaScript</li>
+                        <li>Condensed summaries for thousands of users</li>
+                        <li>Full user IDs for searchability</li>
+                        <li>Percentage calculations for quick insights</li>
+                    </ul>
+                    <div class="lesson-learned fragment">
+                        <strong>Key Learning:</strong> Claude can suggest architectural improvements when given proper context about scale
+                    </div>
+                </section>
+            </section>
+
+            <!-- Interactive Vibing with Claude for EDA -->
+            <section>
+                <section>
+                    <h2>Interactive Vibing with Claude for EDA</h2>
+                    <h3>After Initial Implementation</h3>
+                    <ul>
+                        <li>Ask Claude to add more exploratory data analysis (EDA) artifacts</li>
+                        <li>Analyze report</li>
+                        <li>Ask Claude for more changes, more tables, more plots</li>
+                        <li>Analyze report</li>
+                        <li>Ask Claude for more changes</li>
+                        <li>Etc.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Example: Outlier Analysis Request</h3>
+                    <div class="prompt-example">
+                        The mean (and consequently mean + std) are way off. This is probably because of outliers. Create multiple plots: all valid data, all valid data without outliers.
+                    </div>
+                    <div class="fragment">
+                        <p><strong>Result:</strong> Claude implemented IQR-based outlier detection and created dual visualizations</p>
+                    </div>
+                </section>
+            </section>
+
+            <!-- Lessons Learned -->
+            <section>
+                <section>
+                    <h2>Key Lessons for Getting Quality Code</h2>
+                    <h3>1. Context is King</h3>
+                    <ul>
+                        <li>Provide research papers, data examples, existing code</li>
+                        <li>Explain team expertise and project goals</li>
+                        <li>Share both what works AND what doesn't</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>2. Structured Prompting Works</h3>
+                    <ul>
+                        <li>Use tags like &lt;analysis&gt;, &lt;fix&gt;, &lt;modification&gt;</li>
+                        <li>Separate planning from implementation</li>
+                        <li>Be specific about locations and expectations</li>
+                    </ul>
+                    <div class="prompt-example fragment">
+                        # Good prompt structure<br>
+                        1. Context/Background<br>
+                        2. Specific Problem<br>
+                        3. Constraints/Requirements<br>
+                        4. Expected Outcome
+                    </div>
+                </section>
+
+                <section>
+                    <h3>3. Iteration is Essential</h3>
+                    <ul>
+                        <li>Don't expect perfection on first try</li>
+                        <li>Review outputs systematically</li>
+                        <li>Test edge cases and scalability</li>
+                        <li>Be prepared to redirect when needed</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>4. Know When to Take Control</h3>
+                    <ul>
+                        <li>Pre-commit hooks failing? Use --no-verify judiciously</li>
+                        <li>Complex business logic? Write it yourself first</li>
+                        <li>Critical algorithms? Verify thoroughly</li>
+                    </ul>
+                    <div class="lesson-learned fragment">
+                        <strong>Remember:</strong> LLMs are tools, not replacements for engineering judgment
+                    </div>
+                </section>
+            </section>
+
+            <!-- Metrics and Results -->
+            <section>
+                <h2>Quantifiable Results</h2>
+                <div class="two-column">
+                    <div class="column">
+                        <h3>Development Speed</h3>
+                        <ul>
+                            <li>Complex refactoring in hours vs. days</li>
+                            <li>Multiple design iterations quickly</li>
+                            <li>Rapid prototyping of visualizations</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3>Code Quality</h3>
+                        <ul>
+                            <li>Consistent style and patterns</li>
+                            <li>Built-in scalability considerations</li>
+                            <li>Comprehensive error handling</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="metric-box fragment">
+                    <p><strong>From our session:</strong> Redesigned negative value analysis from detailed per-user reports to scalable summary tables handling thousands of users - completed in under 30 minutes</p>
+                </div>
+            </section>
+
+            <!-- Summary & Conclusions -->
+            <section>
+                <section>
+                    <h2>Summary</h2>
+                    <ul>
+                        <li>Started with existing code and snippets</li>
+                        <li>Successively added more LLM-generated code</li>
+                        <li>Refactored from research code to production quality in short time</li>
+                        <li>Used Claude to assist with exploratory data analysis</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Conclusions</h2>
+                    <ul>
+                        <li>Claude is able to plan and write production quality code</li>
+                        <li>Still requires many iterations to get it right</li>
+                        <li>Better prompting is key - context is crucial</li>
+                        <li>Worth exploring best practices for prompt engineering</li>
+                    </ul>
+                    <div class="metric-box fragment">
+                        <p><strong>Future outlook:</strong> Coding with LLMs has evolved from simple plots and debugging to fully refactored, production quality code in &lt; 3 years. Not 100% autonomous yet, but at this rate, expect it will be in a few years.</p>
+                    </div>
+                </section>
+            </section>
+
+            <!-- Best Practices Summary -->
+            <section>
+                <h2>Best Practices for Your Team</h2>
+                <ol>
+                    <li><strong>Start with human understanding</strong> - Don't skip domain exploration</li>
+                    <li><strong>Build context incrementally</strong> - Layer knowledge systematically</li>
+                    <li><strong>Use structured prompts</strong> - Clear sections for context vs. actions</li>
+                    <li><strong>Plan before coding</strong> - Separate architecture from implementation</li>
+                    <li><strong>Iterate systematically</strong> - Check outputs at each stage</li>
+                    <li><strong>Maintain engineering discipline</strong> - Code review, testing, validation</li>
+                </ol>
+            </section>
+
+            <!-- Questions -->
+            <section>
+                <h1>Questions?</h1>
+                <p>Happy to discuss specific examples, prompting strategies, or lessons learned</p>
+                <div class="metric-box">
+                    <p><small>Repository: github.com/FakeProfileDetection/fpd_etl_pipeline</small></p>
+                    <p><small>Contact: [your email]</small></p>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/plugin/highlight/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/plugin/markdown/markdown.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            controls: true,
+            progress: true,
+            center: true,
+            transition: 'slide',
+            plugins: [ RevealHighlight, RevealNotes, RevealMarkdown ],
+            slideNumber: 'c/t'
+        });
+    </script>
+</body>
+</html>
