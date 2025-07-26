@@ -77,6 +77,9 @@ class ConfigManager:
         self.config["FEATURES_DIR"] = os.getenv(
             "FEATURES_DIR", "./artifacts/{version_id}/statistical_features"
         )
+        self.config["RELAVANCE_DIR"] = os.getenv(
+            "RELAVANCE_DIR", "./artifacts/{version_id}/relavance"
+        )
 
         # Artifact settings
         self.config["ARTIFACT_RETENTION_DAYS"] = int(
