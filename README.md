@@ -8,12 +8,18 @@ A robust ETL (Extract, Transform, Load) pipeline for processing keystroke dynami
 ```bash
 # Process all data including mobile devices and generate comprehensive reports
 python scripts/pipeline/run_pipeline.py --mode full --device-types desktop,mobile --generate-reports
+
+# With LLM validation of user responses (requires OpenAI API key)
+python scripts/pipeline/run_pipeline.py --mode full --with-llm-check
 ```
 
 ### Research Team (Review for Paper)
 ```bash
 # Download and process desktop data only (default)
 python scripts/pipeline/run_pipeline.py --mode full
+
+# Review MTurk payment validation reports (if LLM check was run)
+open artifacts/{version_id}/llm_scores/reports/summary_report.html
 ```
 
 ### Development Team
@@ -100,6 +106,11 @@ DEVICE_TYPES=desktop          # Options: desktop, mobile, or desktop,mobile
 UPLOAD_ARTIFACTS=false        # Set to true for production
 INCLUDE_PII=false            # Set to true to include demographics
 GENERATE_REPORTS=true        # Generate EDA reports
+
+# LLM Check (optional - only if using --with-llm-check)
+OPENAI_API_KEY=sk-...        # Your OpenAI API key
+LLM_CHECK_MODEL=gpt-4o-mini  # Cost-efficient model
+LLM_CHECK_THRESHOLD=40       # Pass threshold (0-100)
 ```
 
 ## 📊 Pipeline Stages
@@ -118,7 +129,20 @@ python scripts/pipeline/run_pipeline.py -s download
 python scripts/pipeline/run_pipeline.py -s clean
 ```
 
-### 3. Extract Keypairs (`keypairs`)
+### 3. LLM Check (`llm_check`) - Optional
+- Validates user text responses using OpenAI API
+- Ensures users watched videos and engaged properly
+- Generates interactive reports with detailed inspection
+- Separates analysis for broken users (incomplete data)
+```bash
+# With OpenAI API key configured
+python scripts/pipeline/run_pipeline.py -s llm_check --with-llm-check
+
+# Skip if no API key (default behavior)
+python scripts/pipeline/run_pipeline.py -s keypairs  # Continues without LLM check
+```
+
+### 4. Extract Keypairs (`keypairs`)
 - Extracts keystroke pairs and timing features
 - Calculates latencies: HL, IL, PL, RL
 - Identifies data quality issues
@@ -126,7 +150,7 @@ python scripts/pipeline/run_pipeline.py -s clean
 python scripts/pipeline/run_pipeline.py -s keypairs
 ```
 
-### 4. Extract Features (`features`)
+### 5. Extract Features (`features`)
 - Generates statistical features per key combination
 - Creates features at multiple levels: user-platform, session, video
 - Handles missing data with imputation
@@ -134,7 +158,7 @@ python scripts/pipeline/run_pipeline.py -s keypairs
 python scripts/pipeline/run_pipeline.py -s features
 ```
 
-### 4a. Extract Top-k IL Features (`top_il_features`)
+### 5a. Extract Top-k IL Features (`top_il_features`)
 - Identifies top-k most frequent digrams (key pairs) from keystroke data
 - Extracts 5 statistical measures (mean, median, q1, q3, std) for each digram
 - Creates feature sets with k×5 features total
@@ -142,7 +166,7 @@ python scripts/pipeline/run_pipeline.py -s features
 python scripts/pipeline/run_pipeline.py -s top_il_features --top-k 20
 ```
 
-### 5. Run EDA (`eda`)
+### 6. Run EDA (`eda`)
 - Generates comprehensive analysis reports
 - Creates visualizations for timing distributions
 - Produces data quality summaries
@@ -228,6 +252,12 @@ artifacts/
     │   │   ├── raw_data/   # Complete users
     │   │   └── broken_data/# Incomplete users
     │   └── mobile/
+    ├── llm_scores/         # LLM validation results (optional)
+    │   ├── scores.csv      # User response scores
+    │   ├── scores.json     # Detailed results with full text
+    │   ├── reports/        # Interactive HTML reports
+    │   │   └── summary_report.html
+    │   └── broken_data/    # Separate analysis for incomplete users
     ├── keypairs/           # Extracted timing features
     │   ├── keypairs.parquet
     │   └── keypairs.csv
@@ -335,6 +365,33 @@ python scripts/standalone/upload_artifacts.py \
 # Generate 10 sample users
 python scripts/standalone/create_sample_data.py --num-users 10
 ```
+
+### LLM Validation for MTurk Payment
+
+**Validate user responses to ensure video engagement:**
+```bash
+# First-time setup
+export OPENAI_API_KEY=sk-your-api-key  # Or add to config/.env.local
+
+# Run pipeline with LLM validation
+python scripts/pipeline/run_pipeline.py --mode full --with-llm-check
+
+# Run only LLM check on existing data
+python scripts/pipeline/run_pipeline.py -s llm_check --with-llm-check --local-only
+
+# Review validation results
+open artifacts/{version_id}/llm_scores/reports/summary_report.html
+
+# Check flagged users for payment rejection
+cat artifacts/{version_id}/llm_scores/reports/flagged_users.csv
+```
+
+**Interactive HTML Reports Include:**
+- Click-to-inspect user responses with full text
+- Color-coded score indicators
+- Separate analysis for broken users
+- Search and filter capabilities
+- Pass/fail statistics for payment decisions
 
 ### 👥 Team-Specific Workflows
 

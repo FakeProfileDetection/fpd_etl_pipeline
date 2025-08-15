@@ -118,11 +118,17 @@ python analyze_keystrokes.py file1.csv file2.csv
 
 ### New Pipeline
 ```bash
-# Full pipeline
+# Full pipeline with LLM validation
+python scripts/pipeline/run_pipeline.py --mode full --with-llm-check
+
+# Full pipeline without LLM check (no API key needed)
 python scripts/pipeline/run_pipeline.py --mode full
 
 # Run specific stages
 python scripts/pipeline/run_pipeline.py -s clean -s features
+
+# Run only LLM check on existing data
+python scripts/pipeline/run_pipeline.py -s llm_check --local-only --with-llm-check
 
 # Dry run to preview
 python scripts/pipeline/run_pipeline.py --mode full --dry-run
@@ -147,6 +153,12 @@ INCLUDE_PII=false
 
 # PII patterns (demographics files)
 PII_EXCLUDE_PATTERNS=*demographics*,*consent*,*email*
+
+# LLM Check settings (optional)
+OPENAI_API_KEY=sk-your-api-key  # Required for LLM validation
+LLM_CHECK_MODEL=gpt-4o-mini     # Cost-efficient model
+LLM_CHECK_THRESHOLD=40           # Pass threshold (0-100)
+LLM_CHECK_MAX_CONCURRENT=10      # Parallel API calls
 ```
 
 ## Data Quality Checks
@@ -163,29 +175,56 @@ Include these checks in the EDA stage:
 - Unreleased keys
 - Consecutive key timing patterns
 
-## Migration Guide
+## Pipeline Stages
 
-To port the existing pipeline to the new structure:
+### Core Stages
+1. **Download**: Download from GCS web app bucket
+2. **Clean**: Map files and validate (replaces map_new_data_to_user_dirs.py)
+3. **LLM Check (Optional)**: Validate user text responses with OpenAI API
+4. **Extract Keypairs**: Extract keystroke pairs (replaces typenet_extraction_polars.py)
+5. **KVC Features**: Generate unicode key mappings for ML
+6. **Features**: Generate ML features (replaces typenet_ml_features_polars.py)
+7. **Top IL**: Extract top inter-key latency features
+8. **EDA**: Generate analysis reports
 
-1. **Stage 2 (Clean)**: Use logic from `map_new_data_to_user_dirs.py`
-   - Map files to user directories
-   - Identify complete vs broken data
-   - Generate metadata
+### LLM Check Stage (Optional)
+The LLM check validates user responses to ensure they watched and engaged with videos.
+This stage is **OPTIONAL** and requires an OpenAI API key.
 
-2. **Stage 3 (Extract Keypairs)**: Use logic from `typenet_extraction_polars.py`
-   - Process raw keystroke files
-   - Extract keypair features
-   - Handle hash-based user IDs
+**Running with LLM Check:**
+```bash
+# First time - will prompt for API key if needed
+python scripts/pipeline/run_pipeline.py --mode full --with-llm-check
 
-3. **Stage 4 (Features)**: Use logic from `typenet_ml_features_polars.py`
-   - Generate ML features
-   - Keep outliers by default
-   - Output versioned feature files
+# Subsequent runs (API key saved in .env)
+python scripts/pipeline/run_pipeline.py --mode full --with-llm-check
 
-4. **Stage 5 (EDA)**: Incorporate `analyze_keystrokes.py`
-   - Data quality analysis
-   - Timing pattern detection
-   - Generate HTML reports
+# CI/CD environments (non-interactive)
+export OPENAI_API_KEY=sk-...
+python scripts/pipeline/run_pipeline.py --mode full --with-llm-check --non-interactive
+
+# Run only LLM check stage
+python scripts/pipeline/run_pipeline.py --stages llm_check --local-only
+```
+
+**Running without LLM Check (default):**
+```bash
+python scripts/pipeline/run_pipeline.py --mode full
+```
+
+**Setting up API Key:**
+1. Get key from https://platform.openai.com/api-keys
+2. Add to .env file: `OPENAI_API_KEY=sk-...`
+3. Or let the pipeline prompt you interactively
+
+**LLM Check Outputs:**
+- `scores.csv` - All text scores with pass/fail status
+- `scores.json` - Detailed results with full text
+- `summary_report.html` - Interactive searchable report
+- `flagged_users.csv` - Users failing validation threshold
+
+The stage validates against 3 video categories (Coach Carter, Oscars Slap, Trump-Ukraine)
+and determines if users genuinely engaged with the content for MTurk payment validation.
 
 ## Important Notes
 

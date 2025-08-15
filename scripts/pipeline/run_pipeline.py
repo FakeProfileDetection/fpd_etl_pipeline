@@ -25,6 +25,7 @@ from scripts.pipeline import (
     extract_features,
     extract_keypairs,
     extract_kvc_features,
+    extract_llm_scores,
     extract_top_il_features,
     run_eda,
 )
@@ -185,6 +186,7 @@ class Pipeline:
         stage_order = [
             "download",
             "clean",
+            "llm_check",  # Optional - only runs with --with-llm-check flag
             "keypairs",
             "kvc",
             "features",
@@ -216,6 +218,7 @@ class Pipeline:
         dependencies = {
             "download": [],
             "clean": ["download_data"],  # Use actual stage names stored in version info
+            "llm_check": ["clean_data"],  # LLM check needs text files from clean stage
             "keypairs": ["clean_data"],
             "kvc": ["extract_keypairs"],  # KVC features depend on keypairs
             "features": ["extract_keypairs"],  # Features depend on keypairs
@@ -238,6 +241,7 @@ class Pipeline:
         stage_mappings = {
             "download": ("download_data", download_data.run),
             "clean": ("clean_data", clean_data.run),
+            "llm_check": ("extract_llm_scores", extract_llm_scores.run),
             "keypairs": ("extract_keypairs", extract_keypairs.run),
             "kvc": ("extract_kvc_features", extract_kvc_features.run),
             "features": ("extract_features", extract_features.run),
@@ -443,6 +447,18 @@ class Pipeline:
     "--no-eda", is_flag=True, default=False, help="Skip EDA stage (EDA runs by default)"
 )
 @click.option(
+    "--with-llm-check",
+    is_flag=True,
+    default=False,
+    help="Run LLM check to validate user responses (requires OpenAI API key)",
+)
+@click.option(
+    "--non-interactive",
+    is_flag=True,
+    default=False,
+    help="Non-interactive mode - skip prompts and fail if API key missing",
+)
+@click.option(
     "--dry-run", is_flag=True, help="Show what would be done without executing"
 )
 @click.option(
@@ -464,6 +480,8 @@ def main(
     upload_artifacts: bool,
     include_pii: bool,
     no_eda: bool,
+    with_llm_check: bool,
+    non_interactive: bool,
     dry_run: bool,
     local_only: bool,
     log_level: str,
@@ -551,6 +569,8 @@ def main(
     config["UPLOAD_ARTIFACTS"] = upload_artifacts
     config["INCLUDE_PII"] = include_pii
     config["LOCAL_ONLY"] = local_only
+    config["NON_INTERACTIVE"] = non_interactive
+    config["WITH_LLM_CHECK"] = with_llm_check
 
     # Parse and set device types
     if device_types:
@@ -584,6 +604,7 @@ Pipeline Configuration:
 - Local only: {'Yes (no cloud download)' if local_only else 'No (will download from cloud)'}
 - Upload results: {'Yes' if upload_artifacts else 'No'}
 - Include PII: {'Yes' if include_pii else 'No (excluded)'}
+- LLM Check: {'Yes (OpenAI API)' if with_llm_check else 'No (skipped)'}
 - Run EDA: {'No' if no_eda else 'Yes'}
 - Device types: {', '.join(config.get('DEVICE_TYPES', ['desktop']))}
 - Stages: {list(stages) if stages else 'all'}
@@ -598,11 +619,24 @@ Pipeline Configuration:
         return
 
     # Determine stages to run
-    all_stages = ["download", "clean", "keypairs", "kvc", "features", "top_il", "eda"]
+    all_stages = [
+        "download",
+        "clean",
+        "llm_check",
+        "keypairs",
+        "kvc",
+        "features",
+        "top_il",
+        "eda",
+    ]
     if not stages:
         if mode == "full":
             # Include all stages including EDA by default, unless --no-eda is specified
-            stages = all_stages if not no_eda else all_stages[:-1]
+            base_stages = all_stages if not no_eda else all_stages[:-1]
+            # Remove llm_check if not explicitly requested
+            if not with_llm_check:
+                base_stages = [s for s in base_stages if s != "llm_check"]
+            stages = base_stages
         elif mode == "incr":
             # Incremental mode: Only run stages not yet completed
             vm = VersionManager()
@@ -618,6 +652,7 @@ Pipeline Configuration:
             stage_name_mapping = {
                 "download_data": "download",
                 "clean_data": "clean",
+                "extract_llm_scores": "llm_check",
                 "extract_keypairs": "keypairs",
                 "extract_kvc_features": "kvc",
                 "extract_features": "features",
@@ -628,6 +663,10 @@ Pipeline Configuration:
             # Determine which stages still need to run
             stages_to_run = []
             stages_to_check = all_stages if not no_eda else all_stages[:-1]
+            # Remove llm_check if not explicitly requested
+            if not with_llm_check:
+                stages_to_check = [s for s in stages_to_check if s != "llm_check"]
+
             for stage in stages_to_check:
                 mapped_name = {v: k for k, v in stage_name_mapping.items()}.get(
                     stage, stage
@@ -672,7 +711,11 @@ Pipeline Configuration:
             click.echo(f"⚡ Force mode - creating new version: {version_id}")
             click.echo(f"   Parent version: {parent_version_id}")
 
-            stages = all_stages if not no_eda else all_stages[:-1]
+            base_stages = all_stages if not no_eda else all_stages[:-1]
+            # Remove llm_check if not explicitly requested
+            if not with_llm_check:
+                base_stages = [s for s in base_stages if s != "llm_check"]
+            stages = base_stages
 
     # Initialize pipeline
     pipeline = Pipeline(
