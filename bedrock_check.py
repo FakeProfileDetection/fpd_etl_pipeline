@@ -40,8 +40,11 @@ Return your answer as JSON in the format:
 ONLY return the JSON object, nothing else.
 Do not include any other text or explanation.
 
-Determine the relevance of the text to each topic and return a percentage score for each topic. The comments must not only discuss the video but comment on the video.
-For example, ONLY stating the name of the video is NOT relevant. The must DISCUSS the video in some way.  The comments must be relevant to the video and not just a general comment.
+Determine the relevance of the text to each topic and return a percentage score for
+each topic. The comments must not only discuss the video but comment on the video.
+For example, ONLY stating the name of the video is NOT relevant. The must DISCUSS
+the video in some way.  The comments must be relevant to the video and not just a
+general comment.
 
 """
 

@@ -33,9 +33,28 @@ from scripts.utils.enhanced_version_manager import (
 logger = logging.getLogger(__name__)
 
 
+def map2unicode(key: str) -> Optional[str]:
+    """
+    Map key to unicode representation if available.
+    This is a placeholder function; actual implementation may vary.
+    """
+    # Example mapping, replace with actual logic
+    # unicode_map = {
+    #     "a": "U+0061",
+    #     "b": "U+0062",
+    #     "c": "U+0063",
+    #     # Add more mappings as needed
+    # }
+    # return unicode_map.get(key, None)
+    pass
+
+
 @dataclass
 class KeystrokeEvent:
     """Represents a single keystroke event"""
+
+    # TODO: add field for unicode representation
+    # unicode: str  # Optional unicode representation of the key
 
     key: str
     press_time: Optional[float]
@@ -224,6 +243,7 @@ class ExtractKeypairsStage:
             elif event_type == "R":
                 if key_stacks[key]:
                     # Match with most recent press
+                    # TODO: unicode=get_unicode(key)
                     press_event = key_stacks[key].pop()
                     events.append(
                         KeystrokeEvent(
@@ -238,6 +258,7 @@ class ExtractKeypairsStage:
                     )
                 else:
                     # Orphan release - no matching press
+                    # TODO: unicode=get_unicode(key)
                     events.append(
                         KeystrokeEvent(
                             key=key,
@@ -251,6 +272,7 @@ class ExtractKeypairsStage:
                     )
 
         # Handle unmatched press events (missing releases)
+        # TODO: unicode=get_unicode(key)
         for key, stack in key_stacks.items():
             while stack:
                 press_event = stack.pop()
@@ -284,6 +306,7 @@ class ExtractKeypairsStage:
         sequence_id: int,
     ) -> KeypairFeatures:
         """Calculate TypeNet features for a key pair"""
+        # TODO: add key1.unicode, key2.unicode
         features = KeypairFeatures(
             user_id=user_id,
             platform_id=platform_id,

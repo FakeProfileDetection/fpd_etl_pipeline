@@ -224,15 +224,31 @@ class CleanDataStage:
     def group_files_by_user(self, input_dir: Path) -> Dict[str, List[Path]]:
         """Group all files by user ID"""
         user_files = defaultdict(list)
+        gstmp_files = []
 
         for filepath in input_dir.iterdir():
             if filepath.is_file():
+                # Skip .gstmp files but track them
+                if ".gstmp" in filepath.name:
+                    gstmp_files.append(filepath.name)
+                    continue
+
                 user_id = self.extract_user_id(filepath.name)
                 if user_id:
                     user_files[user_id].append(filepath)
                 else:
                     logger.warning(f"Could not extract user ID from: {filepath.name}")
                     self.stats["data_issues"].append(f"Unknown file: {filepath.name}")
+
+        # Log .gstmp files if found
+        if gstmp_files:
+            logger.warning(
+                f"Found {len(gstmp_files)} .gstmp files (incomplete downloads) - skipping"
+            )
+            for gstmp in gstmp_files[:5]:  # Show first 5
+                logger.debug(f"  Skipped .gstmp: {gstmp}")
+            if len(gstmp_files) > 5:
+                logger.debug(f"  ... and {len(gstmp_files) - 5} more")
 
         return dict(user_files)
 
@@ -271,6 +287,7 @@ class CleanDataStage:
         # Check keystroke files - handle new format with f_, i_, t_ prefixes
         complete_platforms = 0
         platform_completeness = {}
+        missing_csv_with_gstmp = []  # Track CSVs that only exist as .gstmp
 
         for platform, sequences in self.PLATFORM_SEQUENCES.items():
             platform_files = []
@@ -281,6 +298,12 @@ class CleanDataStage:
 
                 if csv_file in file_names:
                     platform_files.append(seq)
+                else:
+                    # Check if there's a .gstmp version indicating incomplete download
+                    gstmp_csv = f"{prefix}_{user_id}_{seq}.csv_.gstmp"
+                    gstmp_path = files[0].parent / gstmp_csv if files else None
+                    if gstmp_path and gstmp_path.exists():
+                        missing_csv_with_gstmp.append(csv_file)
 
             platform_completeness[platform] = {
                 "expected": len(sequences),
@@ -299,6 +322,12 @@ class CleanDataStage:
         if not has_all_platforms:
             missing_required.append(
                 f"Incomplete platform data (need all 18 files): {platform_completeness}"
+            )
+
+        # Report .gstmp files indicating incomplete downloads
+        if missing_csv_with_gstmp:
+            missing_required.append(
+                f"Missing CSV files that exist as .gstmp (incomplete downloads): {missing_csv_with_gstmp[:3]}"
             )
 
         return is_complete, missing_required, missing_optional
