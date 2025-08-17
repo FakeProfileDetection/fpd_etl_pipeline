@@ -1253,29 +1253,31 @@ class ReportGenerator:
     <p><small>Data source: <code>{{ data_paths.keypairs }}</code></small></p>
     <img src="{{ user_data_quality_src }}" alt="User Data Quality">
 
-    <h3>Top Users by Validity Rate</h3>
-    <table>
-        <tr>
-            <th>User ID</th>
-            <th>Total Keypairs</th>
-            <th>Valid Keypairs</th>
-            <th>Validity Rate (%)</th>
-            {% if 'outlier_rate' in user_stats.columns %}
-            <th>Outlier Rate (%)</th>
-            {% endif %}
-        </tr>
-        {% for _, user in top_users.iterrows() %}
-        <tr>
-            <td>{{ user.user_id }}</td>
-            <td>{{ user.total_keypairs }}</td>
-            <td>{{ user.valid_keypairs }}</td>
-            <td>{{ user.validity_rate|round(1) }}</td>
-            {% if 'outlier_rate' in user %}
-            <td>{{ user.outlier_rate|round(1) }}</td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
+    <h3>All Users by Validity Rate</h3>
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>User ID</th>
+                <th>Total Keypairs</th>
+                <th>Valid Keypairs</th>
+                <th>Validity Rate (%)</th>
+                {% if 'outlier_rate' in user_stats.columns %}
+                <th>Outlier Rate (%)</th>
+                {% endif %}
+            </tr>
+            {% for _, user in all_users.iterrows() %}
+            <tr>
+                <td>{{ user.user_id }}</td>
+                <td>{{ user.total_keypairs }}</td>
+                <td>{{ user.valid_keypairs }}</td>
+                <td>{{ user.validity_rate|round(1) }}</td>
+                {% if 'outlier_rate' in user %}
+                <td>{{ user.outlier_rate|round(1) }}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 
     <h2 id="visualizations">Visualizations</h2>
     <a href="#" class="back-to-top">↑ Back to top</a>
@@ -1337,7 +1339,7 @@ class ReportGenerator:
                 </tr>
                 {% for case in extreme_hl_analysis.extreme_cases[:20] %}
                 <tr class="warning">
-                    <td>{{ case.user_id[:8] }}...</td>
+                    <td>{{ case.user_id }}</td>
                     <td>{{ case.key }}</td>
                     <td>{{ case.hl_seconds|round(1) }}</td>
                     <td>{{ case.next_key }}</td>
@@ -1357,7 +1359,7 @@ class ReportGenerator:
             </tr>
             {% for user in extreme_hl_analysis.users_most_affected %}
             <tr>
-                <td>{{ user.user_id[:8] }}...</td>
+                <td>{{ user.user_id }}</td>
                 <td>{{ user.count }}</td>
             </tr>
             {% endfor %}
@@ -1585,7 +1587,7 @@ import seaborn as sns
 plt.figure(figsize=(12, 6))
 for user_id in valid_df['user_id'].unique()[:5]:  # First 5 users
     user_data = valid_df[valid_df['user_id'] == user_id]['HL']
-    plt.hist(user_data, bins=50, alpha=0.5, label=f'User {user_id[:8]}...')
+    plt.hist(user_data, bins=50, alpha=0.5, label=f'User {user_id}')
 plt.xlabel('Hold Latency (ms)')
 plt.ylabel('Frequency')
 plt.title('Hold Latency Distribution by User')
@@ -1874,7 +1876,9 @@ class RunEDAStage:
             # User performance
             user_stats = self.feature_analyzer.analyze_user_performance(keypairs_df)
             analysis_results["user_stats"] = user_stats
-            analysis_results["top_users"] = user_stats.nlargest(10, "validity_rate")
+            analysis_results["all_users"] = user_stats.sort_values(
+                "validity_rate", ascending=False
+            )
 
         # Analyze raw keystroke quality (optional)
         if cleaned_data_dir.exists():
@@ -1959,9 +1963,9 @@ class RunEDAStage:
                     results_for_json["user_stats"] = results_for_json[
                         "user_stats"
                     ].to_dict("records")
-                if "top_users" in results_for_json:
-                    results_for_json["top_users"] = results_for_json[
-                        "top_users"
+                if "all_users" in results_for_json:
+                    results_for_json["all_users"] = results_for_json[
+                        "all_users"
                     ].to_dict("records")
 
                 json.dump(results_for_json, f, indent=2, cls=NumpyEncoder)
