@@ -15,6 +15,7 @@ import asyncio
 import json
 import logging
 import os
+import random
 import sys
 import time
 from collections import defaultdict
@@ -84,11 +85,14 @@ class OpenAIProcessor:
                 "OpenAI library required. Install with: pip install openai aiofiles tqdm"
             )
 
-        self.client = AsyncOpenAI(api_key=api_key)
+        self.client = AsyncOpenAI(
+            api_key=api_key,
+            max_retries=5,  # Increase automatic retries for rate limits
+        )
         self.model = model
         self.semaphore = asyncio.Semaphore(max_concurrent)
-        self.retry_limit = 3
-        self.retry_delay = 1.0
+        self.retry_limit = 5  # Increase manual retry attempts
+        self.retry_delay = 2.0  # Increase base delay
 
     def build_prompt(self, text: str) -> str:
         """Build the evaluation prompt - matches openai_batched.py"""
@@ -207,12 +211,26 @@ Return ONLY this JSON:
                     return result
 
                 except Exception as e:
+                    error_msg = str(e)
+                    is_rate_limit = "429" in error_msg or "rate" in error_msg.lower()
+
                     if attempt < self.retry_limit - 1:
-                        await asyncio.sleep(self.retry_delay * (attempt + 1))
+                        # Exponential backoff with jitter for rate limits
+                        if is_rate_limit:
+                            delay = self.retry_delay * (2**attempt) + random.uniform(
+                                0, 1
+                            )
+                            logger.debug(
+                                f"Rate limited, retrying in {delay:.1f}s (attempt {attempt + 1}/{self.retry_limit})"
+                            )
+                        else:
+                            delay = self.retry_delay * (attempt + 1)
+
+                        await asyncio.sleep(delay)
                         continue
                     else:
                         logger.error(
-                            f"Error processing {metadata.get('filename')}: {e}"
+                            f"Failed after {self.retry_limit} attempts for {metadata.get('filename')}: {e}"
                         )
                         return {
                             "Coach Carter": 0,
@@ -495,11 +513,13 @@ class ExtractLLMScoresStage:
             self.stats["skipped_files"] += len(file_data)
             return complete_results, broken_results
 
-        # Process with OpenAI
+        # Process with OpenAI (reduced concurrency to avoid rate limits)
         processor = OpenAIProcessor(
             api_key=api_key,
             model=self.config.get("LLM_CHECK_MODEL", "gpt-4o-mini"),
-            max_concurrent=self.config.get("LLM_CHECK_MAX_CONCURRENT", 10),
+            max_concurrent=self.config.get(
+                "LLM_CHECK_MAX_CONCURRENT", 5
+            ),  # Reduced from 10
         )
 
         # Process batch
@@ -1071,12 +1091,44 @@ class ExtractLLMScoresStage:
                 "config": {
                     "model": self.config.get("LLM_CHECK_MODEL", "gpt-4o-mini"),
                     "threshold": self.threshold,
-                    "max_concurrent": self.config.get("LLM_CHECK_MAX_CONCURRENT", 10),
+                    "max_concurrent": self.config.get("LLM_CHECK_MAX_CONCURRENT", 5),
                 },
+                "status": "partial_failure"
+                if self.stats.get("api_errors", 0) > 0
+                else "success",
+                "api_errors": self.stats.get("api_errors", 0),
             }
 
             with open(metadata_dir / "processing_stats.json", "w") as f:
                 json.dump(metadata, f, indent=2)
+
+            # Create a failure flag file if there were errors
+            if self.stats.get("api_errors", 0) > 0:
+                failure_flag_path = metadata_dir / "FAILED_LLM_CHECK.flag"
+                with open(failure_flag_path, "w") as f:
+                    f.write(
+                        f"LLM Check failed with {self.stats['api_errors']} API errors\n"
+                    )
+                    f.write(f"Timestamp: {datetime.now().isoformat()}\n")
+                    f.write(f"Total files: {self.stats['total_files']}\n")
+                    f.write(f"Processed: {self.stats['processed_files']}\n")
+                    f.write(f"Errors: {self.stats['api_errors']}\n")
+                    f.write("\nRe-run with reduced concurrency to fix.\n")
+
+        # Verification: Check that all files were processed
+        total_expected = self.stats["total_files"]
+        total_processed = self.stats["processed_files"]
+        total_skipped = self.stats.get("skipped_files", 0)
+        total_errors = self.stats["api_errors"]
+
+        has_missing_files = False
+        if total_processed + total_skipped < total_expected:
+            missing = total_expected - total_processed - total_skipped
+            has_missing_files = True
+            logger.error(f"⚠️ WARNING: {missing} files were not processed or skipped!")
+            logger.error(
+                f"  Expected: {total_expected}, Processed: {total_processed}, Skipped: {total_skipped}"
+            )
 
         # Log summary
         logger.info("LLM Check complete:")
@@ -1091,19 +1143,64 @@ class ExtractLLMScoresStage:
         )
         logger.info(f"  API calls: {self.stats['api_calls']}")
         if self.stats["api_errors"] > 0:
-            logger.warning(f"  API errors: {self.stats['api_errors']}")
+            logger.warning(
+                f"  ⚠️ API errors: {self.stats['api_errors']} - These responses defaulted to score 0"
+            )
+            logger.warning(
+                "  Consider re-running with reduced concurrency if errors persist"
+            )
+
+        # CRITICAL: Display prominent failure message if there were any issues
+        if self.stats["api_errors"] > 0 or has_missing_files:
+            logger.error("\n" + "=" * 80)
+            logger.error(
+                "🚨 LLM CHECK FAILED - NOT ALL FILES WERE PROCESSED SUCCESSFULLY 🚨"
+            )
+            logger.error("=" * 80)
+            logger.error(
+                f"FAILED FILES: {self.stats['api_errors']} files had API errors"
+            )
+            if has_missing_files:
+                logger.error(
+                    f"MISSING FILES: {total_expected - total_processed - total_skipped} files were not processed"
+                )
+            logger.error("\n⚠️  IMPORTANT: These users' responses defaulted to SCORE 0")
+            logger.error("    This may incorrectly flag them for non-payment!")
+            logger.error("\n📋 TO FIX THIS:")
+            logger.error(
+                "    1. Reduce concurrency: Set LLM_CHECK_MAX_CONCURRENT=3 in config/.env.local"
+            )
+            logger.error("    2. Re-run the LLM check:")
+            logger.error(
+                "       python scripts/pipeline/run_pipeline.py --stages llm_check --with-llm-check --local-only"
+            )
+            logger.error("    3. Check the report for any remaining failures")
+            logger.error("=" * 80 + "\n")
 
         # Update version info
         if not self.dry_run:
+            # Mark stage as failed if there were errors
+            stage_status = (
+                "failed" if self.stats.get("api_errors", 0) > 0 else "completed"
+            )
             self.version_manager.update_stage_info(
                 self.version_id,
                 "extract_llm_scores",
                 {
                     "output_dir": str(output_dir),
                     "stats": self.stats,
+                    "status": stage_status,
                     "completed_at": datetime.now().isoformat(),
                 },
             )
+
+        # Raise exception if there were failures (after saving all data)
+        if self.stats.get("api_errors", 0) > 0:
+            error_msg = (
+                f"LLM Check completed with {self.stats['api_errors']} API errors. "
+                f"Check {output_dir}/metadata/FAILED_LLM_CHECK.flag for details."
+            )
+            raise RuntimeError(error_msg)
 
         return output_dir
 

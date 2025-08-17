@@ -13,6 +13,7 @@ This stage:
 - Saves all outputs in eda_reports/
 """
 
+import base64
 import json
 import logging
 import shutil
@@ -554,10 +555,11 @@ class FeatureAnalyzer:
 class ReportGenerator:
     """Generates HTML reports and visualizations"""
 
-    def __init__(self, output_dir: Path):
+    def __init__(self, output_dir: Path, embed_images: bool = True):
         self.output_dir = output_dir
         self.figures_dir = output_dir / "figures"
         self.tables_dir = output_dir / "tables"
+        self.embed_images = embed_images  # Flag to embed images as base64
 
         # Create directories
         self.figures_dir.mkdir(parents=True, exist_ok=True)
@@ -566,6 +568,33 @@ class ReportGenerator:
         # Set plotting style
         plt.style.use("seaborn-v0_8-darkgrid")
         sns.set_palette("husl")
+
+    def image_to_base64(self, image_path: Path) -> str:
+        """Convert image to base64 data URL"""
+        if not image_path.exists():
+            return ""
+
+        with open(image_path, "rb") as img_file:
+            encoded = base64.b64encode(img_file.read()).decode("utf-8")
+
+        # Determine MIME type
+        suffix = image_path.suffix.lower()
+        mime_type = {
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".gif": "image/gif",
+        }.get(suffix, "image/png")
+
+        return f"data:{mime_type};base64,{encoded}"
+
+    def get_image_src(self, relative_path: str) -> str:
+        """Get image source - either base64 or relative path"""
+        if self.embed_images:
+            full_path = self.output_dir / relative_path
+            return self.image_to_base64(full_path)
+        else:
+            return relative_path
 
     def create_timing_distributions(
         self, timing_stats: Dict[str, Any], keypairs_df: pd.DataFrame = None
@@ -1149,7 +1178,7 @@ class ReportGenerator:
 
     <h2 id="feature-definitions">Feature Definitions</h2>
     <a href="#" class="back-to-top">↑ Back to top</a>
-    <img src="figures/typenet_features.png" alt="TypeNet Feature Definitions" style="max-width: 800px;">
+    <img src="{{ typenet_features_src }}" alt="TypeNet Feature Definitions" style="max-width: 800px;">
     <p><em>Figure: Visual representation of the four timing features extracted from keystroke data.</em></p>
     <p><small>Source: Acien, A., Morales, A., Monaco, J. V., Vera-Rodríguez, R., & Fiérrez, J. (2021, January 14). TypeNet: Deep Learning Keystroke Biometrics. arXiv. <a href="https://arxiv.org/abs/2101.05570" target="_blank">https://arxiv.org/abs/2101.05570</a></small></p>
 
@@ -1222,7 +1251,7 @@ class ReportGenerator:
     <h2 id="user-performance">User Performance</h2>
     <a href="#" class="back-to-top">↑ Back to top</a>
     <p><small>Data source: <code>{{ data_paths.keypairs }}</code></small></p>
-    <img src="figures/user_data_quality.png" alt="User Data Quality">
+    <img src="{{ user_data_quality_src }}" alt="User Data Quality">
 
     <h3>Top Users by Validity Rate</h3>
     <table>
@@ -1252,10 +1281,10 @@ class ReportGenerator:
     <a href="#" class="back-to-top">↑ Back to top</a>
     <p><small>Data source: <code>{{ data_paths.keypairs }}</code></small></p>
     <h3>Timing Feature Distributions - All Valid Data</h3>
-    <img src="figures/timing_distributions_all_data.png" alt="Timing Distributions - All Data">
+    <img src="{{ timing_distributions_all_src }}" alt="Timing Distributions - All Data">
 
     <h3>Timing Feature Distributions - Outliers Removed</h3>
-    <img src="figures/timing_distributions_no_outliers.png" alt="Timing Distributions - No Outliers">
+    <img src="{{ timing_distributions_outliers_src }}" alt="Timing Distributions - No Outliers">
 
     {% if extreme_hl_analysis and extreme_hl_analysis.total_extreme_count > 0 %}
     <h2 id="extreme-hl">Extreme Hold Latency Analysis</h2>
@@ -1577,10 +1606,27 @@ plt.show()
         env.filters["number"] = lambda x: f"{int(x):,}" if pd.notna(x) else "N/A"
         env.filters["round"] = lambda x, n=1: round(x, n) if pd.notna(x) else "N/A"
 
+        # Add image sources to the context
+        image_sources = {
+            "typenet_features_src": self.get_image_src("figures/typenet_features.png"),
+            "user_data_quality_src": self.get_image_src(
+                "figures/user_data_quality.png"
+            ),
+            "timing_distributions_all_src": self.get_image_src(
+                "figures/timing_distributions_all_data.png"
+            ),
+            "timing_distributions_outliers_src": self.get_image_src(
+                "figures/timing_distributions_no_outliers.png"
+            ),
+        }
+
+        # Merge with analysis results
+        context = {**analysis_results, **image_sources}
+
         # Create template from string
         template = env.from_string(template_str)
 
-        return template.render(**analysis_results)
+        return template.render(**context)
 
 
 class RunEDAStage:
@@ -1868,7 +1914,9 @@ class RunEDAStage:
             output_dir.mkdir(parents=True, exist_ok=True)
 
             # Initialize report generator
-            report_gen = ReportGenerator(output_dir)
+            # Embed images for portability (can be changed via config if needed)
+            embed_images = self.config.get("EDA_EMBED_IMAGES", True)
+            report_gen = ReportGenerator(output_dir, embed_images=embed_images)
 
             # Create visualizations
             if "timing_stats" in analysis_results:

@@ -95,9 +95,21 @@ Add to `config/.env.local`:
 ```bash
 OPENAI_API_KEY=sk-your-api-key-here
 LLM_CHECK_MODEL=gpt-4o-mini      # Optional: model selection
-LLM_CHECK_MAX_CONCURRENT=10      # Optional: parallel API calls
+LLM_CHECK_MAX_CONCURRENT=5        # Optional: parallel API calls (reduce if rate limited)
 LLM_CHECK_THRESHOLD=40            # Optional: pass/fail threshold (0-100)
 ```
+
+### Rate Limiting Protection
+The pipeline includes robust handling for OpenAI rate limits:
+- **Automatic retries**: Up to 5 attempts with exponential backoff
+- **Smart delays**: Longer waits for rate limit errors (429)
+- **Verification**: Checks all files are processed
+- **Error handling**: Failed requests default to score 0 with warnings
+
+If you encounter persistent rate limits:
+1. Reduce `LLM_CHECK_MAX_CONCURRENT` to 3 or lower
+2. Re-run the pipeline - it will retry failed requests
+3. Check the logs for "API errors" count
 
 ## Output Files
 

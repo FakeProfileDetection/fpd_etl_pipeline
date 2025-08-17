@@ -106,6 +106,7 @@ DEVICE_TYPES=desktop          # Options: desktop, mobile, or desktop,mobile
 UPLOAD_ARTIFACTS=false        # Set to true for production
 INCLUDE_PII=false            # Set to true to include demographics
 GENERATE_REPORTS=true        # Generate EDA reports
+EDA_EMBED_IMAGES=true        # Embed images in HTML for Google Drive compatibility
 
 # LLM Check (optional - only if using --with-llm-check)
 OPENAI_API_KEY=sk-...        # Your OpenAI API key
@@ -170,8 +171,12 @@ python scripts/pipeline/run_pipeline.py -s top_il_features --top-k 20
 - Generates comprehensive analysis reports
 - Creates visualizations for timing distributions
 - Produces data quality summaries
+- **Self-contained HTML reports** with embedded images (works in Google Drive)
 ```bash
 python scripts/pipeline/run_pipeline.py -s eda
+
+# To generate reports with separate image files (smaller HTML):
+# Set EDA_EMBED_IMAGES=false in config/.env.local
 ```
 
 ## 🔄 Pipeline Modes
