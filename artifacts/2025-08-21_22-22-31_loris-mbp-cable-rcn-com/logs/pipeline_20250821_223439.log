@@ -1,0 +1,90 @@
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     | ================================================================================
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     | PIPELINE EXECUTION LOG
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     | ================================================================================
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     | Script: pipeline
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     | Version ID: 2025-08-21_22-22-31_loris-mbp-cable-rcn-com
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     | Start Time: 2025-08-21T22:34:39.106693
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     | Python Version: 3.12.10
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     | Platform: darwin
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     | 
+Command Arguments:
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     |   --mode: incr
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     |   --stages: ['llm_check']
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     |   --local_only: True
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     |   --upload_artifacts: False
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     |   --include_pii: False
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     |   --no_eda: False
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     |   --dry_run: False
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     |   --log_level: INFO
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     |   --device_types: desktop
+2025-08-21 22:34:39 | LOGGER_CONFIG             | DEBUG    | 
+Command Info (JSON):
+{
+  "script": "pipeline",
+  "version_id": "2025-08-21_22-22-31_loris-mbp-cable-rcn-com",
+  "timestamp": "2025-08-21T22:34:39.106693",
+  "command_args": {
+    "mode": "incr",
+    "stages": [
+      "llm_check"
+    ],
+    "local_only": true,
+    "upload_artifacts": false,
+    "include_pii": false,
+    "no_eda": false,
+    "dry_run": false,
+    "log_level": "INFO",
+    "device_types": "desktop"
+  },
+  "python_version": "3.12.10",
+  "platform": "darwin"
+}
+2025-08-21 22:34:39 | LOGGER_CONFIG             | INFO     | ================================================================================
+
+2025-08-21 22:34:39 | __main__                  | INFO     | 📝 Logging to: artifacts/2025-08-21_22-22-31_loris-mbp-cable-rcn-com/logs/pipeline_20250821_223439.log
+2025-08-21 22:34:39 | scripts.utils.config_manager | INFO     | Loaded base config from config/.env.base
+2025-08-21 22:34:39 | scripts.utils.config_manager | INFO     | Loaded shared config from config/.env.shared
+2025-08-21 22:34:39 | scripts.utils.config_manager | INFO     | Loaded local config from config/.env.local
+2025-08-21 22:34:39 | __main__                  | INFO     | Running pipeline stages: ['llm_check']
+2025-08-21 22:34:39 | __main__                  | INFO     | Running stage: extract_llm_scores
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | INFO     | Starting LLM Scores stage for version 2025-08-21_22-22-31_loris-mbp-cable-rcn-com
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | INFO     | Processing device types: ['desktop']
+2025-08-21 22:34:39 | asyncio                   | DEBUG    | Using selector: KqueueSelector
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | INFO     | Processing desktop data...
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | ERROR    | 
+================================================================================
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | ERROR    | ❌ OPENAI API KEY NOT FOUND - CANNOT RUN LLM CHECK
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | ERROR    | ================================================================================
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | ERROR    | Running in non-interactive mode but no API key was found.
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | ERROR    | Please set OPENAI_API_KEY environment variable or add to config/.env.local
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | ERROR    | ================================================================================
+
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | WARNING  | 
+================================================================================
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | WARNING  | ⚠️  NO OPENAI API KEY FOUND - LLM CHECK WILL BE SKIPPED
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | WARNING  | ================================================================================
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | WARNING  | The LLM check stage requires an OpenAI API key but none was found.
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | WARNING  | To run the LLM check:
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | WARNING  |   1. Get an API key from https://platform.openai.com/api-keys
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | WARNING  |   2. Add to config/.env.local: OPENAI_API_KEY=sk-...
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | WARNING  |   3. Re-run with: python scripts/pipeline/run_pipeline.py --with-llm-check
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | WARNING  | ================================================================================
+
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | ERROR    | 
+================================================================================
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | ERROR    | 🚫 LLM CHECK WAS SKIPPED - NO API KEY AVAILABLE
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | ERROR    | ================================================================================
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | ERROR    | Skipped 665 files due to missing OpenAI API key
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | ERROR    | To run the LLM check, you must provide an API key
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | ERROR    | See instructions above for how to add your API key
+2025-08-21 22:34:39 | scripts.pipeline.extract_llm_scores | ERROR    | ================================================================================
+
+2025-08-21 22:34:39 | __main__                  | INFO     | ✅ Completed extract_llm_scores in 0.2s
+2025-08-21 22:34:39 | __main__                  | INFO     | 
+📄 Full execution log: artifacts/2025-08-21_22-22-31_loris-mbp-cable-rcn-com/logs/pipeline_20250821_223439.log
+2025-08-21 22:34:39 | __main__                  | INFO     | 
+✅ Pipeline completed successfully!
+2025-08-21 22:34:39 | scripts.utils.enhanced_version_manager | INFO     | Marked version as complete: 2025-08-21_22-22-31_loris-mbp-cable-rcn-com
+2025-08-21 22:34:39 | __main__                  | INFO     | 
+💡 Tip: To upload artifacts after review, run:
+2025-08-21 22:34:39 | __main__                  | INFO     |     python scripts/standalone/upload_artifacts.py --version-id 2025-08-21_22-22-31_loris-mbp-cable-rcn-com

@@ -1,0 +1,74 @@
+{
+  "version_id": "2025-08-21_22-22-31_loris-mbp-cable-rcn-com",
+  "timestamp": "2025-08-21T22:25:50.575380",
+  "features_available": [
+    "statistical_platform",
+    "statistical_session",
+    "statistical_video"
+  ],
+  "feature_configs": {
+    "statistical_platform": {
+      "name": "statistical_platform",
+      "description": "Statistical features aggregated by user and platform",
+      "top_n_digrams": 10,
+      "use_all_unigrams": true,
+      "imputation_strategy": "global",
+      "aggregation_level": "user_platform",
+      "keep_outliers": false
+    },
+    "statistical_session": {
+      "name": "statistical_session",
+      "description": "Statistical features aggregated by user, platform, and session",
+      "top_n_digrams": 10,
+      "use_all_unigrams": true,
+      "imputation_strategy": "global",
+      "aggregation_level": "session",
+      "keep_outliers": false
+    },
+    "statistical_video": {
+      "name": "statistical_video",
+      "description": "Statistical features aggregated by user, platform, session, and video (most granular)",
+      "top_n_digrams": 10,
+      "use_all_unigrams": true,
+      "imputation_strategy": "user",
+      "aggregation_level": "video",
+      "keep_outliers": false
+    }
+  },
+  "extraction_summary": {
+    "features_extracted": {
+      "statistical_platform": {
+        "records": 86,
+        "features": 338
+      },
+      "statistical_session": {
+        "records": 160,
+        "features": 339
+      },
+      "statistical_video": {
+        "records": 439,
+        "features": 340
+      }
+    },
+    "processing_time": {
+      "statistical_platform": 1.872157,
+      "statistical_session": 3.233839,
+      "statistical_video": 7.920143
+    },
+    "feature_counts": {
+      "statistical_platform": [
+        86,
+        342
+      ],
+      "statistical_session": [
+        160,
+        343
+      ],
+      "statistical_video": [
+        439,
+        344
+      ]
+    },
+    "errors": []
+  }
+}
