@@ -331,9 +331,14 @@ class ExtractLLMScoresStage:
 
         # No API key found
         if self.non_interactive:
-            logger.warning(
-                "OpenAI API key not found. Skipping LLM check in non-interactive mode."
+            logger.error("\n" + "=" * 80)
+            logger.error("❌ OPENAI API KEY NOT FOUND - CANNOT RUN LLM CHECK")
+            logger.error("=" * 80)
+            logger.error("Running in non-interactive mode but no API key was found.")
+            logger.error(
+                "Please set OPENAI_API_KEY environment variable or add to config/.env.local"
             )
+            logger.error("=" * 80 + "\n")
             return None
 
         # Interactive prompt
@@ -508,7 +513,21 @@ class ExtractLLMScoresStage:
         # Get API key and create processor
         api_key = self.check_and_setup_api_key()
         if not api_key:
-            logger.info("No API key available - skipping LLM processing")
+            logger.warning("\n" + "=" * 80)
+            logger.warning("⚠️  NO OPENAI API KEY FOUND - LLM CHECK WILL BE SKIPPED")
+            logger.warning("=" * 80)
+            logger.warning(
+                "The LLM check stage requires an OpenAI API key but none was found."
+            )
+            logger.warning("To run the LLM check:")
+            logger.warning(
+                "  1. Get an API key from https://platform.openai.com/api-keys"
+            )
+            logger.warning("  2. Add to config/.env.local: OPENAI_API_KEY=sk-...")
+            logger.warning(
+                "  3. Re-run with: python scripts/pipeline/run_pipeline.py --with-llm-check"
+            )
+            logger.warning("=" * 80 + "\n")
             # Mark all as skipped
             self.stats["skipped_files"] += len(file_data)
             return complete_results, broken_results
@@ -1021,18 +1040,38 @@ class ExtractLLMScoresStage:
         all_scores = complete_scores  # For backward compatibility
 
         if not all_scores:
-            logger.warning(
-                "No scores generated - API key may be missing or no text files found"
-            )
+            # Check if it was due to missing API key
+            if self.stats.get("skipped_files", 0) > 0:
+                logger.error("\n" + "=" * 80)
+                logger.error("🚫 LLM CHECK WAS SKIPPED - NO API KEY AVAILABLE")
+                logger.error("=" * 80)
+                logger.error(
+                    f"Skipped {self.stats['skipped_files']} files due to missing OpenAI API key"
+                )
+                logger.error("To run the LLM check, you must provide an API key")
+                logger.error("See instructions above for how to add your API key")
+                logger.error("=" * 80 + "\n")
+            else:
+                logger.warning(
+                    "No scores generated - no text files found in input directory"
+                )
 
             # Create skip marker
             output_dir.mkdir(parents=True, exist_ok=True)
             skip_file = metadata_dir / "skipped.flag"
             skip_file.parent.mkdir(parents=True, exist_ok=True)
             with open(skip_file, "w") as f:
-                f.write(
-                    f"Skipped at {datetime.now().isoformat()}\nReason: No API key or no text files\n"
-                )
+                if self.stats.get("skipped_files", 0) > 0:
+                    f.write(
+                        f"Skipped at {datetime.now().isoformat()}\n"
+                        f"Reason: No OpenAI API key available\n"
+                        f"Skipped files: {self.stats['skipped_files']}\n"
+                    )
+                else:
+                    f.write(
+                        f"Skipped at {datetime.now().isoformat()}\n"
+                        f"Reason: No text files found\n"
+                    )
             return output_dir
 
         # Calculate user statistics
