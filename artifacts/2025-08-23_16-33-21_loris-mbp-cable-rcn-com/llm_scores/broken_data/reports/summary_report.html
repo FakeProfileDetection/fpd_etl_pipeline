@@ -1,0 +1,256 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LLM Score Report - 2025-08-23_16-33-21_loris-mbp-cable-rcn-com</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .summary { background: #f0f0f0; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .stat-box { background: white; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #007bff; }
+        .stat-label { color: #666; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th { background: #007bff; color: white; padding: 10px; text-align: left; cursor: pointer; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; }
+        tr:hover { background: #f5f5f5; }
+        .pass { color: green; font-weight: bold; }
+        .fail { color: red; font-weight: bold; }
+        .search-box { margin: 20px 0; }
+        .search-box input { padding: 10px; width: 300px; font-size: 16px; margin-right: 10px; }
+        .search-box button { padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; cursor: pointer; margin: 2px; }
+        .search-box button:hover { background: #0056b3; }
+        .clickable { cursor: pointer; text-decoration: underline; color: #007bff; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 5% auto; padding: 20px; width: 80%; max-height: 80%; overflow-y: auto; border-radius: 10px; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: black; }
+        .response-item { border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .response-text { background: #f9f9f9; padding: 10px; margin: 10px 0; border-left: 3px solid #007bff; white-space: pre-wrap; }
+        .score-badge { display: inline-block; padding: 3px 8px; border-radius: 3px; margin: 2px; font-size: 12px; }
+        .score-high { background: #28a745; color: white; }
+        .score-medium { background: #ffc107; color: black; }
+        .score-low { background: #dc3545; color: white; }
+        .filter-buttons { margin: 20px 0; }
+    </style>
+    <script>
+        var allScores = {"33d899f4525cdfab3c39dfbc0f969ed3": [{"user_id": "33d899f4525cdfab3c39dfbc0f969ed3", "device_type": "desktop", "platform_id": 1, "video_id": 1, "session_id": 1, "filename": "1_1_1_33d899f4525cdfab3c39dfbc0f969ed3.txt", "text": "He takes ownerships of his future, showing us that self-belief is as critical as talent or effort. That acknowledging our fears can lead to transformative growth.", "coach_carter_score": 80, "oscars_slap_score": 0, "trump_ukraine_score": 0, "max_score": 80, "likely_video": "Coach Carter", "engagement_level": "HIGH", "passes_threshold": true, "text_preview": "He takes ownerships of his future, showing us that self-belief is as critical as talent or effort. T", "processing_time": 0.7928938865661621, "error": null, "user_type": "broken"}], "c91cdd3850c741c24dbb8c1607b8712d": [{"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 1, "video_id": 2, "session_id": 2, "filename": "1_2_2_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "That slap at the awards show was totally unexpected and really changed the mood in the room. It\u2019s crazy how one moment can shift the entire atmosphere", "coach_carter_score": 0, "oscars_slap_score": 80, "trump_ukraine_score": 0, "max_score": 80, "likely_video": "Oscars Slap", "engagement_level": "HIGH", "passes_threshold": true, "text_preview": "That slap at the awards show was totally unexpected and really changed the mood in the room. It\u2019s cr", "processing_time": 0.8249979019165039, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 3, "video_id": 1, "session_id": 1, "filename": "3_1_1_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "I liked how the coach reminded them that fear can hold us back more than failure. It was a strong message about finding confidence and believing in what we can do.", "coach_carter_score": 90, "oscars_slap_score": 0, "trump_ukraine_score": 0, "max_score": 90, "likely_video": "Coach Carter", "engagement_level": "HIGH", "passes_threshold": true, "text_preview": "I liked how the coach reminded them that fear can hold us back more than failure. It was a strong me", "processing_time": 0.7116222381591797, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 3, "video_id": 2, "session_id": 1, "filename": "3_2_1_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "The atmosphere in the room was completely altered by that surprise smack during the awards event. It's amazing how quickly a single moment can change the entire environment.", "coach_carter_score": 0, "oscars_slap_score": 80, "trump_ukraine_score": 0, "max_score": 80, "likely_video": "Oscars Slap", "engagement_level": "HIGH", "passes_threshold": true, "text_preview": "The atmosphere in the room was completely altered by that surprise smack during the awards event. It", "processing_time": 0.8422417640686035, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 1, "video_id": 1, "session_id": 2, "filename": "1_1_2_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "The coach\u2019s message about overcoming self-doubt really resonated with me. It\u2019s a powerful reminder that we often limit ourselves more than anything else.", "coach_carter_score": 90, "oscars_slap_score": 0, "trump_ukraine_score": 0, "max_score": 90, "likely_video": "Coach Carter", "engagement_level": "HIGH", "passes_threshold": true, "text_preview": "The coach\u2019s message about overcoming self-doubt really resonated with me. It\u2019s a powerful reminder t", "processing_time": 0.6729319095611572, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 3, "video_id": 3, "session_id": 2, "filename": "3_3_2_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "The Oval Office meeting between Trump, Vance, and Zelenskyy highlights the complexity of international relations, where public smiles hide the weight of real decisions.", "coach_carter_score": 0, "oscars_slap_score": 0, "trump_ukraine_score": 80, "max_score": 80, "likely_video": "Trump-Ukraine Meeting", "engagement_level": "HIGH", "passes_threshold": true, "text_preview": "The Oval Office meeting between Trump, Vance, and Zelenskyy highlights the complexity of internation", "processing_time": 0.8826539516448975, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 1, "video_id": 3, "session_id": 1, "filename": "1_3_1_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "Watching the meeting between Trump, Vance, and Zelenskyy was insightful. It showed how important diplomacy is during tense political times. A lot was at stake.", "coach_carter_score": 0, "oscars_slap_score": 0, "trump_ukraine_score": 70, "max_score": 70, "likely_video": "Trump-Ukraine Meeting", "engagement_level": "MODERATE", "passes_threshold": true, "text_preview": "Watching the meeting between Trump, Vance, and Zelenskyy was insightful. It showed how important dip", "processing_time": 0.8223750591278076, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 2, "video_id": 3, "session_id": 1, "filename": "2_3_1_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "The Oval Office discussion highlighted the complexity of international relations. You could tell every word mattered, especially with so much on the line.", "coach_carter_score": 0, "oscars_slap_score": 0, "trump_ukraine_score": 60, "max_score": 60, "likely_video": "Trump-Ukraine Meeting", "engagement_level": "MODERATE", "passes_threshold": true, "text_preview": "The Oval Office discussion highlighted the complexity of international relations. You could tell eve", "processing_time": 0.7656087875366211, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 2, "video_id": 2, "session_id": 2, "filename": "2_2_2_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "That unexpected slap really changed the energy of the event. It\u2019s wild how quickly a single moment can shift the entire vibe and leave everyone stunned.", "coach_carter_score": 0, "oscars_slap_score": 80, "trump_ukraine_score": 0, "max_score": 80, "likely_video": "Oscars Slap", "engagement_level": "HIGH", "passes_threshold": true, "text_preview": "That unexpected slap really changed the energy of the event. It\u2019s wild how quickly a single moment c", "processing_time": 0.8872189521789551, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 2, "video_id": 1, "session_id": 2, "filename": "2_1_2_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "The coac\u2019hs message about overcoming self-doubt really resonated with me. It\u2019s a powerful reminder that we often limit ourselves more than anything else.", "coach_carter_score": 90, "oscars_slap_score": 0, "trump_ukraine_score": 0, "max_score": 90, "likely_video": "Coach Carter", "engagement_level": "HIGH", "passes_threshold": true, "text_preview": "The coac\u2019hs message about overcoming self-doubt really resonated with me. It\u2019s a powerful reminder t", "processing_time": 0.9229779243469238, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 2, "video_id": 3, "session_id": 2, "filename": "2_3_2_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "Watching Trump, Vance, and Zelenskyy seated together in the Oval Office feels like a glimpse into history\u2014every gesture and glance telling its own political story.", "coach_carter_score": 0, "oscars_slap_score": 0, "trump_ukraine_score": 80, "max_score": 80, "likely_video": "Trump-Ukraine Meeting", "engagement_level": "HIGH", "passes_threshold": true, "text_preview": "Watching Trump, Vance, and Zelenskyy seated together in the Oval Office feels like a glimpse into hi", "processing_time": 1.2935121059417725, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 2, "video_id": 2, "session_id": 1, "filename": "2_2_1_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "The slap during the ceremony was really surprising. It showed how quickly emotions can escalate in public, especially when people least expect it. Such a tense moment!", "coach_carter_score": 0, "oscars_slap_score": 80, "trump_ukraine_score": 0, "max_score": 80, "likely_video": "Oscars Slap", "engagement_level": "HIGH", "passes_threshold": true, "text_preview": "The slap during the ceremony was really surprising. It showed how quickly emotions can escalate in p", "processing_time": 0.8302812576293945, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 3, "video_id": 1, "session_id": 2, "filename": "3_1_2_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "Watching the coach challenge the students made me think about the importance of believing in your own abilities, even when it feels uncomfortable or scary.", "coach_carter_score": 90, "oscars_slap_score": 0, "trump_ukraine_score": 0, "max_score": 90, "likely_video": "Coach Carter", "engagement_level": "HIGH", "passes_threshold": true, "text_preview": "Watching the coach challenge the students made me think about the importance of believing in your ow", "processing_time": 0.7860207557678223, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 1, "video_id": 2, "session_id": 1, "filename": "1_2_1_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "That moment at the awards was totally unexpected and shocking. It really caught everyone off guard and showed how strong emotions can come out suddenly.", "coach_carter_score": 0, "oscars_slap_score": 80, "trump_ukraine_score": 0, "max_score": 80, "likely_video": "Oscars Slap", "engagement_level": "HIGH", "passes_threshold": true, "text_preview": "That moment at the awards was totally unexpected and shocking. It really caught everyone off guard a", "processing_time": 0.7763810157775879, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 3, "video_id": 2, "session_id": 2, "filename": "3_2_2_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "The tension during that awards ceremony was intense after the slap. It shows how powerful and sudden emotions can be, even in the most formal settings.", "coach_carter_score": 0, "oscars_slap_score": 80, "trump_ukraine_score": 0, "max_score": 80, "likely_video": "Oscars Slap", "engagement_level": "HIGH", "passes_threshold": true, "text_preview": "The tension during that awards ceremony was intense after the slap. It shows how powerful and sudden", "processing_time": 0.7886128425598145, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 3, "video_id": 3, "session_id": 1, "filename": "3_3_1_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "That meeting captured the serious tone of global politics. The conversations seemed intense, reminding me how critical leadership is in these moments.", "coach_carter_score": 0, "oscars_slap_score": 0, "trump_ukraine_score": 60, "max_score": 60, "likely_video": "Trump-Ukraine Meeting", "engagement_level": "MODERATE", "passes_threshold": true, "text_preview": "That meeting captured the serious tone of global politics. The conversations seemed intense, remindi", "processing_time": 0.8408989906311035, "error": null, "user_type": "broken"}, {"user_id": "c91cdd3850c741c24dbb8c1607b8712d", "device_type": "desktop", "platform_id": 1, "video_id": 3, "session_id": 2, "filename": "1_3_2_c91cdd3850c741c24dbb8c1607b8712d.txt", "text": "A rare moment of diplomacy unfolds in the Oval Office as Trump, Vance, and Zelenskyy discuss global challenges. Body language speaks volumes as much as the words.", "coach_carter_score": 0, "oscars_slap_score": 0, "trump_ukraine_score": 60, "max_score": 60, "likely_video": "Trump-Ukraine Meeting", "engagement_level": "MODERATE", "passes_threshold": true, "text_preview": "A rare moment of diplomacy unfolds in the Oval Office as Trump, Vance, and Zelenskyy discuss global ", "processing_time": 0.8117823600769043, "error": null, "user_type": "broken"}]};
+
+        function searchTable() {
+            var input = document.getElementById("searchInput").value.toLowerCase();
+            var statusFilter = document.getElementById("statusFilter").value;
+            var table = document.getElementById("userTable");
+            var tr = table.getElementsByTagName("tr");
+
+            for (var i = 1; i < tr.length; i++) {
+                var display = false;
+                var td = tr[i].getElementsByTagName("td");
+
+                // Check text match
+                for (var j = 0; j < td.length; j++) {
+                    if (td[j] && td[j].innerHTML.toLowerCase().indexOf(input) > -1) {
+                        display = true;
+                        break;
+                    }
+                }
+
+                // Apply status filter
+                if (display && statusFilter !== "all") {
+                    var status = td[5].innerText.toLowerCase();
+                    if (statusFilter === "failed" && status !== "fail") {
+                        display = false;
+                    } else if (statusFilter === "passed" && status !== "pass") {
+                        display = false;
+                    }
+                }
+
+                tr[i].style.display = display ? "" : "none";
+            }
+        }
+
+        function showUserDetails(userId) {
+            var modal = document.getElementById("detailModal");
+            var content = document.getElementById("modalContent");
+            var scores = allScores[userId] || [];
+
+            var html = "<h2>User: " + userId + "</h2>";
+            html += "<p>Total Responses: " + scores.length + "</p>";
+
+            // Separate failed and passed responses
+            var failedResponses = scores.filter(s => !s.passes_threshold);
+            var passedResponses = scores.filter(s => s.passes_threshold);
+
+            if (failedResponses.length > 0) {
+                html += "<h3 style='color: red;'>Failed Responses (" + failedResponses.length + ")</h3>";
+                failedResponses.forEach(function(score) {
+                    html += formatResponse(score, true);
+                });
+            }
+
+            if (passedResponses.length > 0) {
+                html += "<h3 style='color: green;'>Passed Responses (" + passedResponses.length + ")</h3>";
+                passedResponses.forEach(function(score) {
+                    html += formatResponse(score, false);
+                });
+            }
+
+            content.innerHTML = html;
+            modal.style.display = "block";
+        }
+
+        function formatResponse(score, showFullText) {
+            var html = '<div class="response-item">';
+            html += '<strong>File:</strong> ' + score.filename;
+            html += ' | <strong>Platform:</strong> ' + score.platform_id;
+            html += ' | <strong>Video:</strong> ' + score.video_id;
+            html += ' | <strong>Session:</strong> ' + score.session_id;
+            html += '<br>';
+
+            // Score badges
+            html += '<span class="score-badge ' + getScoreClass(score.coach_carter_score) + '">Coach Carter: ' + score.coach_carter_score + '</span>';
+            html += '<span class="score-badge ' + getScoreClass(score.oscars_slap_score) + '">Oscars Slap: ' + score.oscars_slap_score + '</span>';
+            html += '<span class="score-badge ' + getScoreClass(score.trump_ukraine_score) + '">Trump-Ukraine: ' + score.trump_ukraine_score + '</span>';
+            html += '<span class="score-badge ' + getScoreClass(score.max_score) + '"><b>Max: ' + score.max_score + '</b></span>';
+
+            // Always show full text in modal view
+            html += '<div class="response-text">' + (score.text || "No text available") + '</div>';
+
+            html += '</div>';
+            return html;
+        }
+
+        function getScoreClass(score) {
+            if (score >= 80) return 'score-high';
+            if (score >= 40) return 'score-medium';
+            return 'score-low';
+        }
+
+        function closeModal() {
+            document.getElementById("detailModal").style.display = "none";
+        }
+
+        function sortTable(n) {
+            var table = document.getElementById("userTable");
+            var rows = Array.from(table.rows).slice(1);
+            var ascending = table.rows[0].cells[n].innerHTML.indexOf("↓") === -1;
+
+            rows.sort(function(a, b) {
+                var x = a.cells[n].innerHTML.toLowerCase();
+                var y = b.cells[n].innerHTML.toLowerCase();
+
+                // Handle numeric columns
+                if (n >= 2 && n <= 4) {
+                    x = parseFloat(x) || 0;
+                    y = parseFloat(y) || 0;
+                }
+
+                if (ascending) {
+                    return x < y ? -1 : x > y ? 1 : 0;
+                } else {
+                    return x > y ? -1 : x < y ? 1 : 0;
+                }
+            });
+
+            // Update arrows
+            for (var i = 0; i < table.rows[0].cells.length; i++) {
+                table.rows[0].cells[i].innerHTML = table.rows[0].cells[i].innerHTML.replace(/ ↑| ↓/g, "");
+            }
+            table.rows[0].cells[n].innerHTML += ascending ? " ↑" : " ↓";
+
+            rows.forEach(function(row) {
+                table.appendChild(row);
+            });
+        }
+
+        window.onclick = function(event) {
+            var modal = document.getElementById("detailModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>LLM Score Report - Broken Users (Incomplete Data)</h1>
+    <div class="summary">
+        <h2>Summary Statistics</h2>
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value">36</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">22</div>
+                <div class="stat-label">Passing Users</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">16</div>
+                <div class="stat-label">Failing Users</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">665</div>
+                <div class="stat-label">Texts Processed</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">61.1%</div>
+                <div class="stat-label">Pass Rate</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">40</div>
+                <div class="stat-label">Threshold Score</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="search-box">
+        <h2>Search & Filter</h2>
+        <input type="text" id="searchInput" placeholder="Search by user ID..." onkeyup="searchTable()">
+        <select id="statusFilter" onchange="searchTable()">
+            <option value="all">All Users</option>
+            <option value="failed">Failed Only</option>
+            <option value="passed">Passed Only</option>
+        </select>
+        <button onclick="searchTable()">Apply Filters</button>
+    </div>
+
+    <h2>User Results (Click user ID to see details)</h2>
+    <table id="userTable">
+        <tr>
+            <th onclick="sortTable(0)">User ID</th>
+            <th onclick="sortTable(1)">Device</th>
+            <th onclick="sortTable(2)">Total Responses</th>
+            <th onclick="sortTable(3)">Passing Responses</th>
+            <th onclick="sortTable(4)">Average Score</th>
+            <th onclick="sortTable(5)">Status</th>
+        </tr>
+
+        <tr>
+            <td><span class="clickable" onclick="showUserDetails('33d899f4525cdfab3c39dfbc0f969ed3')">33d899f4525cdfab3c39dfbc0f969ed3</span></td>
+            <td>desktop</td>
+            <td>1</td>
+            <td>1</td>
+            <td>80.0</td>
+            <td class="fail">FAIL</td>
+        </tr>
+
+        <tr>
+            <td><span class="clickable" onclick="showUserDetails('c91cdd3850c741c24dbb8c1607b8712d')">c91cdd3850c741c24dbb8c1607b8712d</span></td>
+            <td>desktop</td>
+            <td>16</td>
+            <td>16</td>
+            <td>78.1</td>
+            <td class="pass">PASS</td>
+        </tr>
+
+    </table>
+
+    <!-- Modal for detailed view -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+</body>
+</html>

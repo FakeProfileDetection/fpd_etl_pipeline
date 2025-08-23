@@ -1,0 +1,22 @@
+{
+  "version_id": "2025-08-23_16-33-21_loris-mbp-cable-rcn-com",
+  "timestamp": "2025-08-23T16:35:29.023566",
+  "stats": {
+    "total_files": 665,
+    "processed_files": 665,
+    "skipped_files": 0,
+    "total_users": 36,
+    "passing_users": 22,
+    "failing_users": 16,
+    "api_calls": 665,
+    "api_errors": 0,
+    "processing_errors": []
+  },
+  "config": {
+    "model": "gpt-4o-mini",
+    "threshold": 40,
+    "max_concurrent": 5
+  },
+  "status": "success",
+  "api_errors": 0
+}
