@@ -168,7 +168,7 @@ class CleanDataStage:
             "total_users": 0,
             "complete_users": 0,
             "broken_users": 0,
-            "broken_insufficient_data": 0,  # Users with CSV files < 300 rows
+            "broken_insufficient_data": 0,  # Users with CSV files < 290 rows
             "desktop_users": 0,
             "mobile_users": 0,
             "processing_errors": [],
@@ -273,7 +273,7 @@ class CleanDataStage:
             )
             return False, missing_required, missing_optional
 
-        # Check CSV files for minimum row count (300 rows)
+        # Check CSV files for minimum row count (290 rows)
         csv_files_too_small = []
         for file_path in files:
             if file_path.name.endswith(".csv"):
@@ -282,12 +282,12 @@ class CleanDataStage:
                     with open(file_path) as f:
                         line_count = sum(1 for _ in f) - 1  # Subtract header
 
-                    if line_count < 300:
+                    if line_count < 290:
                         csv_files_too_small.append(
                             f"{file_path.name} ({line_count} rows)"
                         )
                         logger.debug(
-                            f"CSV file {file_path.name} has only {line_count} rows (< 300)"
+                            f"CSV file {file_path.name} has only {line_count} rows (< 290)"
                         )
                 except Exception as e:
                     logger.warning(f"Could not read CSV {file_path.name}: {e}")
@@ -295,7 +295,7 @@ class CleanDataStage:
         # If any CSV files are too small, mark as broken
         if csv_files_too_small:
             missing_required.append(
-                f"CSV files with insufficient data (< 300 rows): {', '.join(csv_files_too_small)}"
+                f"CSV files with insufficient data (< 290 rows): {', '.join(csv_files_too_small)}"
             )
             return False, missing_required, missing_optional
 
@@ -857,7 +857,7 @@ class CleanDataStage:
             )
             if self.stats["broken_insufficient_data"] > 0:
                 logger.info(
-                    f"    - With insufficient data (< 300 rows): "
+                    f"    - With insufficient data (< 290 rows): "
                     f"{self.stats['broken_insufficient_data']}"
                 )
         else:
@@ -865,7 +865,7 @@ class CleanDataStage:
             logger.info(f"  Incomplete users: {self.stats['broken_users']}")
             if self.stats["broken_insufficient_data"] > 0:
                 logger.info(
-                    f"    - With insufficient data (< 300 rows): "
+                    f"    - With insufficient data (< 290 rows): "
                     f"{self.stats['broken_insufficient_data']}"
                 )
         logger.info(f"  Desktop users: {self.stats['desktop_users']}")
