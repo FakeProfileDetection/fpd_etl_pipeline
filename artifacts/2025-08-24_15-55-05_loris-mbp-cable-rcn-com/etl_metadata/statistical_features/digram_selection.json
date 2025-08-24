@@ -1,0 +1,16 @@
+{
+  "method": "coverage_based_with_fallback",
+  "selected_digrams": [
+    "eKey.space",
+    "Key.spacet",
+    "th",
+    "Key.spacea",
+    "sKey.space",
+    "dKey.space",
+    "he",
+    "tKey.space",
+    "in",
+    "an"
+  ],
+  "selection_details": {}
+}
