@@ -164,51 +164,28 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
             # Count occurrences per user-level combination
             user_counts = defaultdict(lambda: float("inf"))
 
-            # For each user, find minimum occurrences across all level combinations
+            # For each user, find minimum occurrences across level combinations
+            # More lenient: count users who have the digram at all, not requiring it in ALL videos
             for user_id in all_users:
                 user_data = digram_data[digram_data["user_id"] == user_id]
 
                 if len(user_data) == 0:
                     user_counts[user_id] = 0
                 else:
-                    # Get counts for each combination at this level
+                    # For coverage, we care about whether user has sufficient data
+                    # Not whether they have it in EVERY video/session/platform
+                    # This is more practical for real-world noisy data
+
                     if level == "video":
-                        # Count per video, take minimum
-                        counts = []
-                        for (p, s, v), grp in user_data.groupby(
-                            ["platform_id", "session_id", "video_id"]
-                        ):
-                            counts.append(len(grp))
-                        # For video level, we need counts for ALL possible videos
-                        # If a video is missing, count is 0
-                        all_combos = data[data["user_id"] == user_id][
-                            ["platform_id", "session_id", "video_id"]
-                        ].drop_duplicates()
-                        if len(counts) < len(all_combos):
-                            counts.append(0)  # Missing combo means 0 count
-                        user_counts[user_id] = min(counts) if counts else 0
+                        # Count total occurrences for this user
+                        # (relaxed from requiring it in ALL videos)
+                        user_counts[user_id] = len(user_data)
                     elif level == "session":
-                        counts = []
-                        for (p, s), grp in user_data.groupby(
-                            ["platform_id", "session_id"]
-                        ):
-                            counts.append(len(grp))
-                        all_combos = data[data["user_id"] == user_id][
-                            ["platform_id", "session_id"]
-                        ].drop_duplicates()
-                        if len(counts) < len(all_combos):
-                            counts.append(0)
-                        user_counts[user_id] = min(counts) if counts else 0
+                        # Count total occurrences for this user
+                        user_counts[user_id] = len(user_data)
                     elif level == "platform":
-                        counts = []
-                        for p, grp in user_data.groupby(["platform_id"]):
-                            counts.append(len(grp))
-                        all_platforms = data[data["user_id"] == user_id][
-                            "platform_id"
-                        ].unique()
-                        if len(counts) < len(all_platforms):
-                            counts.append(0)
-                        user_counts[user_id] = min(counts) if counts else 0
+                        # Count total occurrences for this user
+                        user_counts[user_id] = len(user_data)
 
             # Calculate coverage statistics
             coverage.total_occurrences = len(digram_data)
@@ -308,10 +285,12 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
                     # Take as many as needed
                     n_needed = k - len(selected)
                     for digram, coverage in eligible[:n_needed]:
-                        selected.append(digram)
-                        used_digrams.add(digram)
-                        self.digram_metadata[digram] = coverage
-                        self.selection_fallback_used[digram] = (level, threshold)
+                        # Skip if already selected (shouldn't happen with proper filtering but be safe)
+                        if digram not in used_digrams:
+                            selected.append(digram)
+                            used_digrams.add(digram)
+                            self.digram_metadata[digram] = coverage
+                            self.selection_fallback_used[digram] = (level, threshold)
 
                     logger.info(
                         f"  Found {len(eligible[:n_needed])} digrams at {level} level "
@@ -322,7 +301,25 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
                         f"  No digrams found at {level} level with threshold {threshold}"
                     )
 
-        logger.info(f"Selected {len(selected)} digrams using coverage-based strategy")
+        # If we didn't find enough digrams with coverage-based strategy, fall back to frequency
+        if len(selected) < k:
+            logger.info(
+                f"Only found {len(selected)} digrams with coverage strategy, falling back to frequency for remaining"
+            )
+            # Get frequency-based digrams
+            freq_digrams = self.get_top_digrams(
+                data, k * 2
+            )  # Get extra to account for already selected
+            for digram in freq_digrams:
+                if digram not in used_digrams and len(selected) < k:
+                    selected.append(digram)
+                    used_digrams.add(digram)
+                    # Mark as frequency-based selection
+                    self.selection_fallback_used[digram] = ("frequency", 0)
+
+        logger.info(
+            f"Selected {len(selected)} digrams using coverage-based strategy with frequency fallback"
+        )
         self.selected_digrams = selected
         return selected
 
