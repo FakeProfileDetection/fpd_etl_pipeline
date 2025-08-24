@@ -123,7 +123,8 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
         """Get all unique unigrams (individual keys) in dataset"""
         # Combine key1 and key2
         all_keys = pd.concat([data["key1"], data["key2"]])
-        unigrams = sorted(all_keys.unique())
+        # Filter out None/NaN values before sorting
+        unigrams = sorted([k for k in all_keys.unique() if pd.notna(k)])
 
         logger.info(f"Total unique unigrams: {len(unigrams)}")
         return unigrams
@@ -213,96 +214,68 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
 
         return coverage_stats
 
-    def select_top_k_digrams_with_union(
+    def select_top_k_digrams_with_intersection(
         self, data: pd.DataFrame, k: int = 10
     ) -> List[str]:
         """
-        Select top-k digrams using union-based approach:
-        1. For each user/video combo, get set of unique digrams
-        2. Take union of all these sets
-        3. If union > k, select top k by frequency
-        4. If union <= k, move to session level, then platform level
+        Select top-k digrams using intersection-based approach:
+        1. For each user, get set of all unique digrams they typed (across all videos/sessions)
+        2. Take intersection of all user sets (digrams that ALL users typed)
+        3. Select top k by frequency from the intersection
         """
         # Ensure digram column exists
         if "digram" not in data.columns:
             data["digram"] = data["key1"] + data["key2"]
 
-        # Try each level in order
-        for level in ["video", "session", "platform"]:
-            logger.info(f"Checking {level} level for digram selection...")
+        logger.info(f"Checking for digrams that appear for ALL users...")
+        
+        # Get digrams for each user (across all their data)
+        user_digram_sets = []
+        for user_id, user_data in data.groupby("user_id"):
+            # Filter out NaN digrams
+            user_digrams = set(user_data["digram"].dropna().unique())
+            user_digram_sets.append(user_digrams)
+            logger.debug(f"  User {user_id[:8]}... has {len(user_digrams)} unique digrams")
+            
+        # Calculate intersection - digrams that ALL users have typed
+        if user_digram_sets:
+            intersection = user_digram_sets[0].copy()
+            for s in user_digram_sets[1:]:
+                intersection.intersection_update(s)
+        else:
+            intersection = set()
+        
+        logger.info(f"  Found {len(intersection)} digrams that ALL {len(user_digram_sets)} users have typed")
 
-            # Get all unique digrams at this level
-            all_digrams_at_level = set()
+        # If we have at least k digrams in intersection, select top k by frequency
+        if len(intersection) >= k:
+            # Count frequency of each digram in the intersection
+            digram_counts = {}
+            for digram in intersection:
+                digram_counts[digram] = len(data[data["digram"] == digram])
 
-            if level == "video":
-                # For each user/video combination
-                for (user_id, platform_id, session_id, video_id), group in data.groupby(
-                    ["user_id", "platform_id", "session_id", "video_id"]
-                ):
-                    # Get unique digrams for this combination
-                    digrams_in_group = set(group["digram"].unique())
-                    all_digrams_at_level.update(digrams_in_group)
+            # Sort by frequency and take top k
+            sorted_digrams = sorted(
+                digram_counts.items(), key=lambda x: x[1], reverse=True
+            )
+            selected = [digram for digram, count in sorted_digrams[:k]]
 
-            elif level == "session":
-                # For each user/session combination
-                for (user_id, platform_id, session_id), group in data.groupby(
-                    ["user_id", "platform_id", "session_id"]
-                ):
-                    digrams_in_group = set(group["digram"].unique())
-                    all_digrams_at_level.update(digrams_in_group)
+            logger.info(
+                f"  Selected top {k} digrams by frequency from user-level intersection"
+            )
+            for i, (digram, count) in enumerate(sorted_digrams[:k]):
+                logger.info(f"    {i+1}. {digram}: {count} occurrences")
 
-            elif level == "platform":
-                # For each user/platform combination
-                for (user_id, platform_id), group in data.groupby(
-                    ["user_id", "platform_id"]
-                ):
-                    digrams_in_group = set(group["digram"].unique())
-                    all_digrams_at_level.update(digrams_in_group)
-
-            logger.info(f"  Union contains {len(all_digrams_at_level)} unique digrams")
-
-            # If we have more than k digrams, select top k by frequency
-            if len(all_digrams_at_level) > k:
-                # Count frequency of each digram in the union
-                digram_counts = {}
-                for digram in all_digrams_at_level:
-                    digram_counts[digram] = len(data[data["digram"] == digram])
-
-                # Sort by frequency and take top k
-                sorted_digrams = sorted(
-                    digram_counts.items(), key=lambda x: x[1], reverse=True
-                )
-                selected = [digram for digram, count in sorted_digrams[:k]]
-
-                logger.info(
-                    f"  Selected top {k} digrams by frequency from {level} level"
-                )
-                for i, (digram, count) in enumerate(sorted_digrams[:k]):
-                    logger.info(f"    {i+1}. {digram}: {count} occurrences")
-
-                self.selected_digrams = selected
-                self.selection_level = level
-                return selected
-
-            # If union has k or fewer digrams, try next level
-            elif len(all_digrams_at_level) == k:
-                selected = list(all_digrams_at_level)
-                logger.info(f"  Using all {k} digrams from {level} level")
-                self.selected_digrams = selected
-                self.selection_level = level
-                return selected
-            else:
-                logger.info(
-                    f"  Only {len(all_digrams_at_level)} digrams at {level} level, trying next level..."
-                )
-
-        # If we get here, even platform level has fewer than k digrams
-        # Just return what we have
-        selected = list(all_digrams_at_level)
-        logger.info(f"Only found {len(selected)} digrams total, using all of them")
-        self.selected_digrams = selected
-        self.selection_level = "platform"
-        return selected
+            self.selected_digrams = selected
+            self.selection_level = "user"
+            return selected
+        else:
+            # Use all digrams in intersection if fewer than k
+            selected = list(intersection)
+            logger.info(f"  Only {len(selected)} digrams in intersection, using all of them")
+            self.selected_digrams = selected
+            self.selection_level = "user"
+            return selected
 
     def extract_statistical_features(
         self, data: pd.DataFrame, unigrams: List[str], digrams: List[str]
@@ -489,21 +462,33 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
     def extract(self, data: pd.DataFrame, config: FeatureConfig) -> pd.DataFrame:
         """Extract features based on configuration"""
         # Filter valid data
-        data = data[data["valid"]].copy()
+        valid_data = data[data["valid"]].copy()
 
-        # Optionally remove outliers
-        if not config.keep_outliers and "outlier" in data.columns:
-            data = data[~data["outlier"]]
-
-        logger.info(f"Processing {len(data)} valid keypairs")
-
-        # Get digrams and unigrams
-        if config.use_coverage_based_selection:
-            # Use new union-based selection
-            digrams = self.select_top_k_digrams_with_union(data, config.top_n_digrams)
+        # For digram selection, use ALL valid data (including outliers)
+        # to ensure we select digrams that all users actually typed
+        data_for_digram_selection = valid_data.copy()
+        
+        # For feature extraction, optionally remove outliers
+        if not config.keep_outliers and "outlier" in valid_data.columns:
+            data_for_features = valid_data[~valid_data["outlier"]].copy()
+            logger.info(f"Processing {len(data_for_features)} valid keypairs (outliers removed)")
         else:
-            digrams = self.get_top_digrams(data, config.top_n_digrams)
-        unigrams = self.get_all_unigrams(data)
+            data_for_features = valid_data.copy()
+            logger.info(f"Processing {len(data_for_features)} valid keypairs")
+        
+        # Ensure digram column exists in both datasets
+        if "digram" not in data_for_digram_selection.columns:
+            data_for_digram_selection["digram"] = data_for_digram_selection["key1"] + data_for_digram_selection["key2"]
+        if "digram" not in data_for_features.columns:
+            data_for_features["digram"] = data_for_features["key1"] + data_for_features["key2"]
+
+        # Get digrams and unigrams using ALL valid data (including outliers)
+        if config.use_coverage_based_selection:
+            # Use intersection-based selection to minimize missing data
+            digrams = self.select_top_k_digrams_with_intersection(data_for_digram_selection, config.top_n_digrams)
+        else:
+            digrams = self.get_top_digrams(data_for_digram_selection, config.top_n_digrams)
+        unigrams = self.get_all_unigrams(data_for_digram_selection)
 
         # Store feature names for later reference
         self.feature_names = []
@@ -514,12 +499,12 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
             for stat in ["median", "mean", "std", "q1", "q3"]:
                 self.feature_names.append(f"IL_{digram}_{stat}")
 
-        # Extract features based on aggregation level
+        # Extract features based on aggregation level (using data with outliers removed)
         feature_records = []
 
         if config.aggregation_level == "user_platform":
             # Group by user and platform
-            groups = data.groupby(["user_id", "platform_id"])
+            groups = data_for_features.groupby(["user_id", "platform_id"])
 
             for (user_id, platform_id), group_data in groups:
                 features = self.extract_statistical_features(
@@ -531,7 +516,7 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
 
         elif config.aggregation_level == "session":
             # Group by user, platform, and session
-            groups = data.groupby(["user_id", "platform_id", "session_id"])
+            groups = data_for_features.groupby(["user_id", "platform_id", "session_id"])
 
             for (user_id, platform_id, session_id), group_data in groups:
                 features = self.extract_statistical_features(
@@ -544,7 +529,7 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
 
         elif config.aggregation_level == "video":
             # Group by user, platform, session, and video
-            groups = data.groupby(["user_id", "platform_id", "session_id", "video_id"])
+            groups = data_for_features.groupby(["user_id", "platform_id", "session_id", "video_id"])
 
             for (user_id, platform_id, session_id, video_id), group_data in groups:
                 features = self.extract_statistical_features(

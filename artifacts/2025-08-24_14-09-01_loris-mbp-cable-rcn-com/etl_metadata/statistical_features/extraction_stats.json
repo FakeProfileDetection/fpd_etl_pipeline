@@ -1,0 +1,27 @@
+{
+  "version_id": "2025-08-24_14-09-01_loris-mbp-cable-rcn-com",
+  "timestamp": "2025-08-24T14:14:04.834834",
+  "input_dir": "artifacts/2025-08-24_14-09-01_loris-mbp-cable-rcn-com/keypairs",
+  "output_dir": "artifacts/2025-08-24_14-09-01_loris-mbp-cable-rcn-com/statistical_features",
+  "features_extracted": {
+    "statistical_platform": {
+      "records": 69,
+      "features": 333
+    },
+    "statistical_session": {
+      "records": 138,
+      "features": 334
+    },
+    "statistical_video": {
+      "records": 408,
+      "features": 335
+    }
+  },
+  "processing_time": {
+    "statistical_platform": 57.81886,
+    "statistical_session": 57.846632,
+    "statistical_video": 67.606685
+  },
+  "total_time": 183.272177,
+  "errors": []
+}
