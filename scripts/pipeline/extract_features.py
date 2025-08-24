@@ -105,6 +105,7 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
         self.selection_fallback_used: Dict[
             str, int
         ] = {}  # Track which fallback was used
+        self.selection_level: str = ""  # Track which level was used for selection
 
     def get_top_digrams(self, data: pd.DataFrame, n: int = 10) -> List[str]:
         """Get top N most frequent digrams across dataset"""
@@ -212,115 +213,95 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
 
         return coverage_stats
 
-    def select_top_k_digrams_with_coverage(
-        self, data: pd.DataFrame, k: int = 10, use_coverage: bool = True
+    def select_top_k_digrams_with_union(
+        self, data: pd.DataFrame, k: int = 10
     ) -> List[str]:
         """
-        Select top-k digrams using coverage-based strategy with fallback
+        Select top-k digrams using union-based approach:
+        1. For each user/video combo, get set of unique digrams
+        2. Take union of all these sets
+        3. If union > k, select top k by frequency
+        4. If union <= k, move to session level, then platform level
         """
-        if not use_coverage:
-            # Fall back to original frequency-based selection
-            return self.get_top_digrams(data, k)
-
-        selected = []
-        used_digrams = set()
-
         # Ensure digram column exists
         if "digram" not in data.columns:
             data["digram"] = data["key1"] + data["key2"]
 
-        # Start with video level (most restrictive)
+        # Try each level in order
         for level in ["video", "session", "platform"]:
-            if len(selected) >= k:
-                break
-
             logger.info(f"Checking {level} level for digram selection...")
-            coverage_stats = self.analyze_digram_coverage(data, level)
 
-            # Debug: show coverage distribution
-            if coverage_stats:
-                n_users = len(data["user_id"].unique())
-                min_coverage = int(n_users * 0.8)
-                stats_summary = {
-                    "total_digrams": len(coverage_stats),
-                    "with_80pct_at_3+": sum(
-                        1
-                        for c in coverage_stats.values()
-                        if c.users_with_3plus >= min_coverage
-                    ),
-                    "with_80pct_at_2+": sum(
-                        1
-                        for c in coverage_stats.values()
-                        if c.users_with_2plus >= min_coverage
-                    ),
-                    "with_80pct_at_1+": sum(
-                        1
-                        for c in coverage_stats.values()
-                        if c.users_with_1plus >= min_coverage
-                    ),
-                }
-                logger.info(f"  Coverage stats: {stats_summary}")
+            # Get all unique digrams at this level
+            all_digrams_at_level = set()
 
-            # Remove already selected digrams
-            coverage_stats = {
-                d: c for d, c in coverage_stats.items() if d not in used_digrams
-            }
+            if level == "video":
+                # For each user/video combination
+                for (user_id, platform_id, session_id, video_id), group in data.groupby(
+                    ["user_id", "platform_id", "session_id", "video_id"]
+                ):
+                    # Get unique digrams for this combination
+                    digrams_in_group = set(group["digram"].unique())
+                    all_digrams_at_level.update(digrams_in_group)
 
-            # Try each threshold (3, 2, 1)
-            for threshold in [3, 2, 1]:
-                if len(selected) >= k:
-                    break
+            elif level == "session":
+                # For each user/session combination
+                for (user_id, platform_id, session_id), group in data.groupby(
+                    ["user_id", "platform_id", "session_id"]
+                ):
+                    digrams_in_group = set(group["digram"].unique())
+                    all_digrams_at_level.update(digrams_in_group)
 
-                # Find digrams meeting threshold
-                eligible = [
-                    (d, c)
-                    for d, c in coverage_stats.items()
-                    if c.threshold_met >= threshold
-                ]
+            elif level == "platform":
+                # For each user/platform combination
+                for (user_id, platform_id), group in data.groupby(
+                    ["user_id", "platform_id"]
+                ):
+                    digrams_in_group = set(group["digram"].unique())
+                    all_digrams_at_level.update(digrams_in_group)
 
-                if eligible:
-                    # Sort by total occurrences (frequency) among eligible
-                    eligible.sort(key=lambda x: x[1].total_occurrences, reverse=True)
+            logger.info(f"  Union contains {len(all_digrams_at_level)} unique digrams")
 
-                    # Take as many as needed
-                    n_needed = k - len(selected)
-                    for digram, coverage in eligible[:n_needed]:
-                        # Skip if already selected (shouldn't happen with proper filtering but be safe)
-                        if digram not in used_digrams:
-                            selected.append(digram)
-                            used_digrams.add(digram)
-                            self.digram_metadata[digram] = coverage
-                            self.selection_fallback_used[digram] = (level, threshold)
+            # If we have more than k digrams, select top k by frequency
+            if len(all_digrams_at_level) > k:
+                # Count frequency of each digram in the union
+                digram_counts = {}
+                for digram in all_digrams_at_level:
+                    digram_counts[digram] = len(data[data["digram"] == digram])
 
-                    logger.info(
-                        f"  Found {len(eligible[:n_needed])} digrams at {level} level "
-                        f"with threshold {threshold} ({len(eligible)} eligible total)"
-                    )
-                else:
-                    logger.info(
-                        f"  No digrams found at {level} level with threshold {threshold}"
-                    )
+                # Sort by frequency and take top k
+                sorted_digrams = sorted(
+                    digram_counts.items(), key=lambda x: x[1], reverse=True
+                )
+                selected = [digram for digram, count in sorted_digrams[:k]]
 
-        # If we didn't find enough digrams with coverage-based strategy, fall back to frequency
-        if len(selected) < k:
-            logger.info(
-                f"Only found {len(selected)} digrams with coverage strategy, falling back to frequency for remaining"
-            )
-            # Get frequency-based digrams
-            freq_digrams = self.get_top_digrams(
-                data, k * 2
-            )  # Get extra to account for already selected
-            for digram in freq_digrams:
-                if digram not in used_digrams and len(selected) < k:
-                    selected.append(digram)
-                    used_digrams.add(digram)
-                    # Mark as frequency-based selection
-                    self.selection_fallback_used[digram] = ("frequency", 0)
+                logger.info(
+                    f"  Selected top {k} digrams by frequency from {level} level"
+                )
+                for i, (digram, count) in enumerate(sorted_digrams[:k]):
+                    logger.info(f"    {i+1}. {digram}: {count} occurrences")
 
-        logger.info(
-            f"Selected {len(selected)} digrams using coverage-based strategy with frequency fallback"
-        )
+                self.selected_digrams = selected
+                self.selection_level = level
+                return selected
+
+            # If union has k or fewer digrams, try next level
+            elif len(all_digrams_at_level) == k:
+                selected = list(all_digrams_at_level)
+                logger.info(f"  Using all {k} digrams from {level} level")
+                self.selected_digrams = selected
+                self.selection_level = level
+                return selected
+            else:
+                logger.info(
+                    f"  Only {len(all_digrams_at_level)} digrams at {level} level, trying next level..."
+                )
+
+        # If we get here, even platform level has fewer than k digrams
+        # Just return what we have
+        selected = list(all_digrams_at_level)
+        logger.info(f"Only found {len(selected)} digrams total, using all of them")
         self.selected_digrams = selected
+        self.selection_level = "platform"
         return selected
 
     def extract_statistical_features(
@@ -518,9 +499,8 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
 
         # Get digrams and unigrams
         if config.use_coverage_based_selection:
-            digrams = self.select_top_k_digrams_with_coverage(
-                data, config.top_n_digrams
-            )
+            # Use new union-based selection
+            digrams = self.select_top_k_digrams_with_union(data, config.top_n_digrams)
         else:
             digrams = self.get_top_digrams(data, config.top_n_digrams)
         unigrams = self.get_all_unigrams(data)

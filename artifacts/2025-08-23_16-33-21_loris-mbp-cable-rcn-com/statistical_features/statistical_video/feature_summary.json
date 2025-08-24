@@ -8,7 +8,8 @@
     "use_all_unigrams": true,
     "imputation_strategy": "user",
     "aggregation_level": "video",
-    "keep_outliers": false
+    "keep_outliers": false,
+    "use_coverage_based_selection": true
   },
   "shape": [
     439,
@@ -702,5 +703,5 @@
     "IL_an_q1",
     "IL_an_q3"
   ],
-  "extraction_time": 7.245705
+  "extraction_time": 26.420013
 }
