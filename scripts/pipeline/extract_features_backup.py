@@ -21,8 +21,7 @@ import json
 import pandas as pd
 import numpy as np
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, asdict, field
-from collections import defaultdict
+from dataclasses import dataclass, asdict
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -33,39 +32,15 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class DigramCoverage:
-    """Track coverage statistics for a digram"""
-    digram: str
-    total_occurrences: int = 0
-    users_with_3plus: int = 0  # Users with ≥3 occurrences at video level
-    users_with_2plus: int = 0  # Users with ≥2 occurrences
-    users_with_1plus: int = 0  # Users with ≥1 occurrence
-    min_occurrences_per_user: int = 0  # Minimum across all users
-    coverage_level: str = ""  # 'video', 'session', or 'platform'
-    threshold_met: int = 0  # 3, 2, or 1
-
-@dataclass 
-class ImputationRecord:
-    """Track imputation details"""
-    user_id: str
-    feature: str
-    level: str  # 'platform', 'session', or 'video'
-    strategy: str  # 'user_mean', 'global_mean', or 'zero'
-    original_value: float = np.nan
-    imputed_value: float = 0.0
-    reason: str = ""  # Why imputation was needed
-
-@dataclass
 class FeatureConfig:
     """Configuration for feature extraction"""
     name: str
     description: str
     top_n_digrams: int = 10
     use_all_unigrams: bool = True
-    imputation_strategy: str = 'user'  # Changed default to 'user' from 'global'
+    imputation_strategy: str = 'global'  # 'global' or 'user'
     aggregation_level: str = 'user_platform'  # 'user_platform', 'session', 'video'
     keep_outliers: bool = False
-    use_coverage_based_selection: bool = True  # New flag for improved selection
 
 
 class BaseFeatureExtractor(ABC):
@@ -91,10 +66,6 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
     def __init__(self):
         self.platform_names = {1: 'facebook', 2: 'instagram', 3: 'twitter'}
         self.feature_names = []
-        self.selected_digrams: List[str] = []
-        self.digram_metadata: Dict[str, DigramCoverage] = {}
-        self.imputation_records: List[ImputationRecord] = []
-        self.selection_fallback_used: Dict[str, int] = {}  # Track which fallback was used
         
     def get_top_digrams(self, data: pd.DataFrame, n: int = 10) -> List[str]:
         """Get top N most frequent digrams across dataset"""
@@ -116,159 +87,6 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
         
         logger.info(f"Total unique unigrams: {len(unigrams)}")
         return unigrams
-    
-    def analyze_digram_coverage(self, 
-                                data: pd.DataFrame, 
-                                level: str = 'video') -> Dict[str, DigramCoverage]:
-        """
-        Analyze digram coverage at specified level
-        Returns coverage statistics for each digram
-        """
-        coverage_stats = {}
-        
-        # Ensure digram column exists
-        if 'digram' not in data.columns:
-            data['digram'] = data['key1'] + data['key2']
-        
-        # Get unique digrams
-        all_digrams = data['digram'].unique()
-        
-        # Determine grouping columns based on level
-        if level == 'video':
-            group_cols = ['user_id', 'platform_id', 'session_id', 'video_id']
-        elif level == 'session':
-            group_cols = ['user_id', 'platform_id', 'session_id']
-        elif level == 'platform':
-            group_cols = ['user_id', 'platform_id']
-        else:
-            group_cols = ['user_id']
-        
-        # Get all unique users
-        all_users = data['user_id'].unique()
-        n_users = len(all_users)
-        
-        for digram in all_digrams:
-            coverage = DigramCoverage(digram=digram)
-            digram_data = data[data['digram'] == digram]
-            
-            # Count occurrences per user-level combination
-            user_counts = defaultdict(lambda: float('inf'))
-            
-            # For each user, find minimum occurrences across all level combinations
-            for user_id in all_users:
-                user_data = digram_data[digram_data['user_id'] == user_id]
-                
-                if len(user_data) == 0:
-                    user_counts[user_id] = 0
-                else:
-                    # Get counts for each combination at this level
-                    if level == 'video':
-                        # Count per video, take minimum
-                        counts = []
-                        for (p, s, v), grp in user_data.groupby(['platform_id', 'session_id', 'video_id']):
-                            counts.append(len(grp))
-                        # For video level, we need counts for ALL possible videos
-                        # If a video is missing, count is 0
-                        all_combos = data[data['user_id'] == user_id][['platform_id', 'session_id', 'video_id']].drop_duplicates()
-                        if len(counts) < len(all_combos):
-                            counts.append(0)  # Missing combo means 0 count
-                        user_counts[user_id] = min(counts) if counts else 0
-                    elif level == 'session':
-                        counts = []
-                        for (p, s), grp in user_data.groupby(['platform_id', 'session_id']):
-                            counts.append(len(grp))
-                        all_combos = data[data['user_id'] == user_id][['platform_id', 'session_id']].drop_duplicates()
-                        if len(counts) < len(all_combos):
-                            counts.append(0)
-                        user_counts[user_id] = min(counts) if counts else 0
-                    elif level == 'platform':
-                        counts = []
-                        for p, grp in user_data.groupby(['platform_id']):
-                            counts.append(len(grp))
-                        all_platforms = data[data['user_id'] == user_id]['platform_id'].unique()
-                        if len(counts) < len(all_platforms):
-                            counts.append(0)
-                        user_counts[user_id] = min(counts) if counts else 0
-            
-            # Calculate coverage statistics
-            coverage.total_occurrences = len(digram_data)
-            coverage.users_with_3plus = sum(1 for c in user_counts.values() if c >= 3)
-            coverage.users_with_2plus = sum(1 for c in user_counts.values() if c >= 2)
-            coverage.users_with_1plus = sum(1 for c in user_counts.values() if c >= 1)
-            coverage.min_occurrences_per_user = min(user_counts.values()) if user_counts else 0
-            coverage.coverage_level = level
-            
-            # Determine threshold met
-            if coverage.users_with_3plus == n_users:
-                coverage.threshold_met = 3
-            elif coverage.users_with_2plus == n_users:
-                coverage.threshold_met = 2
-            elif coverage.users_with_1plus == n_users:
-                coverage.threshold_met = 1
-            else:
-                coverage.threshold_met = 0
-            
-            coverage_stats[digram] = coverage
-            
-        return coverage_stats
-    
-    def select_top_k_digrams_with_coverage(self, 
-                                          data: pd.DataFrame, 
-                                          k: int = 10,
-                                          use_coverage: bool = True) -> List[str]:
-        """
-        Select top-k digrams using coverage-based strategy with fallback
-        """
-        if not use_coverage:
-            # Fall back to original frequency-based selection
-            return self.get_top_digrams(data, k)
-        
-        selected = []
-        used_digrams = set()
-        
-        # Ensure digram column exists
-        if 'digram' not in data.columns:
-            data['digram'] = data['key1'] + data['key2']
-        
-        # Start with video level (most restrictive)
-        for level in ['video', 'session', 'platform']:
-            if len(selected) >= k:
-                break
-                
-            logger.info(f"Checking {level} level for digram selection...")
-            coverage_stats = self.analyze_digram_coverage(data, level)
-            
-            # Remove already selected digrams
-            coverage_stats = {d: c for d, c in coverage_stats.items() 
-                             if d not in used_digrams}
-            
-            # Try each threshold (3, 2, 1)
-            for threshold in [3, 2, 1]:
-                if len(selected) >= k:
-                    break
-                    
-                # Find digrams meeting threshold
-                eligible = [(d, c) for d, c in coverage_stats.items() 
-                           if c.threshold_met >= threshold]
-                
-                if eligible:
-                    # Sort by total occurrences (frequency) among eligible
-                    eligible.sort(key=lambda x: x[1].total_occurrences, reverse=True)
-                    
-                    # Take as many as needed
-                    n_needed = k - len(selected)
-                    for digram, coverage in eligible[:n_needed]:
-                        selected.append(digram)
-                        used_digrams.add(digram)
-                        self.digram_metadata[digram] = coverage
-                        self.selection_fallback_used[digram] = (level, threshold)
-                        
-                    logger.info(f"  Found {len(eligible[:n_needed])} digrams at {level} level "
-                              f"with threshold {threshold}")
-        
-        logger.info(f"Selected {len(selected)} digrams using coverage-based strategy")
-        self.selected_digrams = selected
-        return selected
         
     def extract_statistical_features(self, data: pd.DataFrame, unigrams: List[str], 
                                    digrams: List[str]) -> Dict[str, float]:
@@ -318,115 +136,32 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
         return features
         
     def apply_imputation(self, dataset: pd.DataFrame, strategy: str) -> pd.DataFrame:
-        """
-        Apply imputation strategy for missing values with tracking
-        Priority: user-level mean > global mean > zero
-        """
+        """Apply imputation strategy for missing values"""
         feature_cols = [col for col in dataset.columns 
                        if col not in ['user_id', 'platform_id', 'session_id', 'video_id']]
         
-        # Clear previous imputation records for this run
-        self.imputation_records = []
-        
-        for col in feature_cols:
-            # Get initial missing mask
-            missing_mask = dataset[col].isna()
-            
-            if not missing_mask.any():
-                continue  # No missing values for this feature
-            
-            # Track which rows need imputation
-            missing_indices = dataset[missing_mask].index
-            
-            if strategy == 'user' or strategy == 'user_then_global':
-                # First try user-level imputation
+        if strategy == 'global':
+            # Replace NaN with global mean
+            for col in feature_cols:
+                global_mean = dataset[col].mean()
+                dataset[col] = dataset[col].fillna(global_mean)
+                
+        elif strategy == 'user':
+            # Replace NaN with user-specific mean
+            for col in feature_cols:
+                # Calculate user means
                 user_means = dataset.groupby('user_id')[col].transform('mean')
                 
-                # Apply user mean where available
-                user_mean_available = missing_mask & ~user_means.isna()
-                if user_mean_available.any():
-                    dataset.loc[user_mean_available, col] = user_means[user_mean_available]
-                    
-                    # Record user-level imputations
-                    for idx in dataset[user_mean_available].index:
-                        row = dataset.loc[idx]
-                        self.imputation_records.append(ImputationRecord(
-                            user_id=row['user_id'],
-                            feature=col,
-                            level=f"p{row.get('platform_id', '')}_s{row.get('session_id', '')}_v{row.get('video_id', '')}",
-                            strategy='user_mean',
-                            imputed_value=user_means[idx],
-                            reason='Missing digram in this context'
-                        ))
+                # Fill with user mean
+                mask = dataset[col].isna()
+                dataset.loc[mask, col] = user_means[mask]
                 
-                # Apply global mean for remaining NaN
-                still_missing = dataset[col].isna()
-                if still_missing.any():
-                    global_mean = dataset[col].mean()
-                    
-                    if pd.notna(global_mean):
-                        dataset.loc[still_missing, col] = global_mean
-                        
-                        # Record global imputations
-                        for idx in dataset[still_missing].index:
-                            row = dataset.loc[idx]
-                            self.imputation_records.append(ImputationRecord(
-                                user_id=row['user_id'],
-                                feature=col,
-                                level=f"p{row.get('platform_id', '')}_s{row.get('session_id', '')}_v{row.get('video_id', '')}",
-                                strategy='global_mean',
-                                imputed_value=global_mean,
-                                reason='No user mean available'
-                            ))
-                    else:
-                        # Last resort: zero
-                        dataset.loc[still_missing, col] = 0.0
-                        for idx in dataset[still_missing].index:
-                            row = dataset.loc[idx]
-                            self.imputation_records.append(ImputationRecord(
-                                user_id=row['user_id'],
-                                feature=col,
-                                level=f"p{row.get('platform_id', '')}_s{row.get('session_id', '')}_v{row.get('video_id', '')}",
-                                strategy='zero',
-                                imputed_value=0.0,
-                                reason='No mean available'
-                            ))
-                            
-            elif strategy == 'global':
-                # Use global mean only
+                # If still NaN (user has no data for this feature), use global mean
                 global_mean = dataset[col].mean()
-                if pd.notna(global_mean):
-                    dataset.loc[missing_mask, col] = global_mean
-                    for idx in missing_indices:
-                        row = dataset.loc[idx]
-                        self.imputation_records.append(ImputationRecord(
-                            user_id=row['user_id'],
-                            feature=col,
-                            level=f"p{row.get('platform_id', '')}_s{row.get('session_id', '')}_v{row.get('video_id', '')}",
-                            strategy='global_mean',
-                            imputed_value=global_mean,
-                            reason='Global strategy specified'
-                        ))
-                else:
-                    dataset.loc[missing_mask, col] = 0.0
-                    for idx in missing_indices:
-                        row = dataset.loc[idx]
-                        self.imputation_records.append(ImputationRecord(
-                            user_id=row['user_id'],
-                            feature=col,
-                            level=f"p{row.get('platform_id', '')}_s{row.get('session_id', '')}_v{row.get('video_id', '')}",
-                            strategy='zero',
-                            imputed_value=0.0,
-                            reason='No global mean available'
-                        ))
-        
-        # Log imputation summary
-        if self.imputation_records:
-            n_imputations = len(self.imputation_records)
-            strategies_used = set(r.strategy for r in self.imputation_records)
-            users_affected = set(r.user_id for r in self.imputation_records)
-            logger.info(f"Applied {n_imputations} imputations using strategies: {strategies_used}")
-            logger.info(f"Users affected by imputation: {len(users_affected)}")
+                dataset[col] = dataset[col].fillna(global_mean)
+                
+        # Final check - if still any NaN, fill with 0
+        dataset[feature_cols] = dataset[feature_cols].fillna(0.0)
         
         return dataset
         
@@ -442,10 +177,7 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
         logger.info(f"Processing {len(data)} valid keypairs")
         
         # Get digrams and unigrams
-        if config.use_coverage_based_selection:
-            digrams = self.select_top_k_digrams_with_coverage(data, config.top_n_digrams)
-        else:
-            digrams = self.get_top_digrams(data, config.top_n_digrams)
+        digrams = self.get_top_digrams(data, config.top_n_digrams)
         unigrams = self.get_all_unigrams(data)
         
         # Store feature names for later reference
@@ -529,20 +261,18 @@ class ExtractFeaturesStage:
                 description='Statistical features aggregated by user and platform',
                 top_n_digrams=10,
                 use_all_unigrams=True,
-                imputation_strategy='user',  # Changed from 'global' to 'user'
+                imputation_strategy='global',
                 aggregation_level='user_platform',
-                keep_outliers=self.config.get('KEEP_OUTLIERS', False),
-                use_coverage_based_selection=True  # Enable new selection strategy
+                keep_outliers=self.config.get('KEEP_OUTLIERS', False)
             ),
             'statistical_session': FeatureConfig(
                 name='statistical_session',
                 description='Statistical features aggregated by user, platform, and session',
                 top_n_digrams=10,
                 use_all_unigrams=True,
-                imputation_strategy='user',  # Changed from 'global' to 'user'
+                imputation_strategy='global',
                 aggregation_level='session',
-                keep_outliers=self.config.get('KEEP_OUTLIERS', False),
-                use_coverage_based_selection=True  # Enable new selection strategy
+                keep_outliers=self.config.get('KEEP_OUTLIERS', False)
             ),
             'statistical_video': FeatureConfig(
                 name='statistical_video',
@@ -551,8 +281,7 @@ class ExtractFeaturesStage:
                 use_all_unigrams=True,
                 imputation_strategy='user',
                 aggregation_level='video',
-                keep_outliers=self.config.get('KEEP_OUTLIERS', False),
-                use_coverage_based_selection=True  # Enable new selection strategy
+                keep_outliers=self.config.get('KEEP_OUTLIERS', False)
             )
         }
         
@@ -688,74 +417,6 @@ class ExtractFeaturesStage:
             
             with open(metadata_dir / "extraction_stats.json", 'w') as f:
                 json.dump(extraction_stats, f, indent=2)
-            
-            # Save enhanced metadata if using coverage-based selection
-            if hasattr(self.extractors['statistical'], 'selected_digrams') and self.extractors['statistical'].selected_digrams:
-                extractor = self.extractors['statistical']
-                
-                # Generate digram selection metadata
-                digram_metadata = {
-                    'method': 'coverage_based_with_fallback',
-                    'selected_digrams': extractor.selected_digrams,
-                    'selection_details': {}
-                }
-                
-                for digram in extractor.selected_digrams:
-                    if digram in extractor.selection_fallback_used:
-                        level, threshold = extractor.selection_fallback_used[digram]
-                        coverage = extractor.digram_metadata.get(digram)
-                        digram_metadata['selection_details'][digram] = {
-                            'level': level,
-                            'threshold': threshold,
-                            'users_with_3plus': coverage.users_with_3plus if coverage else 0,
-                            'users_with_2plus': coverage.users_with_2plus if coverage else 0,
-                            'users_with_1plus': coverage.users_with_1plus if coverage else 0,
-                            'total_occurrences': coverage.total_occurrences if coverage else 0
-                        }
-                
-                with open(metadata_dir / "digram_selection.json", 'w') as f:
-                    json.dump(digram_metadata, f, indent=2)
-                
-                # Save imputation metadata
-                if extractor.imputation_records:
-                    from collections import defaultdict
-                    
-                    imputation_metadata = {
-                        'total_imputations': len(extractor.imputation_records),
-                        'by_strategy': defaultdict(int),
-                        'by_user': defaultdict(int),
-                        'by_feature': defaultdict(int),
-                        'details': []
-                    }
-                    
-                    for record in extractor.imputation_records:
-                        imputation_metadata['by_strategy'][record.strategy] += 1
-                        imputation_metadata['by_user'][record.user_id] += 1
-                        imputation_metadata['by_feature'][record.feature] += 1
-                        
-                        # Add first 100 details as examples
-                        if len(imputation_metadata['details']) < 100:
-                            imputation_metadata['details'].append({
-                                'user_id': record.user_id,
-                                'feature': record.feature,
-                                'level': record.level,
-                                'strategy': record.strategy,
-                                'imputed_value': record.imputed_value,
-                                'reason': record.reason
-                            })
-                    
-                    # Convert defaultdicts to regular dicts for JSON serialization
-                    imputation_metadata['by_strategy'] = dict(imputation_metadata['by_strategy'])
-                    imputation_metadata['by_user'] = dict(imputation_metadata['by_user'])
-                    imputation_metadata['by_feature'] = dict(imputation_metadata['by_feature'])
-                    
-                    # Add list of users who needed imputation
-                    imputation_metadata['users_with_imputation'] = list(imputation_metadata['by_user'].keys())
-                    
-                    with open(metadata_dir / "imputation_tracking.json", 'w') as f:
-                        json.dump(imputation_metadata, f, indent=2)
-                    
-                    logger.info(f"Saved imputation tracking: {imputation_metadata['total_imputations']} imputations for {len(imputation_metadata['users_with_imputation'])} users")
                 
         # Log summary
         logger.info(f"Feature extraction complete:")
