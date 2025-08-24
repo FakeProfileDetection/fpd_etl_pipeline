@@ -168,6 +168,7 @@ class CleanDataStage:
             "total_users": 0,
             "complete_users": 0,
             "broken_users": 0,
+            "broken_insufficient_data": 0,  # Users with CSV files < 300 rows
             "desktop_users": 0,
             "mobile_users": 0,
             "processing_errors": [],
@@ -269,6 +270,32 @@ class CleanDataStage:
         if self.has_timestamp_files(files):
             missing_required.append(
                 "User has timestamp-prefixed files (broken data from web app error)"
+            )
+            return False, missing_required, missing_optional
+
+        # Check CSV files for minimum row count (300 rows)
+        csv_files_too_small = []
+        for file_path in files:
+            if file_path.name.endswith(".csv"):
+                try:
+                    # Count lines in CSV (subtract 1 for header)
+                    with open(file_path) as f:
+                        line_count = sum(1 for _ in f) - 1  # Subtract header
+
+                    if line_count < 300:
+                        csv_files_too_small.append(
+                            f"{file_path.name} ({line_count} rows)"
+                        )
+                        logger.debug(
+                            f"CSV file {file_path.name} has only {line_count} rows (< 300)"
+                        )
+                except Exception as e:
+                    logger.warning(f"Could not read CSV {file_path.name}: {e}")
+
+        # If any CSV files are too small, mark as broken
+        if csv_files_too_small:
+            missing_required.append(
+                f"CSV files with insufficient data (< 300 rows): {', '.join(csv_files_too_small)}"
             )
             return False, missing_required, missing_optional
 
@@ -440,6 +467,12 @@ class CleanDataStage:
             # Broken users also get text directory under broken_data
             text_dir = output_base / device_type / "broken_data" / "text" / user_id
             self.stats["broken_users"] += 1
+
+            # Check if broken due to insufficient CSV data
+            for reason in missing_required:
+                if "CSV files with insufficient data" in reason:
+                    self.stats["broken_insufficient_data"] += 1
+                    break
 
             # Log missing files at debug level - this is expected for incomplete users
             logger.debug(f"User {user_id} has incomplete data:")
@@ -784,6 +817,7 @@ class CleanDataStage:
                     "total_users": self.stats["total_users"],
                     "complete_users": self.stats["complete_users"],
                     "broken_users": self.stats["broken_users"],
+                    "broken_insufficient_data": self.stats["broken_insufficient_data"],
                     "desktop_users": self.stats["desktop_users"],
                     "mobile_users": self.stats["mobile_users"],
                 },
@@ -821,9 +855,19 @@ class CleanDataStage:
             logger.info(
                 f"  Incomplete users: {self.stats['broken_users']} ({broken_pct:.1f}%)"
             )
+            if self.stats["broken_insufficient_data"] > 0:
+                logger.info(
+                    f"    - With insufficient data (< 300 rows): "
+                    f"{self.stats['broken_insufficient_data']}"
+                )
         else:
             logger.info(f"  Complete users: {self.stats['complete_users']}")
             logger.info(f"  Incomplete users: {self.stats['broken_users']}")
+            if self.stats["broken_insufficient_data"] > 0:
+                logger.info(
+                    f"    - With insufficient data (< 300 rows): "
+                    f"{self.stats['broken_insufficient_data']}"
+                )
         logger.info(f"  Desktop users: {self.stats['desktop_users']}")
         logger.info(f"  Mobile users: {self.stats['mobile_users']}")
 
