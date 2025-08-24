@@ -227,16 +227,18 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
         if "digram" not in data.columns:
             data["digram"] = data["key1"] + data["key2"]
 
-        logger.info(f"Checking for digrams that appear for ALL users...")
-        
+        logger.info("Checking for digrams that appear for ALL users...")
+
         # Get digrams for each user (across all their data)
         user_digram_sets = []
         for user_id, user_data in data.groupby("user_id"):
             # Filter out NaN digrams
             user_digrams = set(user_data["digram"].dropna().unique())
             user_digram_sets.append(user_digrams)
-            logger.debug(f"  User {user_id[:8]}... has {len(user_digrams)} unique digrams")
-            
+            logger.debug(
+                f"  User {user_id[:8]}... has {len(user_digrams)} unique digrams"
+            )
+
         # Calculate intersection - digrams that ALL users have typed
         if user_digram_sets:
             intersection = user_digram_sets[0].copy()
@@ -244,8 +246,10 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
                 intersection.intersection_update(s)
         else:
             intersection = set()
-        
-        logger.info(f"  Found {len(intersection)} digrams that ALL {len(user_digram_sets)} users have typed")
+
+        logger.info(
+            f"  Found {len(intersection)} digrams that ALL {len(user_digram_sets)} users have typed"
+        )
 
         # If we have at least k digrams in intersection, select top k by frequency
         if len(intersection) >= k:
@@ -272,7 +276,9 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
         else:
             # Use all digrams in intersection if fewer than k
             selected = list(intersection)
-            logger.info(f"  Only {len(selected)} digrams in intersection, using all of them")
+            logger.info(
+                f"  Only {len(selected)} digrams in intersection, using all of them"
+            )
             self.selected_digrams = selected
             self.selection_level = "user"
             return selected
@@ -467,27 +473,37 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
         # For digram selection, use ALL valid data (including outliers)
         # to ensure we select digrams that all users actually typed
         data_for_digram_selection = valid_data.copy()
-        
+
         # For feature extraction, optionally remove outliers
         if not config.keep_outliers and "outlier" in valid_data.columns:
             data_for_features = valid_data[~valid_data["outlier"]].copy()
-            logger.info(f"Processing {len(data_for_features)} valid keypairs (outliers removed)")
+            logger.info(
+                f"Processing {len(data_for_features)} valid keypairs (outliers removed)"
+            )
         else:
             data_for_features = valid_data.copy()
             logger.info(f"Processing {len(data_for_features)} valid keypairs")
-        
+
         # Ensure digram column exists in both datasets
         if "digram" not in data_for_digram_selection.columns:
-            data_for_digram_selection["digram"] = data_for_digram_selection["key1"] + data_for_digram_selection["key2"]
+            data_for_digram_selection["digram"] = (
+                data_for_digram_selection["key1"] + data_for_digram_selection["key2"]
+            )
         if "digram" not in data_for_features.columns:
-            data_for_features["digram"] = data_for_features["key1"] + data_for_features["key2"]
+            data_for_features["digram"] = (
+                data_for_features["key1"] + data_for_features["key2"]
+            )
 
         # Get digrams and unigrams using ALL valid data (including outliers)
         if config.use_coverage_based_selection:
             # Use intersection-based selection to minimize missing data
-            digrams = self.select_top_k_digrams_with_intersection(data_for_digram_selection, config.top_n_digrams)
+            digrams = self.select_top_k_digrams_with_intersection(
+                data_for_digram_selection, config.top_n_digrams
+            )
         else:
-            digrams = self.get_top_digrams(data_for_digram_selection, config.top_n_digrams)
+            digrams = self.get_top_digrams(
+                data_for_digram_selection, config.top_n_digrams
+            )
         unigrams = self.get_all_unigrams(data_for_digram_selection)
 
         # Store feature names for later reference
@@ -529,7 +545,9 @@ class TypeNetMLFeatureExtractor(BaseFeatureExtractor):
 
         elif config.aggregation_level == "video":
             # Group by user, platform, session, and video
-            groups = data_for_features.groupby(["user_id", "platform_id", "session_id", "video_id"])
+            groups = data_for_features.groupby(
+                ["user_id", "platform_id", "session_id", "video_id"]
+            )
 
             for (user_id, platform_id, session_id, video_id), group_data in groups:
                 features = self.extract_statistical_features(
