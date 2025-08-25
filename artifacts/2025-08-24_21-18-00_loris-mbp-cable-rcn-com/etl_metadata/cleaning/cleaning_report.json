@@ -1,0 +1,15 @@
+{
+  "version_id": "2025-08-24_21-18-00_loris-mbp-cable-rcn-com",
+  "timestamp": "2025-08-24T21:18:45.841351",
+  "input_dir": "artifacts/2025-08-24_21-18-00_loris-mbp-cable-rcn-com/raw_data/web_app_data",
+  "output_dir": "artifacts/2025-08-24_21-18-00_loris-mbp-cable-rcn-com/cleaned_data",
+  "summary": {
+    "total_files": 2056,
+    "total_users": 39,
+    "complete_users": 21,
+    "broken_users": 18,
+    "broken_insufficient_data": 12,
+    "desktop_users": 39,
+    "mobile_users": 0
+  }
+}

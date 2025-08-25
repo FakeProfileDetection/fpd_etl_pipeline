@@ -1,0 +1,13 @@
+{
+  "user_id": "c4a6070b1b7a16facf1d1e44e39a8a46",
+  "platform_id": "2",
+  "task_id": "8",
+  "start_time": 1755372537588,
+  "end_time": 1755372557164,
+  "duration_ms": 19576,
+  "platform": "twitter",
+  "is_mobile": false,
+  "device_type": "desktop",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+  "screen_size": "1364x768"
+}

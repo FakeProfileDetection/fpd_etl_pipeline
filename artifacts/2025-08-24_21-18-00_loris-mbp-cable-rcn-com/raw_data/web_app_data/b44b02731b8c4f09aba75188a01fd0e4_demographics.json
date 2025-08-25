@@ -1,0 +1,23 @@
+{
+  "email": "bernicmendy0202@proton.me",
+  "gender": "female",
+  "age": "45_54",
+  "handedness": "right",
+  "education": "masters",
+  "consent_email_for_future": true,
+  "submission_timestamp": "2025-08-10T16:14:54.237Z",
+  "device_info": {
+    "isMobile": false,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "screenWidth": 1440,
+    "screenHeight": 900,
+    "windowWidth": 1366,
+    "windowHeight": 613,
+    "touchCapable": true,
+    "platform": "Win32",
+    "vendor": "Google Inc.",
+    "deviceType": "desktop"
+  },
+  "is_mobile": false,
+  "device_type": "desktop"
+}

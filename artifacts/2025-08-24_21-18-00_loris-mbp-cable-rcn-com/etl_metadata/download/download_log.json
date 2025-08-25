@@ -1,0 +1,18 @@
+{
+  "files_downloaded": 2056,
+  "total_size": 4111706,
+  "errors": [
+    "gcloud storage cp had some errors (this is common): Copying gs://fake-profile-detection-eda-bucket/uploads/019bfef500435f7b6cb714ea03ffd687_completion.json to file://artifacts/2025-08-24_21-18-00_loris-mbp-cable-rcn-com/raw_data/uploads/019bfef500435f7b6cb714ea03ffd687_completion.json\nCopying gs://fake-profile-detection-eda-bucket/uploads/019bfef500435f7b6cb714ea03ffd687_consent.json to file://artifacts/2025-08-24_21-18-00_loris-mbp-cable-rcn-com/raw_data/uploads/019bfef500435f7b6cb714ea03ffd687_consent.json\n  \nCopying gs://fake-profile-detection..."
+  ],
+  "start_time": "2025-08-24T21:18:01.907671",
+  "retry_stats": {
+    "initial_gstmp_files": 17,
+    "retries_attempted": 2,
+    "files_recovered": 17,
+    "final_gstmp_files": 0,
+    "failed_files": [
+      "gs://fake-profile-detection-eda-bucket/uploads/i_03fa198f4c5d4d58243a0e3ae8124839_13.csv"
+    ]
+  },
+  "end_time": "2025-08-24T21:18:45.554821"
+}
