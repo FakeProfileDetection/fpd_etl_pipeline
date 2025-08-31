@@ -360,21 +360,12 @@ class ExtractLLMScoresStage:
         api_key = os.getenv("OPENAI_API_KEY")
 
         if not api_key:
-            # Try to load from .env file
+            # Try to load from .env file in root directory
             env_file = Path(".env")
             if env_file.exists():
                 from dotenv import load_dotenv
 
                 load_dotenv()
-                api_key = os.getenv("OPENAI_API_KEY")
-
-        if not api_key:
-            # Try config/.env.local
-            config_env = Path("config/.env.local")
-            if config_env.exists():
-                from dotenv import load_dotenv
-
-                load_dotenv(config_env)
                 api_key = os.getenv("OPENAI_API_KEY")
 
         if api_key:
@@ -387,7 +378,7 @@ class ExtractLLMScoresStage:
             logger.error("=" * 80)
             logger.error("Running in non-interactive mode but no API key was found.")
             logger.error(
-                "Please set OPENAI_API_KEY environment variable or add to config/.env.local"
+                "Please set OPENAI_API_KEY environment variable or add to .env file"
             )
             logger.error("=" * 80 + "\n")
             return None
@@ -579,7 +570,7 @@ class ExtractLLMScoresStage:
                 logger.warning(
                     "  1. Get an API key from https://platform.openai.com/api-keys"
                 )
-                logger.warning("  2. Add to config/.env.local: OPENAI_API_KEY=sk-...")
+                logger.warning("  2. Add to .env: OPENAI_API_KEY=sk-...")
                 logger.warning(
                     "  3. Re-run with: python scripts/pipeline/run_pipeline.py --with-llm-check"
                 )
@@ -1281,7 +1272,7 @@ class ExtractLLMScoresStage:
             logger.error("    This may incorrectly flag them for non-payment!")
             logger.error("\n📋 TO FIX THIS:")
             logger.error(
-                "    1. Reduce concurrency: Set LLM_CHECK_MAX_CONCURRENT=3 in config/.env.local"
+                "    1. Reduce concurrency: Set LLM_CHECK_MAX_CONCURRENT=3 in .env"
             )
             logger.error("    2. Re-run the LLM check:")
             logger.error(

@@ -12,7 +12,7 @@ This is a Fake Profile Detection (FPD) ETL/EDA Pipeline for academic research on
 # Initial setup
 python setup_project.py
 
-# Configure environment (edit config/.env.local)
+# Configure environment (edit .env)
 # Add: PROJECT_ID, BUCKET_NAME, GOOGLE_APPLICATION_CREDENTIALS
 
 # Run extraction pipeline on web app data
@@ -140,7 +140,7 @@ python scripts/pipeline/run_pipeline.py --mode full --dry-run
 
 ## Configuration
 
-**Environment Variables** (config/.env.local):
+**Environment Variables** (.env):
 ```bash
 # Cloud settings
 PROJECT_ID=your-gcp-project

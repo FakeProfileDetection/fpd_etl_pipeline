@@ -17,30 +17,19 @@ logger = logging.getLogger(__name__)
 class ConfigManager:
     """Manage configuration from environment files"""
 
-    def __init__(self, config_dir: Path = Path("config")):
-        self.config_dir = config_dir
+    def __init__(self):
         self.config: Dict[str, Any] = {}
         self._load_config()
 
     def _load_config(self):
-        """Load configuration from .env files"""
-        # Load base configuration
-        base_env = self.config_dir / ".env.base"
-        if base_env.exists():
-            load_dotenv(base_env)
-            logger.info(f"Loaded base config from {base_env}")
-
-        # Load shared team configuration
-        shared_env = self.config_dir / ".env.shared"
-        if shared_env.exists():
-            load_dotenv(shared_env, override=True)
-            logger.info(f"Loaded shared config from {shared_env}")
-
-        # Load local overrides
-        local_env = self.config_dir / ".env.local"
-        if local_env.exists():
-            load_dotenv(local_env, override=True)
-            logger.info(f"Loaded local config from {local_env}")
+        """Load configuration from .env file in root directory"""
+        # Load from root .env file only
+        env_file = Path(".env")
+        if env_file.exists():
+            load_dotenv(env_file)
+            logger.info(f"Loaded config from {env_file}")
+        else:
+            logger.warning("No .env file found in root directory")
 
         # Parse environment variables
         self._parse_env_vars()

@@ -20,7 +20,7 @@ curl http://UbuntuSungoddess:1234/v1/models
 
 ### 2. Configure for Local Model
 
-Edit `config/.env.local` and uncomment these lines:
+Edit `.env` in the root directory and add these lines:
 ```bash
 # Use local LM Studio model
 LLM_CHECK_USE_LOCAL=true
@@ -48,7 +48,7 @@ python scripts/pipeline/run_pipeline.py --stages llm_check --local-only --with-l
 
 ### Use Local Model
 ```bash
-# In config/.env.local
+# In .env
 LLM_CHECK_USE_LOCAL=true
 LLM_CHECK_BASE_URL=http://UbuntuSungoddess:1234/v1
 LLM_CHECK_MODEL=openai/gpt-oss-20b
@@ -56,7 +56,7 @@ LLM_CHECK_MODEL=openai/gpt-oss-20b
 
 ### Use OpenAI (Default)
 ```bash
-# In config/.env.local
+# In .env
 LLM_CHECK_USE_LOCAL=false
 # Or just comment out the local settings
 ```

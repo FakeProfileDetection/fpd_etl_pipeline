@@ -70,7 +70,7 @@ cd fpd_etl_pipeline
 source activate.sh
 
 # No additional configuration needed! The pipeline is ready to use.
-# Default GCS settings are in config/.env.shared
+# Configure settings in .env file in root directory
 ```
 
 ### Manual Setup (Alternative)
@@ -97,14 +97,9 @@ gcloud auth application-default login
 ```
 
 ### Environment Variables
-**No manual configuration needed!** The pipeline includes default settings in `config/.env.shared` that work for all team members with proper IAM access.
+Configuration is managed through a `.env` file in the root directory. Create this file with your settings. The `.env` file is gitignored and won't be committed to the repository.
 
-The configuration hierarchy:
-1. `config/.env.base` - Base defaults (in repo)
-2. `config/.env.shared` - Team settings including GCS bucket names (in repo)
-3. `config/.env.local` - Personal overrides (optional, not in repo)
-
-Default settings from `.env.shared`:
+Example `.env` configuration:
 ```bash
 # Google Cloud Storage (accessible to team members with IAM permissions)
 PROJECT_ID=fake-profile-detection-460117
@@ -197,7 +192,7 @@ python scripts/pipeline/run_pipeline.py -s top_il_features --top-k 20
 python scripts/pipeline/run_pipeline.py -s eda
 
 # To generate reports with separate image files (smaller HTML):
-# Set EDA_EMBED_IMAGES=false in config/.env.local
+# Set EDA_EMBED_IMAGES=false in .env
 ```
 
 ## 🔄 Pipeline Modes
@@ -397,7 +392,7 @@ python scripts/standalone/create_sample_data.py --num-users 10
 **Validate user responses to ensure video engagement:**
 ```bash
 # First-time setup
-export OPENAI_API_KEY=sk-your-api-key  # Or add to config/.env.local
+export OPENAI_API_KEY=sk-your-api-key  # Or add to .env
 
 # Run pipeline with LLM validation
 python scripts/pipeline/run_pipeline.py --mode full --with-llm-check

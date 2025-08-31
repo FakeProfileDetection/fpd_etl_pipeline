@@ -137,9 +137,7 @@ async def test_llm_modes():
 
     print("\n" + "=" * 80)
     print("Testing complete!")
-    print(
-        "\nTo use LM Studio in the pipeline, uncomment the settings in config/.env.local:"
-    )
+    print("\nTo use LM Studio in the pipeline, add these settings to .env:")
     print("  LLM_CHECK_USE_LOCAL=true")
     print("  LLM_CHECK_BASE_URL=http://UbuntuSungoddess:1234/v1")
     print("  LLM_CHECK_MODEL=openai/gpt-oss-20b")
