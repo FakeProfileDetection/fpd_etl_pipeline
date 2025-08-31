@@ -2,6 +2,15 @@
 
 A robust ETL (Extract, Transform, Load) pipeline for processing keystroke dynamics data from the Fake Profile Detection (FPD) project.
 
+## 🆕 What's New
+
+- **Local LLM Support**: The LLM check stage now supports local models via LM Studio as an alternative to OpenAI API. This provides:
+  - Complete data privacy (data never leaves your network)
+  - No API costs
+  - Offline operation capability
+  - Support for custom models (currently gpt-oss-20b, with 120b coming soon)
+  - See [LLM Local Model Setup](docs/llm_local_model_setup.md) for configuration details
+
 ## 🎯 Quick Start for Different Teams
 
 ### Data Science Team (Full Analysis)
@@ -109,9 +118,16 @@ GENERATE_REPORTS=true        # Generate EDA reports
 EDA_EMBED_IMAGES=true        # Embed images in HTML for Google Drive compatibility
 
 # LLM Check (optional - only if using --with-llm-check)
+# Option 1: OpenAI API (default)
 OPENAI_API_KEY=sk-...        # Your OpenAI API key
 LLM_CHECK_MODEL=gpt-4o-mini  # Cost-efficient model
 LLM_CHECK_THRESHOLD=40       # Pass threshold (0-100)
+
+# Option 2: Local LM Studio (for privacy/cost savings)
+# LLM_CHECK_USE_LOCAL=true
+# LLM_CHECK_BASE_URL=http://localhost:1234/v1
+# LLM_CHECK_MODEL=openai/gpt-oss-20b
+# LLM_CHECK_MAX_CONCURRENT=3
 ```
 
 ## 📊 Pipeline Stages
@@ -131,12 +147,17 @@ python scripts/pipeline/run_pipeline.py -s clean
 ```
 
 ### 3. LLM Check (`llm_check`) - Optional
-- Validates user text responses using OpenAI API
+- Validates user text responses using LLM (OpenAI or local model)
 - Ensures users watched videos and engaged properly
 - Generates interactive reports with detailed inspection
 - Separates analysis for broken users (incomplete data)
+- **NEW**: Supports local LM Studio models for privacy/cost savings
+
 ```bash
 # With OpenAI API key configured
+python scripts/pipeline/run_pipeline.py -s llm_check --with-llm-check
+
+# With local LM Studio model (set LLM_CHECK_USE_LOCAL=true in config)
 python scripts/pipeline/run_pipeline.py -s llm_check --with-llm-check
 
 # Skip if no API key (default behavior)

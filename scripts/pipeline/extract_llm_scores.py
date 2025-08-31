@@ -77,22 +77,47 @@ class OpenAIProcessor:
     """Handles OpenAI API interactions with batching and retry logic"""
 
     def __init__(
-        self, api_key: str, model: str = "gpt-4o-mini", max_concurrent: int = 10
+        self,
+        api_key: str,
+        model: str = "gpt-4o-mini",
+        max_concurrent: int = 10,
+        base_url: Optional[str] = None,
+        is_local: bool = False,
     ):
-        """Initialize the OpenAI processor"""
+        """Initialize the OpenAI processor
+
+        Args:
+            api_key: OpenAI API key (or dummy for local)
+            model: Model name to use
+            max_concurrent: Max concurrent requests
+            base_url: Custom API endpoint (for LM Studio)
+            is_local: Whether using local model
+        """
         if not OPENAI_AVAILABLE:
             raise ImportError(
                 "OpenAI library required. Install with: pip install openai aiofiles tqdm"
             )
 
-        self.client = AsyncOpenAI(
-            api_key=api_key,
-            max_retries=5,  # Increase automatic retries for rate limits
-        )
+        # Create client with optional base_url for local models
+        client_args = {
+            "api_key": api_key,
+            "max_retries": 5 if not is_local else 2,  # Less retries for local
+        }
+        if base_url:
+            client_args["base_url"] = base_url
+
+        self.client = AsyncOpenAI(**client_args)
         self.model = model
         self.semaphore = asyncio.Semaphore(max_concurrent)
-        self.retry_limit = 5  # Increase manual retry attempts
-        self.retry_delay = 2.0  # Increase base delay
+        self.is_local = is_local
+
+        # Adjust retry settings based on local vs cloud
+        if is_local:
+            self.retry_limit = 2  # Less retries for local
+            self.retry_delay = 0.5  # Shorter delay for local
+        else:
+            self.retry_limit = 5  # More retries for rate limits
+            self.retry_delay = 2.0  # Longer delay for rate limits
 
     def build_prompt(self, text: str) -> str:
         """Build the evaluation prompt - matches openai_batched.py"""
@@ -305,6 +330,24 @@ class ExtractLLMScoresStage:
     def check_and_setup_api_key(self) -> Optional[str]:
         """Check for API key and handle setup if missing"""
 
+        # First check if we're using local model
+        use_local = os.getenv("LLM_CHECK_USE_LOCAL", "").lower() in ["true", "1", "yes"]
+
+        if use_local:
+            # For local model, we don't need a real API key
+            base_url = os.getenv("LLM_CHECK_BASE_URL")
+            if not base_url:
+                logger.error(
+                    "LLM_CHECK_USE_LOCAL is set but LLM_CHECK_BASE_URL is missing"
+                )
+                logger.error("Please set LLM_CHECK_BASE_URL to your LM Studio endpoint")
+                logger.error("Example: LLM_CHECK_BASE_URL=http://localhost:1234/v1")
+                return None
+
+            logger.info(f"✓ Using local LLM model at {base_url}")
+            logger.info(f"  Model: {os.getenv('LLM_CHECK_MODEL', 'default')}")
+            return "dummy-key-for-local"  # LM Studio doesn't need auth
+
         # Check multiple sources for API key
         api_key = os.getenv("OPENAI_API_KEY")
 
@@ -510,36 +553,54 @@ class ExtractLLMScoresStage:
         if not file_data:
             return complete_results, broken_results
 
-        # Get API key and create processor
+        # Get API key and check if using local model
+        use_local = os.getenv("LLM_CHECK_USE_LOCAL", "").lower() in ["true", "1", "yes"]
         api_key = self.check_and_setup_api_key()
+
         if not api_key:
-            logger.warning("\n" + "=" * 80)
-            logger.warning("⚠️  NO OPENAI API KEY FOUND - LLM CHECK WILL BE SKIPPED")
-            logger.warning("=" * 80)
-            logger.warning(
-                "The LLM check stage requires an OpenAI API key but none was found."
-            )
-            logger.warning("To run the LLM check:")
-            logger.warning(
-                "  1. Get an API key from https://platform.openai.com/api-keys"
-            )
-            logger.warning("  2. Add to config/.env.local: OPENAI_API_KEY=sk-...")
-            logger.warning(
-                "  3. Re-run with: python scripts/pipeline/run_pipeline.py --with-llm-check"
-            )
-            logger.warning("=" * 80 + "\n")
+            if use_local:
+                logger.error("Failed to configure local LLM model")
+            else:
+                logger.warning("\n" + "=" * 80)
+                logger.warning("⚠️  NO OPENAI API KEY FOUND - LLM CHECK WILL BE SKIPPED")
+                logger.warning("=" * 80)
+                logger.warning(
+                    "The LLM check stage requires an OpenAI API key but none was found."
+                )
+                logger.warning("To run the LLM check:")
+                logger.warning(
+                    "  1. Get an API key from https://platform.openai.com/api-keys"
+                )
+                logger.warning("  2. Add to config/.env.local: OPENAI_API_KEY=sk-...")
+                logger.warning(
+                    "  3. Re-run with: python scripts/pipeline/run_pipeline.py --with-llm-check"
+                )
+                logger.warning("=" * 80 + "\n")
             # Mark all as skipped
             self.stats["skipped_files"] += len(file_data)
             return complete_results, broken_results
 
-        # Process with OpenAI (reduced concurrency to avoid rate limits)
-        processor = OpenAIProcessor(
-            api_key=api_key,
-            model=self.config.get("LLM_CHECK_MODEL", "gpt-4o-mini"),
-            max_concurrent=self.config.get(
-                "LLM_CHECK_MAX_CONCURRENT", 5
-            ),  # Reduced from 10
-        )
+        # Process with OpenAI or local model
+        processor_args = {
+            "api_key": api_key,
+            "model": self.config.get(
+                "LLM_CHECK_MODEL",
+                "gpt-4o-mini" if not use_local else "openai/gpt-oss-20b",
+            ),
+            "max_concurrent": self.config.get(
+                "LLM_CHECK_MAX_CONCURRENT", 5 if not use_local else 3
+            ),  # Less concurrent for local GPU
+        }
+
+        # Add local-specific settings if using local model
+        if use_local:
+            processor_args["base_url"] = os.getenv("LLM_CHECK_BASE_URL")
+            processor_args["is_local"] = True
+            logger.info(
+                f"Using local model: {processor_args['model']} at {processor_args['base_url']}"
+            )
+
+        processor = OpenAIProcessor(**processor_args)
 
         # Process batch
         logger.info(f"Processing {len(file_data)} text files for {device_type}")
