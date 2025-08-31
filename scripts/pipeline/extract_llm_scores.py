@@ -1040,8 +1040,8 @@ class ExtractLLMScoresStage:
 
         # Check if we should skip this stage
         if not OPENAI_AVAILABLE:
-            logger.warning("OpenAI library not available - skipping LLM check")
-            logger.info("Install with: pip install openai aiofiles tqdm")
+            logger.error("OpenAI library not available - cannot run LLM check")
+            logger.error("Install with: pip install openai aiofiles tqdm")
 
             # Create skip marker
             artifacts_dir = (
@@ -1055,7 +1055,12 @@ class ExtractLLMScoresStage:
                 f.write(
                     f"Skipped at {datetime.now().isoformat()}\nReason: OpenAI library not installed\n"
                 )
-            return output_dir
+
+            # Raise an exception to properly indicate failure
+            raise ImportError(
+                "OpenAI library is required for LLM check. "
+                "Install with: pip install openai aiofiles tqdm"
+            )
 
         # Setup output directories
         artifacts_dir = (
