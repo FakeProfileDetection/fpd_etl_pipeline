@@ -53,17 +53,23 @@ async def test_llm_modes():
                 api_key=api_key, model="gpt-4o-mini", max_concurrent=1
             )
 
-            result = await processor.process_single(
-                {
-                    "user_id": "test_user",
-                    "device_type": "desktop",
-                    "platform_id": 1,
-                    "video_id": 1,
-                    "session_id": 1,
-                    "filename": "test.txt",
-                    "text": test_text,
-                }
+            # Process as a batch with one item
+            results = await processor.process_batch(
+                [
+                    (
+                        test_text,
+                        {
+                            "user_id": "test_user",
+                            "device_type": "desktop",
+                            "platform_id": 1,
+                            "video_id": 1,
+                            "session_id": 1,
+                            "filename": "test.txt",
+                        },
+                    )
+                ]
             )
+            result = results[0] if results else {}
 
             print("✓ OpenAI mode works!")
             print(f"  Coach Carter Score: {result.get('Coach Carter', 0)}%")
@@ -101,17 +107,23 @@ async def test_llm_modes():
             is_local=True,
         )
 
-        result = await processor.process_single(
-            {
-                "user_id": "test_user",
-                "device_type": "desktop",
-                "platform_id": 1,
-                "video_id": 1,
-                "session_id": 1,
-                "filename": "test.txt",
-                "text": test_text,
-            }
+        # Process as a batch with one item
+        results = await processor.process_batch(
+            [
+                (
+                    test_text,
+                    {
+                        "user_id": "test_user",
+                        "device_type": "desktop",
+                        "platform_id": 1,
+                        "video_id": 1,
+                        "session_id": 1,
+                        "filename": "test.txt",
+                    },
+                )
+            ]
         )
+        result = results[0] if results else {}
 
         print("✓ LM Studio mode works!")
         print(f"  Coach Carter Score: {result.get('Coach Carter', 0)}%")

@@ -202,18 +202,26 @@ Return ONLY this JSON:
                     truncated_text = text[:1500] if len(text) > 1500 else text
                     prompt = self.build_prompt(truncated_text)
 
-                    response = await self.client.chat.completions.create(
-                        model=self.model,
-                        messages=[
+                    # Build request parameters
+                    create_params = {
+                        "model": self.model,
+                        "messages": [
                             {
                                 "role": "system",
                                 "content": "You are a precise evaluator. Return only valid JSON.",
                             },
                             {"role": "user", "content": prompt},
                         ],
-                        temperature=0.3,  # Lower temperature for consistency
-                        max_tokens=100,
-                        response_format={"type": "json_object"},
+                        "temperature": 0.3,  # Lower temperature for consistency
+                        "max_tokens": 100,
+                    }
+
+                    # Only add response_format for non-local models
+                    if not self.is_local:
+                        create_params["response_format"] = {"type": "json_object"}
+
+                    response = await self.client.chat.completions.create(
+                        **create_params
                     )
 
                     content = response.choices[0].message.content
