@@ -1,0 +1,23 @@
+{
+  "version_id": "2025-08-31_12-33-58_loris-mbp-cable-rcn-com",
+  "timestamp": "2025-08-31T12:41:28.149271",
+  "input_dir": "artifacts/2025-08-31_12-33-58_loris-mbp-cable-rcn-com/cleaned_data",
+  "output_dir": "artifacts/2025-08-31_12-33-58_loris-mbp-cable-rcn-com/keypairs",
+  "summary": {
+    "total_files": 1188,
+    "processed_files": 1188,
+    "skipped_files": 0,
+    "total_keypairs": 291714,
+    "valid_keypairs": 291629,
+    "invalid_keypairs": 85,
+    "validity_rate": 99.97086187155912
+  },
+  "error_distribution": {
+    "Missing key2 release": 30,
+    "Missing key1 release": 38,
+    "Missing key1 release; Missing key2 release": 15,
+    "Missing key1 release; Missing key2 press (orphan release)": 1,
+    "Missing key1 press (orphan release)": 1
+  },
+  "user_count": 66
+}

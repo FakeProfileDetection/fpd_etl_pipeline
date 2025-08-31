@@ -1,0 +1,23 @@
+{
+  "email": "EMELYhubble416@mail.com",
+  "gender": "male",
+  "age": "25_34",
+  "handedness": "right",
+  "education": "bachelor",
+  "consent_email_for_future": true,
+  "submission_timestamp": "2025-08-29T18:09:18.579Z",
+  "device_info": {
+    "isMobile": false,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "screenWidth": 1366,
+    "screenHeight": 768,
+    "windowWidth": 1366,
+    "windowHeight": 607,
+    "touchCapable": false,
+    "platform": "Win32",
+    "vendor": "Google Inc.",
+    "deviceType": "desktop"
+  },
+  "is_mobile": false,
+  "device_type": "desktop"
+}

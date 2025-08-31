@@ -1,0 +1,77 @@
+{
+  "version_id": "2025-08-31_12-33-58_loris-mbp-cable-rcn-com",
+  "timestamp": "2025-08-31T12:42:56.216630",
+  "features_available": [
+    "statistical_platform",
+    "statistical_session",
+    "statistical_video"
+  ],
+  "feature_configs": {
+    "statistical_platform": {
+      "name": "statistical_platform",
+      "description": "Statistical features aggregated by user and platform",
+      "top_n_digrams": 10,
+      "use_all_unigrams": true,
+      "imputation_strategy": "user",
+      "aggregation_level": "user_platform",
+      "keep_outliers": false,
+      "use_coverage_based_selection": true
+    },
+    "statistical_session": {
+      "name": "statistical_session",
+      "description": "Statistical features aggregated by user, platform, and session",
+      "top_n_digrams": 10,
+      "use_all_unigrams": true,
+      "imputation_strategy": "user",
+      "aggregation_level": "session",
+      "keep_outliers": false,
+      "use_coverage_based_selection": true
+    },
+    "statistical_video": {
+      "name": "statistical_video",
+      "description": "Statistical features aggregated by user, platform, session, and video (most granular)",
+      "top_n_digrams": 10,
+      "use_all_unigrams": true,
+      "imputation_strategy": "user",
+      "aggregation_level": "video",
+      "keep_outliers": false,
+      "use_coverage_based_selection": true
+    }
+  },
+  "extraction_summary": {
+    "features_extracted": {
+      "statistical_platform": {
+        "records": 198,
+        "features": 433
+      },
+      "statistical_session": {
+        "records": 396,
+        "features": 434
+      },
+      "statistical_video": {
+        "records": 1182,
+        "features": 435
+      }
+    },
+    "processing_time": {
+      "statistical_platform": 9.826864,
+      "statistical_session": 18.19329,
+      "statistical_video": 51.832484
+    },
+    "feature_counts": {
+      "statistical_platform": [
+        198,
+        437
+      ],
+      "statistical_session": [
+        396,
+        438
+      ],
+      "statistical_video": [
+        1182,
+        439
+      ]
+    },
+    "errors": []
+  }
+}

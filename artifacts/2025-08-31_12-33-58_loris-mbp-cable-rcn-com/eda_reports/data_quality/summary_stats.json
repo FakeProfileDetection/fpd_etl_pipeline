@@ -1,0 +1,10 @@
+{
+  "total_keypairs": 291714,
+  "valid_keypairs": 291629,
+  "invalid_keypairs": 85,
+  "validity_rate": 99.97086187155912,
+  "unique_users": 66,
+  "device_types": [
+    "desktop"
+  ]
+}

@@ -1,0 +1,1 @@
+To view comments (replies) on Twitter (now X), you must click or tap the tweet's content itself, not the chat bubble icon, to open the full conversation view. On the subsequent screen, you can then scroll down to see all the comments and replies to that specific tweet, and you may need to tap "View more replies" to load additional comments.

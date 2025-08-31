@@ -1,0 +1,1 @@
+Now i'm on task 4.  Great.  So far, I'm happy with the results.  The great thing is that we now have two apps, one using Netlify and one using Google Cloud storage.  We could run them both.

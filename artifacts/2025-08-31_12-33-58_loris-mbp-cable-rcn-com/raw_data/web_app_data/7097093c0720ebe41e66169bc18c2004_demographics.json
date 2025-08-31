@@ -1,0 +1,23 @@
+{
+  "email": "Danielle_93@mail.com",
+  "gender": "male",
+  "age": "25_34",
+  "handedness": "right",
+  "education": "doctorate",
+  "consent_email_for_future": true,
+  "submission_timestamp": "2025-08-29T19:00:05.639Z",
+  "device_info": {
+    "isMobile": false,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "screenWidth": 1920,
+    "screenHeight": 1080,
+    "windowWidth": 2400,
+    "windowHeight": 1148,
+    "touchCapable": false,
+    "platform": "Win32",
+    "vendor": "Google Inc.",
+    "deviceType": "desktop"
+  },
+  "is_mobile": false,
+  "device_type": "desktop"
+}

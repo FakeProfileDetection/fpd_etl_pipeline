@@ -1,0 +1,1 @@
+You can also add comments to your code by preceding the text with the REM keyword. However, the ' symbol and the Comment/Uncomment buttons are easier to use and require less space and memory.

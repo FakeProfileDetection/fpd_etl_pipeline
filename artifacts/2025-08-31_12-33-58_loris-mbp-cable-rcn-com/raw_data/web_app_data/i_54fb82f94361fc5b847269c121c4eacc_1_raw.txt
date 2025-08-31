@@ -1,0 +1,1 @@
+This new approach to address the issue This new approach uses web assembly to hopefully speed up the processing. I hope this actually works, and it uses Rust too

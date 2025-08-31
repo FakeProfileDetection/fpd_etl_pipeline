@@ -1,0 +1,23 @@
+{
+  "email": "",
+  "gender": "female",
+  "age": "25_34",
+  "handedness": "right",
+  "education": "bachelor",
+  "consent_email_for_future": false,
+  "submission_timestamp": "2025-08-29T17:14:21.865Z",
+  "device_info": {
+    "isMobile": false,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+    "screenWidth": 1536,
+    "screenHeight": 864,
+    "windowWidth": 1390,
+    "windowHeight": 738,
+    "touchCapable": false,
+    "platform": "Win32",
+    "vendor": "Google Inc.",
+    "deviceType": "desktop"
+  },
+  "is_mobile": false,
+  "device_type": "desktop"
+}

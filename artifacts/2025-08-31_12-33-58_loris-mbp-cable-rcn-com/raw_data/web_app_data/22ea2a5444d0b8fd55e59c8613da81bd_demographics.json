@@ -1,0 +1,23 @@
+{
+  "email": "",
+  "gender": "male",
+  "age": "55_64",
+  "handedness": "right",
+  "education": "bachelor",
+  "consent_email_for_future": false,
+  "submission_timestamp": "2025-08-30T01:06:03.681Z",
+  "device_info": {
+    "isMobile": false,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "screenWidth": 1366,
+    "screenHeight": 768,
+    "windowWidth": 1366,
+    "windowHeight": 607,
+    "touchCapable": false,
+    "platform": "Win32",
+    "vendor": "Google Inc.",
+    "deviceType": "desktop"
+  },
+  "is_mobile": false,
+  "device_type": "desktop"
+}

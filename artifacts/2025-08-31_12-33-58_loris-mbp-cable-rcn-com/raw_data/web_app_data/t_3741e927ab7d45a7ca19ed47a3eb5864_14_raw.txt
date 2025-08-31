@@ -1,0 +1,1 @@
+Cool.  Almost done.  Then I will have a full round of data with the new wasm keystroke logger.  But, of course, it turns out that I may not have needed that at all.  It seems there was several other issues with the keylogger that may have nothing to do with latency.

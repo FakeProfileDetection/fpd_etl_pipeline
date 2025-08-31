@@ -1,0 +1,1 @@
+So, no errors so far.  This is a good sign. However, the previous errors occurred after gettiing to task 2.  But then, they appeared on Task 1 with the next launch.  That's concerning becuase maybe there is a random key sequence that I pressed.

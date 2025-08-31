@@ -1,0 +1,1 @@
+And here we are again....testing the new wasm keystroke logger to see if it failes.  If it does fail, then i't back to Claude to figure out what went wrong and how ai can fix it.  It's a lot of work. But, i'll be producing a useful tool and eveloping some frontend skills that are hopefully usefule.

@@ -1,0 +1,1 @@
+It's cool that this new web assembly injection library strategy thing we are trying to speed up the processing to get more accurate and realtime typing checks uses Rust. All hail Ferris
