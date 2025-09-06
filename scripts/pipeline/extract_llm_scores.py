@@ -16,6 +16,7 @@ import json
 import logging
 import os
 import random
+import re
 import sys
 import time
 from collections import defaultdict
@@ -225,6 +226,14 @@ Return ONLY this JSON:
                     )
 
                     content = response.choices[0].message.content
+
+                    # Handle markdown-wrapped JSON (common with local models like Gemma)
+                    json_match = re.search(
+                        r"```(?:json)?\s*(\{.*?\})\s*```", content, re.DOTALL
+                    )
+                    if json_match:
+                        content = json_match.group(1)
+
                     result = json.loads(content)
 
                     # Validate response structure
