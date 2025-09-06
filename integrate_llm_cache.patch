@@ -1,0 +1,150 @@
+--- a/scripts/pipeline/extract_llm_scores.py
++++ b/scripts/pipeline/extract_llm_scores.py
+@@ -37,6 +37,7 @@ from scripts.utils.enhanced_version_manager import (
+
+ logger = logging.getLogger(__name__)
+
++from scripts.pipeline.llm_cache import LLMCheckCache
+
+ # Try to import OpenAI - will handle if not installed
+ try:
+@@ -328,6 +329,9 @@ class ExtractLLMScoresStage:
+         self.version_manager = version_manager or VersionManager()
+         self.non_interactive = non_interactive
+
++        # Initialize cache
++        self.cache = LLMCheckCache()
++
+         # Load threshold from config
+         self.threshold = config.get("LLM_CHECK_THRESHOLD", self.THRESHOLD_SCORE)
+
+@@ -340,6 +344,8 @@ class ExtractLLMScoresStage:
+             "total_users": 0,
+             "processing_errors": [],
+             "api_errors": 0,
++            "cache_hits": 0,
++            "cache_misses": 0,
+         }
+
+     def check_and_setup_api_key(self) -> Optional[str]:
+@@ -515,7 +521,8 @@ class ExtractLLMScoresStage:
+             return complete_results, broken_results
+
+         # Collect all text files with metadata
+-        file_data = []
++        user_files = {}  # Group files by user_id
++        file_data = []  # Files to process (not cached)
+         user_types = {}  # Track if user is complete or broken
+
+         for user_type, text_dir in dirs_to_process:
+@@ -552,7 +559,11 @@ class ExtractLLMScoresStage:
+                             "filename": text_file.name,
+                             "user_type": user_type,  # Add user type to metadata
+                         }
+-                        file_data.append((text, metadata))
++
++                        # Group by user for cache checking
++                        if user_id not in user_files:
++                            user_files[user_id] = []
++                        user_files[user_id].append((text_file.name, text, metadata))
+                     except Exception as e:
+                         logger.error(f"Error reading {text_file}: {e}")
+                         self.stats["processing_errors"].append(str(e))
+@@ -561,6 +572,51 @@ class ExtractLLMScoresStage:
+         if not file_data:
+             return complete_results, broken_results
+
++        # Check cache for each user and separate cached vs uncached
++        cached_results = []
++        for user_id, files in user_files.items():
++            # Extract text content for cache checking
++            text_files_for_hash = [(fname, text) for fname, text, _ in files]
++
++            # Check if user's results are cached
++            cached = self.cache.get_cached_results(user_id, device_type, text_files_for_hash)
++
++            if cached:
++                # Use cached results
++                self.stats["cache_hits"] += len(files)
++                logger.info(f"Using cached results for user {user_id}: {len(cached)} scores")
++
++                # Convert cached results to TextScore objects
++                for i, (fname, text, metadata) in enumerate(files):
++                    if i < len(cached):
++                        score_data = cached[i]
++                        score = TextScore(
++                            user_id=user_id,
++                            device_type=device_type,
++                            platform_id=metadata["platform_id"],
++                            video_id=metadata["video_id"],
++                            session_id=metadata["session_id"],
++                            filename=fname,
++                            text=text,
++                            coach_carter_score=score_data.get("Coach Carter", 0),
++                            oscars_slap_score=score_data.get("Oscars Slap", 0),
++                            trump_ukraine_score=score_data.get("Trump-Ukraine Meeting", 0),
++                            response_time_ms=score_data.get("response_time_ms", 0),
++                            model_used=score_data.get("model_used", "cached"),
++                        )
++                        if metadata["user_type"] == "complete":
++                            complete_results.append(score)
++                        else:
++                            broken_results.append(score)
++            else:
++                # Need to process this user
++                self.stats["cache_misses"] += len(files)
++                for fname, text, metadata in files:
++                    file_data.append((text, metadata))
++
++        if not file_data:
++            logger.info(f"All {len(user_files)} users were cached")
++            return complete_results, broken_results
++
+         # Get API key and check if using local model
+         use_local = os.getenv("LLM_CHECK_USE_LOCAL", "").lower() in ["true", "1", "yes"]
+         api_key = self.check_and_setup_api_key()
+@@ -619,6 +675,32 @@ class ExtractLLMScoresStage:
+         # Process files in batches
+         all_scores = await processor.process_batch(file_data)
+
++        # Store results in cache
++        user_results = {}  # Group results by user for caching
++        for score_dict, (text, metadata) in zip(all_scores, file_data):
++            user_id = metadata["user_id"]
++            if user_id not in user_results:
++                user_results[user_id] = {
++                    "files": [],
++                    "results": [],
++                    "device_type": metadata["device_type"]
++                }
++
++            user_results[user_id]["files"].append((metadata["filename"], text))
++            user_results[user_id]["results"].append(score_dict)
++
++        # Store each user's results in cache
++        model_name = processor_args.get("model", "unknown")
++        for user_id, data in user_results.items():
++            try:
++                self.cache.store_results(
++                    user_id,
++                    data["device_type"],
++                    data["files"],
++                    data["results"],
++                    model_name
++                )
++            except Exception as e:
++                logger.warning(f"Failed to cache results for {user_id}: {e}")
++
+         # Convert results to TextScore objects and separate by user type
+         for score_dict, (text, metadata) in zip(all_scores, file_data):
+@@ -1213,6 +1295,10 @@ class ExtractLLMScoresStage:
+         logger.info(f"  Passing users: {passing_users} ({passing_pct:.1f}%)")
+         logger.info(f"  API calls: {self.stats['processed_files']}")
+
++        # Log cache statistics
++        logger.info(f"  Cache hits: {self.stats.get('cache_hits', 0)}")
++        logger.info(f"  Cache misses: {self.stats.get('cache_misses', 0)}")
++
+         if self.stats["api_errors"] > 0:
+             logger.warning(
+                 f"  ⚠️ API errors: {self.stats['api_errors']} - These responses defaulted to score 0"

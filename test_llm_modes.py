@@ -101,7 +101,7 @@ async def test_llm_modes():
     try:
         processor = OpenAIProcessor(
             api_key="dummy-key-for-local",
-            model="openai/gpt-oss-20b",
+            model="gpt-oss-20b",  # Use model ID without openai/ prefix
             max_concurrent=1,
             base_url="http://UbuntuSungoddess:1234/v1",
             is_local=True,
