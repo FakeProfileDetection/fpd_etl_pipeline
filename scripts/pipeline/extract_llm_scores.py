@@ -215,7 +215,7 @@ Return ONLY this JSON:
                             {"role": "user", "content": prompt},
                         ],
                         "temperature": 0.3,  # Lower temperature for consistency
-                        "max_tokens": 500,  # Increased for models that need more tokens for reasoning
+                        "max_tokens": int(os.getenv("LLM_CHECK_MAX_TOKENS", "2000" if self.is_local else "500")),  # Configurable via env
                     }
 
                     # Only add response_format for non-local models

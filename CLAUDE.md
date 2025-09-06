@@ -159,6 +159,7 @@ OPENAI_API_KEY=sk-your-api-key  # Required for LLM validation
 LLM_CHECK_MODEL=gpt-4o-mini     # Cost-efficient model
 LLM_CHECK_THRESHOLD=40           # Pass threshold (0-100)
 LLM_CHECK_MAX_CONCURRENT=5       # Parallel API calls (reduce if rate limited)
+LLM_CHECK_MAX_TOKENS=500         # Max tokens for response (use 2000+ for local models)
 ```
 
 ## Data Quality Checks
