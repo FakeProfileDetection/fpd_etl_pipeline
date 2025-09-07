@@ -527,6 +527,7 @@ class ExtractLLMScoresStage:
         user_types = {}  # Track if user is complete or broken
 
         for user_type, text_dir in dirs_to_process:
+            logger.info(f"Processing {user_type} users from {text_dir}")
             for user_dir in text_dir.iterdir():
                 if not user_dir.is_dir():
                     continue
@@ -538,7 +539,13 @@ class ExtractLLMScoresStage:
                 if user_id not in user_types or user_types[user_id] == "complete":
                     self.stats["total_users"] += 1
 
-                for text_file in user_dir.glob("*.txt"):
+                # Only process .txt files
+                txt_files = list(user_dir.glob("*.txt"))
+                if not txt_files:
+                    logger.debug(f"No .txt files found for user {user_id}")
+                    continue
+                    
+                for text_file in txt_files:
                     self.stats["total_files"] += 1
 
                     # Parse filename for metadata
@@ -1243,7 +1250,7 @@ class ExtractLLMScoresStage:
                 if device_dir.exists():
                     logger.info(f"Processing {device_type} data...")
                     complete_scores, broken_scores = await self.process_device_type(
-                        device_dir, device_type, include_broken=True
+                        device_dir, device_type, include_broken=False
                     )
                     complete_results.extend(complete_scores)
                     broken_results.extend(broken_scores)
@@ -1392,9 +1399,11 @@ class ExtractLLMScoresStage:
         logger.info(f"  Total files: {self.stats['total_files']}")
         logger.info(f"  Processed: {self.stats['processed_files']}")
         logger.info(f"  Total users: {self.stats['total_users']}")
-        logger.info(f"  Complete users: {len(complete_scores)} responses")
+        logger.info(f"  Complete users: {len(set(s.user_id for s in complete_scores))} users, {len(complete_scores)} responses")
         if broken_scores:
-            logger.info(f"  Broken users: {len(broken_scores)} responses")
+            logger.info(f"  Broken users: {len(set(s.user_id for s in broken_scores))} users, {len(broken_scores)} responses")
+        else:
+            logger.info(f"  Broken users: Not processed (include_broken=False)")
         logger.info(
             f"  Passing users: {self.stats['passing_users']} ({self.stats['passing_users'] / max(self.stats['total_users'], 1) * 100:.1f}%)"
         )
