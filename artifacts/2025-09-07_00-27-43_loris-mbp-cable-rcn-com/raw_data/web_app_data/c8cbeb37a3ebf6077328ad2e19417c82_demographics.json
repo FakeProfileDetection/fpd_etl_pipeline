@@ -1,0 +1,23 @@
+{
+  "email": "ThomasPhifer753@gmx.com",
+  "gender": "male",
+  "age": "25_34",
+  "handedness": "right",
+  "education": "bachelor",
+  "consent_email_for_future": true,
+  "submission_timestamp": "2025-08-29T18:29:51.705Z",
+  "device_info": {
+    "isMobile": false,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+    "screenWidth": 1360,
+    "screenHeight": 768,
+    "windowWidth": 1360,
+    "windowHeight": 641,
+    "touchCapable": false,
+    "platform": "Win32",
+    "vendor": "Google Inc.",
+    "deviceType": "desktop"
+  },
+  "is_mobile": false,
+  "device_type": "desktop"
+}

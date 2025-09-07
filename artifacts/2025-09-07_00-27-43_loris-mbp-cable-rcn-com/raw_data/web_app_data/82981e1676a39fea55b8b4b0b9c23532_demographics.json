@@ -1,0 +1,23 @@
+{
+  "email": "",
+  "gender": "male",
+  "age": "18_24",
+  "handedness": "right",
+  "education": "bachelor",
+  "consent_email_for_future": false,
+  "submission_timestamp": "2025-09-01T08:29:24.519Z",
+  "device_info": {
+    "isMobile": true,
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36",
+    "screenWidth": 393,
+    "screenHeight": 873,
+    "windowWidth": 392,
+    "windowHeight": 827,
+    "touchCapable": true,
+    "platform": "Linux armv81",
+    "vendor": "Google Inc.",
+    "deviceType": "android"
+  },
+  "is_mobile": true,
+  "device_type": "android"
+}

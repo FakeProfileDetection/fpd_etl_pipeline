@@ -1,0 +1,23 @@
+{
+  "email": "f20230011@pilani.bits-pilani.ac.in",
+  "gender": "female",
+  "age": "18_24",
+  "handedness": "right",
+  "education": "bachelor",
+  "consent_email_for_future": true,
+  "submission_timestamp": "2025-09-01T05:47:55.936Z",
+  "device_info": {
+    "isMobile": false,
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "screenWidth": 1440,
+    "screenHeight": 900,
+    "windowWidth": 1440,
+    "windowHeight": 705,
+    "touchCapable": false,
+    "platform": "MacIntel",
+    "vendor": "Google Inc.",
+    "deviceType": "desktop"
+  },
+  "is_mobile": false,
+  "device_type": "desktop"
+}

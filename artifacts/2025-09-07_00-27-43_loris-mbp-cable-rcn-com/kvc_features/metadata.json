@@ -1,0 +1,42 @@
+{
+  "stage": "extract_kvc_features",
+  "version_id": "2025-09-07_00-27-43_loris-mbp-cable-rcn-com",
+  "timestamp": "2025-09-07T00:28:23.686623",
+  "duration_seconds": 7.317565,
+  "stats": {
+    "total_keypairs": 285913,
+    "unique_keys": 144,
+    "unique_users": 61,
+    "train_test_splits": {
+      "platform_1": {
+        "train_users": 61,
+        "test_users": 61,
+        "train_samples": 732,
+        "test_samples": 366
+      },
+      "platform_2": {
+        "train_users": 61,
+        "test_users": 61,
+        "train_samples": 732,
+        "test_samples": 366
+      },
+      "platform_3": {
+        "train_users": 61,
+        "test_users": 61,
+        "train_samples": 732,
+        "test_samples": 366
+      }
+    },
+    "processing_time": 7.317565,
+    "errors": []
+  },
+  "config": {
+    "test_platforms": [
+      1,
+      2,
+      3
+    ],
+    "filter_errors": true,
+    "key_mapping_size": 144
+  }
+}

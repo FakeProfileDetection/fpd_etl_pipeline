@@ -1,0 +1,23 @@
+{
+  "email": "lowsaim@gmail.com",
+  "gender": "male",
+  "age": "35_44",
+  "handedness": "right",
+  "education": "bachelor",
+  "consent_email_for_future": true,
+  "submission_timestamp": "2025-08-29T17:12:36.967Z",
+  "device_info": {
+    "isMobile": false,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "screenWidth": 1280,
+    "screenHeight": 800,
+    "windowWidth": 1600,
+    "windowHeight": 798,
+    "touchCapable": false,
+    "platform": "Win32",
+    "vendor": "Google Inc.",
+    "deviceType": "desktop"
+  },
+  "is_mobile": false,
+  "device_type": "desktop"
+}

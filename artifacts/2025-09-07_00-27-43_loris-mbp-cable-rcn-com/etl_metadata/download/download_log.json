@@ -1,0 +1,14 @@
+{
+  "files_downloaded": 7333,
+  "total_size": 19891391,
+  "errors": [],
+  "start_time": "2025-09-07T00:27:46.311037",
+  "retry_stats": {
+    "initial_gstmp_files": 0,
+    "retries_attempted": 0,
+    "files_recovered": 0,
+    "final_gstmp_files": 0,
+    "failed_files": []
+  },
+  "end_time": "2025-09-07T00:28:00.279265"
+}

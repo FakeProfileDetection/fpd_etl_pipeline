@@ -1,0 +1,2739 @@
+{
+  "version_id": "2025-09-07_00-27-43_loris-mbp-cable-rcn-com",
+  "timestamp": "2025-09-07 00:29:54",
+  "summary": {
+    "total_keypairs": 285913,
+    "valid_keypairs": 285705,
+    "invalid_keypairs": 208,
+    "validity_rate": 99.92725059720964,
+    "unique_users": 61,
+    "device_types": [
+      "desktop"
+    ]
+  },
+  "timing_stats": {
+    "HL": {
+      "count": 285705,
+      "mean": 87.54266113648694,
+      "std": 436.02431982795514,
+      "min": 0.0,
+      "max": 144578.0,
+      "median": 82.0,
+      "q25": 40.0,
+      "q75": 114.0,
+      "negative_count": 0,
+      "zero_count": 2745,
+      "outlier_threshold_low": 1.0,
+      "outlier_threshold_high": 339.0
+    },
+    "IL": {
+      "count": 285705,
+      "mean": 363.4361631753032,
+      "std": 8796.601609207059,
+      "min": -107564.0,
+      "max": 3651344.0,
+      "median": 94.0,
+      "q25": 15.0,
+      "q75": 199.0,
+      "negative_count": 22453,
+      "zero_count": 4779,
+      "outlier_threshold_low": -87.0,
+      "outlier_threshold_high": 4062.920000000042
+    },
+    "PL": {
+      "count": 285705,
+      "mean": 450.9788243117901,
+      "std": 8798.135260377663,
+      "min": 0.0,
+      "max": 3651460.0,
+      "median": 184.0,
+      "q25": 102.0,
+      "q75": 304.0,
+      "negative_count": 0,
+      "zero_count": 422,
+      "outlier_threshold_low": 3.0,
+      "outlier_threshold_high": 4210.960000000021
+    },
+    "RL": {
+      "count": 285705,
+      "mean": 449.07222484730755,
+      "std": 8807.097563017605,
+      "min": -107502.0,
+      "max": 3651411.0,
+      "median": 184.0,
+      "q25": 80.0,
+      "q75": 305.0,
+      "negative_count": 1899,
+      "zero_count": 1683,
+      "outlier_threshold_low": 0.0,
+      "outlier_threshold_high": 4245.960000000021
+    }
+  },
+  "negative_analysis": {
+    "summary": {
+      "total_users": 61,
+      "users_with_negative_il": 61,
+      "users_with_negative_rl": 60,
+      "modifier_keys": [
+        "Key.alt",
+        "Key.alt_l",
+        "Key.alt_r",
+        "Key.caps_lock",
+        "Key.cmd",
+        "Key.cmd_l",
+        "Key.cmd_r",
+        "Key.ctrl",
+        "Key.ctrl_l",
+        "Key.ctrl_r",
+        "Key.fn",
+        "Key.option",
+        "Key.option_l",
+        "Key.option_r",
+        "Key.shift",
+        "Key.shift_l",
+        "Key.shift_r",
+        "Key.tab",
+        "Key.win",
+        "Key.win_l",
+        "Key.win_r"
+      ]
+    },
+    "negative_IL": {
+      "total_count": 22453,
+      "expected_count": 3939,
+      "unexpected_count": 18514,
+      "top_patterns": [
+        {
+          "pattern": "e \u2192 Key.space",
+          "count": 1098,
+          "type": "unexpected"
+        },
+        {
+          "pattern": "t \u2192 h",
+          "count": 999,
+          "type": "unexpected"
+        },
+        {
+          "pattern": "Key.shift \u2192 t",
+          "count": 749,
+          "type": "expected"
+        },
+        {
+          "pattern": "e \u2192 r",
+          "count": 703,
+          "type": "unexpected"
+        },
+        {
+          "pattern": "s \u2192 Key.space",
+          "count": 597,
+          "type": "unexpected"
+        },
+        {
+          "pattern": "d \u2192 Key.space",
+          "count": 477,
+          "type": "unexpected"
+        },
+        {
+          "pattern": "a \u2192 n",
+          "count": 470,
+          "type": "unexpected"
+        },
+        {
+          "pattern": "r \u2192 e",
+          "count": 410,
+          "type": "unexpected"
+        },
+        {
+          "pattern": "h \u2192 e",
+          "count": 390,
+          "type": "unexpected"
+        },
+        {
+          "pattern": "t \u2192 Key.space",
+          "count": 389,
+          "type": "unexpected"
+        },
+        {
+          "pattern": "a \u2192 t",
+          "count": 378,
+          "type": "unexpected"
+        },
+        {
+          "pattern": "Key.shift \u2192 c",
+          "count": 364,
+          "type": "expected"
+        },
+        {
+          "pattern": "a \u2192 r",
+          "count": 358,
+          "type": "unexpected"
+        },
+        {
+          "pattern": "Key.shift \u2192 i",
+          "count": 326,
+          "type": "expected"
+        },
+        {
+          "pattern": "i \u2192 n",
+          "count": 285,
+          "type": "unexpected"
+        }
+      ]
+    },
+    "negative_RL": {
+      "total_count": 1899,
+      "with_negative_IL": 1899,
+      "standalone": 0,
+      "top_patterns": [
+        {
+          "pattern": "Key.shift \u2192 t",
+          "count": 283
+        },
+        {
+          "pattern": "Key.shift \u2192 i",
+          "count": 151
+        },
+        {
+          "pattern": "Key.shift \u2192 c",
+          "count": 132
+        },
+        {
+          "pattern": "Key.shift \u2192 u",
+          "count": 110
+        },
+        {
+          "pattern": "Key.shift \u2192 s",
+          "count": 80
+        },
+        {
+          "pattern": "Key.shift \u2192 w",
+          "count": 55
+        },
+        {
+          "pattern": "Key.shift \u2192 Key.left",
+          "count": 51
+        },
+        {
+          "pattern": "Key.shift \u2192 o",
+          "count": 49
+        },
+        {
+          "pattern": "Key.shift \u2192 h",
+          "count": 49
+        },
+        {
+          "pattern": "Key.shift \u2192 r",
+          "count": 45
+        },
+        {
+          "pattern": "Key.shift \u2192 a",
+          "count": 41
+        },
+        {
+          "pattern": "Key.shift \u2192 b",
+          "count": 40
+        },
+        {
+          "pattern": "Key.shift \u2192 v",
+          "count": 34
+        },
+        {
+          "pattern": "Key.shift \u2192 j",
+          "count": 33
+        },
+        {
+          "pattern": "Key.shift \u2192 p",
+          "count": 32
+        }
+      ]
+    },
+    "user_summary": [
+      {
+        "user_id": "03ed26062301e1ac6bbf94f3c03a7e56",
+        "total_keypairs": 4814,
+        "negative_il_total": 562,
+        "negative_il_expected": 154,
+        "negative_il_unexpected": 408,
+        "negative_il_percent": 11.7,
+        "negative_rl_total": 111,
+        "negative_rl_percent": 2.3,
+        "top_il_patterns": "Key.ctrl\u2192Key.shift, Key.shift\u2192Key.left, r\u2192e",
+        "timestamp": "2025-08-01T07:49:13.940Z"
+      },
+      {
+        "user_id": "090e14f795db6d9fad9fc4ddd6ff5094",
+        "total_keypairs": 3052,
+        "negative_il_total": 8,
+        "negative_il_expected": 1,
+        "negative_il_unexpected": 7,
+        "negative_il_percent": 0.3,
+        "negative_rl_total": 2,
+        "negative_rl_percent": 0.1,
+        "top_il_patterns": "Key.space\u2192c, Key.ctrl\u2192v, Key.space\u2192n",
+        "timestamp": "2025-08-16T17:52:26.474Z"
+      },
+      {
+        "user_id": "0b368dc281d8fec53d8ecaa40d0f35eb",
+        "total_keypairs": 3730,
+        "negative_il_total": 551,
+        "negative_il_expected": 38,
+        "negative_il_unexpected": 513,
+        "negative_il_percent": 14.8,
+        "negative_rl_total": 14,
+        "negative_rl_percent": 0.4,
+        "top_il_patterns": "e\u2192r, t\u2192h, a\u2192n",
+        "timestamp": "2025-08-01T10:48:47.937Z"
+      },
+      {
+        "user_id": "0b3f2442320cf16d3e7e5ddd1a56820d",
+        "total_keypairs": 3835,
+        "negative_il_total": 182,
+        "negative_il_expected": 1,
+        "negative_il_unexpected": 181,
+        "negative_il_percent": 4.7,
+        "negative_rl_total": 1,
+        "negative_rl_percent": 0.0,
+        "top_il_patterns": "t\u2192h, e\u2192Key.space, a\u2192n",
+        "timestamp": "2025-08-16T17:29:19.918Z"
+      },
+      {
+        "user_id": "1770934ad1b91344c763822588694de5",
+        "total_keypairs": 3858,
+        "negative_il_total": 224,
+        "negative_il_expected": 1,
+        "negative_il_unexpected": 223,
+        "negative_il_percent": 5.8,
+        "negative_rl_total": 1,
+        "negative_rl_percent": 0.0,
+        "top_il_patterns": "Key.space\u2192t, Key.space\u2192i, t\u2192h",
+        "timestamp": "2025-08-01T14:35:25.713Z"
+      },
+      {
+        "user_id": "195bfcb901041c1626085c1e338fe16a",
+        "total_keypairs": 3480,
+        "negative_il_total": 216,
+        "negative_il_expected": 4,
+        "negative_il_unexpected": 212,
+        "negative_il_percent": 6.2,
+        "negative_rl_total": 23,
+        "negative_rl_percent": 0.7,
+        "top_il_patterns": "e\u2192r, e\u2192Key.space, h\u2192e",
+        "timestamp": "2025-08-29T20:12:30.690Z"
+      },
+      {
+        "user_id": "1a2225bfe73f2095e699b02b6c9e2453",
+        "total_keypairs": 4557,
+        "negative_il_total": 61,
+        "negative_il_expected": 25,
+        "negative_il_unexpected": 36,
+        "negative_il_percent": 1.3,
+        "negative_rl_total": 7,
+        "negative_rl_percent": 0.2,
+        "top_il_patterns": "s\u2192Key.space, Key.shift\u2192a, Key.shift\u2192c",
+        "timestamp": "2025-08-29T17:29:39.849Z"
+      },
+      {
+        "user_id": "1a8939f78d8fd33068520f598b6bb6b8",
+        "total_keypairs": 3105,
+        "negative_il_total": 258,
+        "negative_il_expected": 86,
+        "negative_il_unexpected": 172,
+        "negative_il_percent": 8.3,
+        "negative_rl_total": 6,
+        "negative_rl_percent": 0.2,
+        "top_il_patterns": "e\u2192Key.space, s\u2192Key.space, Key.shift\u2192c",
+        "timestamp": "2025-08-29T17:11:13.605Z"
+      },
+      {
+        "user_id": "1d67bb8e9cd49cf0fa38679f99c3960d",
+        "total_keypairs": 4773,
+        "negative_il_total": 152,
+        "negative_il_expected": 127,
+        "negative_il_unexpected": 25,
+        "negative_il_percent": 3.2,
+        "negative_rl_total": 26,
+        "negative_rl_percent": 0.5,
+        "top_il_patterns": "Key.shift\u2192c, Key.shift\u2192t, Key.shift\u2192o",
+        "timestamp": "2025-08-29T17:51:24.461Z"
+      },
+      {
+        "user_id": "22ed3dfc8050575b1d6556ca6f1b2701",
+        "total_keypairs": 3552,
+        "negative_il_total": 15,
+        "negative_il_expected": 1,
+        "negative_il_unexpected": 14,
+        "negative_il_percent": 0.4,
+        "negative_rl_total": 5,
+        "negative_rl_percent": 0.1,
+        "top_il_patterns": "e\u2192r, i\u2192o, =\u2192Key.backspace",
+        "timestamp": "2025-08-29T17:44:15.886Z"
+      },
+      {
+        "user_id": "29b03bb3fb77e6cf38fd1905823f3c57",
+        "total_keypairs": 4475,
+        "negative_il_total": 167,
+        "negative_il_expected": 103,
+        "negative_il_unexpected": 64,
+        "negative_il_percent": 3.7,
+        "negative_rl_total": 22,
+        "negative_rl_percent": 0.5,
+        "top_il_patterns": "Key.shift\u2192s, Key.shift\u2192c, Key.shift\u2192w",
+        "timestamp": "2025-09-02T15:22:07.963Z"
+      },
+      {
+        "user_id": "2ac10a36a31f1b96b8da6b14b63484dd",
+        "total_keypairs": 4330,
+        "negative_il_total": 295,
+        "negative_il_expected": 197,
+        "negative_il_unexpected": 98,
+        "negative_il_percent": 6.8,
+        "negative_rl_total": 176,
+        "negative_rl_percent": 4.1,
+        "top_il_patterns": "Key.shift\u2192c, Key.shift\u2192s, Key.shift\u2192w",
+        "timestamp": "2025-09-01T05:40:15.837Z"
+      },
+      {
+        "user_id": "2b1276338fe225d4eaec3ba139659c35",
+        "total_keypairs": 3698,
+        "negative_il_total": 57,
+        "negative_il_expected": 12,
+        "negative_il_unexpected": 45,
+        "negative_il_percent": 1.5,
+        "negative_rl_total": 6,
+        "negative_rl_percent": 0.2,
+        "top_il_patterns": "i\u2192Key.shift, t\u2192Key.shift, i\u2192Key.backspace",
+        "timestamp": "2025-08-10T18:28:57.995Z"
+      },
+      {
+        "user_id": "2bd58b9425f87b369e6fc71dfae5946d",
+        "total_keypairs": 5101,
+        "negative_il_total": 1242,
+        "negative_il_expected": 143,
+        "negative_il_unexpected": 1099,
+        "negative_il_percent": 24.3,
+        "negative_rl_total": 86,
+        "negative_rl_percent": 1.7,
+        "top_il_patterns": "e\u2192Key.space, Key.space\u2192t, d\u2192Key.space",
+        "timestamp": "2025-09-01T05:56:06.505Z"
+      },
+      {
+        "user_id": "2d91c1b2e2026be09d22e7dac5866cf2",
+        "total_keypairs": 4439,
+        "negative_il_total": 65,
+        "negative_il_expected": 17,
+        "negative_il_unexpected": 48,
+        "negative_il_percent": 1.5,
+        "negative_rl_total": 3,
+        "negative_rl_percent": 0.1,
+        "top_il_patterns": "h\u2192e, p\u2192e, Key.caps_lock\u2192o",
+        "timestamp": "2025-08-29T18:40:03.481Z"
+      },
+      {
+        "user_id": "2d94fed3d99ee3fa9d56e8b9896c7c51",
+        "total_keypairs": 4413,
+        "negative_il_total": 642,
+        "negative_il_expected": 98,
+        "negative_il_unexpected": 544,
+        "negative_il_percent": 14.5,
+        "negative_rl_total": 25,
+        "negative_rl_percent": 0.6,
+        "top_il_patterns": "t\u2192h, Key.shift\u2192t, s\u2192Key.space",
+        "timestamp": "2025-08-16T17:57:54.761Z"
+      },
+      {
+        "user_id": "396edbf6f8758f8afe333abf94199a21",
+        "total_keypairs": 3571,
+        "negative_il_total": 62,
+        "negative_il_expected": 47,
+        "negative_il_unexpected": 15,
+        "negative_il_percent": 1.7,
+        "negative_rl_total": 21,
+        "negative_rl_percent": 0.6,
+        "top_il_patterns": "Key.shift\u2192u, Key.shift\u2192s, Key.shift\u2192z",
+        "timestamp": "2025-08-29T17:15:58.282Z"
+      },
+      {
+        "user_id": "3994782efb4da6e6fbf5946576804562",
+        "total_keypairs": 10834,
+        "negative_il_total": 240,
+        "negative_il_expected": 199,
+        "negative_il_unexpected": 41,
+        "negative_il_percent": 2.2,
+        "negative_rl_total": 40,
+        "negative_rl_percent": 0.4,
+        "top_il_patterns": "Key.shift\u2192t, Key.shift\u2192s, Key.shift\u2192o",
+        "timestamp": "2025-08-29T18:18:53.766Z"
+      },
+      {
+        "user_id": "3acb3a89513d71cf30fe23cb0e5c5e79",
+        "total_keypairs": 3327,
+        "negative_il_total": 63,
+        "negative_il_expected": 1,
+        "negative_il_unexpected": 62,
+        "negative_il_percent": 1.9,
+        "negative_rl_total": 29,
+        "negative_rl_percent": 0.9,
+        "top_il_patterns": "e\u2192r, n\u2192Key.space, r\u2192t",
+        "timestamp": "2025-08-29T18:21:58.796Z"
+      },
+      {
+        "user_id": "3b748a1fdbb41baaa95bc3f44a5e7cfa",
+        "total_keypairs": 3905,
+        "negative_il_total": 143,
+        "negative_il_expected": 94,
+        "negative_il_unexpected": 49,
+        "negative_il_percent": 3.7,
+        "negative_rl_total": 24,
+        "negative_rl_percent": 0.6,
+        "top_il_patterns": "Key.shift\u2192t, e\u2192Key.space, Key.shift\u2192v",
+        "timestamp": "2025-08-16T17:39:44.339Z"
+      },
+      {
+        "user_id": "49c51418702c12db4463fa592d455ed5",
+        "total_keypairs": 4388,
+        "negative_il_total": 1883,
+        "negative_il_expected": 60,
+        "negative_il_unexpected": 1823,
+        "negative_il_percent": 42.9,
+        "negative_rl_total": 18,
+        "negative_rl_percent": 0.4,
+        "top_il_patterns": "t\u2192h, e\u2192Key.space, s\u2192Key.space",
+        "timestamp": "2025-09-01T05:36:02.207Z"
+      },
+      {
+        "user_id": "52098f23d4739794c4e29d3ce934e3cf",
+        "total_keypairs": 3351,
+        "negative_il_total": 61,
+        "negative_il_expected": 34,
+        "negative_il_unexpected": 27,
+        "negative_il_percent": 1.8,
+        "negative_rl_total": 23,
+        "negative_rl_percent": 0.7,
+        "top_il_patterns": "Key.shift\u2192u, a\u2192n, Key.shift\u2192z",
+        "timestamp": "2025-08-29T19:47:21.068Z"
+      },
+      {
+        "user_id": "540fe383c665bb3f7016d8b8e94372ec",
+        "total_keypairs": 3245,
+        "negative_il_total": 21,
+        "negative_il_expected": 0,
+        "negative_il_unexpected": 21,
+        "negative_il_percent": 0.6,
+        "negative_rl_total": 6,
+        "negative_rl_percent": 0.2,
+        "top_il_patterns": "l\u2192o, y\u2192u, ;\u2192l",
+        "timestamp": "2025-08-29T17:11:24.593Z"
+      },
+      {
+        "user_id": "57334ce700310b2650adabca77bbdc39",
+        "total_keypairs": 4011,
+        "negative_il_total": 243,
+        "negative_il_expected": 2,
+        "negative_il_unexpected": 241,
+        "negative_il_percent": 6.1,
+        "negative_rl_total": 4,
+        "negative_rl_percent": 0.1,
+        "top_il_patterns": "Key.space\u2192t, Key.space\u2192l, s\u2192h",
+        "timestamp": "2025-08-01T13:43:59.823Z"
+      },
+      {
+        "user_id": "594aa2a2f51b122fd3b0995968b62cf7",
+        "total_keypairs": 4580,
+        "negative_il_total": 916,
+        "negative_il_expected": 151,
+        "negative_il_unexpected": 765,
+        "negative_il_percent": 20.0,
+        "negative_rl_total": 71,
+        "negative_rl_percent": 1.6,
+        "top_il_patterns": "e\u2192Key.space, t\u2192h, s\u2192Key.space",
+        "timestamp": "2025-09-01T05:37:23.723Z"
+      },
+      {
+        "user_id": "6c29e036c0e057beae28fbec035de35b",
+        "total_keypairs": 3635,
+        "negative_il_total": 122,
+        "negative_il_expected": 48,
+        "negative_il_unexpected": 74,
+        "negative_il_percent": 3.4,
+        "negative_rl_total": 28,
+        "negative_rl_percent": 0.8,
+        "top_il_patterns": "Key.shift\u2192a, Key.shift\u2192c, Key.shift\u2192t",
+        "timestamp": "2025-08-29T20:33:50.804Z"
+      },
+      {
+        "user_id": "7097093c0720ebe41e66169bc18c2004",
+        "total_keypairs": 10659,
+        "negative_il_total": 315,
+        "negative_il_expected": 268,
+        "negative_il_unexpected": 47,
+        "negative_il_percent": 3.0,
+        "negative_rl_total": 55,
+        "negative_rl_percent": 0.5,
+        "top_il_patterns": "Key.shift\u2192t, Key.shift\u2192c, Key.shift\u2192a",
+        "timestamp": "2025-08-29T18:59:43.744Z"
+      },
+      {
+        "user_id": "71285c5ccc6b57b1bad535eabfcb68cf",
+        "total_keypairs": 4672,
+        "negative_il_total": 89,
+        "negative_il_expected": 0,
+        "negative_il_unexpected": 89,
+        "negative_il_percent": 1.9,
+        "negative_rl_total": 4,
+        "negative_rl_percent": 0.1,
+        "top_il_patterns": "a\u2192t, e\u2192Key.space, d\u2192Key.space",
+        "timestamp": "2025-08-29T20:14:15.692Z"
+      },
+      {
+        "user_id": "762e853cc9d362c4d051eb7b11bcfbc2",
+        "total_keypairs": 4659,
+        "negative_il_total": 584,
+        "negative_il_expected": 91,
+        "negative_il_unexpected": 493,
+        "negative_il_percent": 12.5,
+        "negative_rl_total": 29,
+        "negative_rl_percent": 0.6,
+        "top_il_patterns": "t\u2192h, Key.shift\u2192t, a\u2192n",
+        "timestamp": "2025-08-29T19:03:28.284Z"
+      },
+      {
+        "user_id": "80d5a8bd9e65bac069257b0071bab47f",
+        "total_keypairs": 3861,
+        "negative_il_total": 71,
+        "negative_il_expected": 0,
+        "negative_il_unexpected": 71,
+        "negative_il_percent": 1.8,
+        "negative_rl_total": 4,
+        "negative_rl_percent": 0.1,
+        "top_il_patterns": "e\u2192Key.space, h\u2192a, a\u2192t",
+        "timestamp": "2025-08-16T21:24:59.985Z"
+      },
+      {
+        "user_id": "84df5c67036cb0251e472e3bb5943ed7",
+        "total_keypairs": 3650,
+        "negative_il_total": 3,
+        "negative_il_expected": 1,
+        "negative_il_unexpected": 2,
+        "negative_il_percent": 0.1,
+        "negative_rl_total": 1,
+        "negative_rl_percent": 0.0,
+        "top_il_patterns": "Key.backspace\u2192Key.ctrl, Key.ctrl\u2192Key.backspace, Key.space\u2192m",
+        "timestamp": "2025-08-10T16:23:46.616Z"
+      },
+      {
+        "user_id": "8af46a7a610823c6883e4b165b132296",
+        "total_keypairs": 3464,
+        "negative_il_total": 37,
+        "negative_il_expected": 4,
+        "negative_il_unexpected": 33,
+        "negative_il_percent": 1.1,
+        "negative_rl_total": 3,
+        "negative_rl_percent": 0.1,
+        "top_il_patterns": "e\u2192r, a\u2192s, z\u2192e",
+        "timestamp": "2025-08-29T18:02:17.619Z"
+      },
+      {
+        "user_id": "8b51150f8620aa5da990ec45e86ae9c1",
+        "total_keypairs": 4904,
+        "negative_il_total": 98,
+        "negative_il_expected": 18,
+        "negative_il_unexpected": 80,
+        "negative_il_percent": 2.0,
+        "negative_rl_total": 2,
+        "negative_rl_percent": 0.0,
+        "top_il_patterns": "t\u2192Key.shift, i\u2192Key.shift, o\u2192Key.shift",
+        "timestamp": "2025-08-10T17:56:59.517Z"
+      },
+      {
+        "user_id": "8d46f2f2b4385ddb9822fa37d9b3bd71",
+        "total_keypairs": 4929,
+        "negative_il_total": 523,
+        "negative_il_expected": 139,
+        "negative_il_unexpected": 384,
+        "negative_il_percent": 10.6,
+        "negative_rl_total": 113,
+        "negative_rl_percent": 2.3,
+        "top_il_patterns": "Key.ctrl\u2192Key.shift, Key.shift\u2192Key.left, Key.shift\u2192t",
+        "timestamp": "2025-08-01T10:05:49.184Z"
+      },
+      {
+        "user_id": "8fd621776f77dc6e9720191e0c99c124",
+        "total_keypairs": 4735,
+        "negative_il_total": 202,
+        "negative_il_expected": 91,
+        "negative_il_unexpected": 111,
+        "negative_il_percent": 4.3,
+        "negative_rl_total": 67,
+        "negative_rl_percent": 1.4,
+        "top_il_patterns": "t\u2192h, Key.shift\u2192i, Key.shift\u2192s",
+        "timestamp": "2025-09-01T05:49:35.826Z"
+      },
+      {
+        "user_id": "941f623eb6839c755098cd31d69d6647",
+        "total_keypairs": 4697,
+        "negative_il_total": 508,
+        "negative_il_expected": 85,
+        "negative_il_unexpected": 423,
+        "negative_il_percent": 10.8,
+        "negative_rl_total": 77,
+        "negative_rl_percent": 1.6,
+        "top_il_patterns": "i\u2192n, o\u2192n, e\u2192Key.space",
+        "timestamp": "2025-09-01T05:34:44.831Z"
+      },
+      {
+        "user_id": "9e63a1c1f3ccd5fc9bd3bc6bc58b261f",
+        "total_keypairs": 4240,
+        "negative_il_total": 971,
+        "negative_il_expected": 62,
+        "negative_il_unexpected": 909,
+        "negative_il_percent": 22.9,
+        "negative_rl_total": 25,
+        "negative_rl_percent": 0.6,
+        "top_il_patterns": "t\u2192h, h\u2192e, e\u2192Key.space",
+        "timestamp": "2025-08-16T17:25:13.270Z"
+      },
+      {
+        "user_id": "a0ce91cbf1fc81f34740caf3b052fb39",
+        "total_keypairs": 3683,
+        "negative_il_total": 168,
+        "negative_il_expected": 0,
+        "negative_il_unexpected": 168,
+        "negative_il_percent": 4.6,
+        "negative_rl_total": 14,
+        "negative_rl_percent": 0.4,
+        "top_il_patterns": "e\u2192r, a\u2192s, h\u2192e",
+        "timestamp": "2025-08-29T20:19:21.047Z"
+      },
+      {
+        "user_id": "a6259c4a1881e914ebe6efd05da970c4",
+        "total_keypairs": 3302,
+        "negative_il_total": 24,
+        "negative_il_expected": 3,
+        "negative_il_unexpected": 21,
+        "negative_il_percent": 0.7,
+        "negative_rl_total": 1,
+        "negative_rl_percent": 0.0,
+        "top_il_patterns": "e\u2192r, Key.ctrl\u2192v, s\u2192e",
+        "timestamp": "2025-08-29T17:28:29.577Z"
+      },
+      {
+        "user_id": "ab8d82eda7b46e483b84b3a2b393f6d0",
+        "total_keypairs": 4390,
+        "negative_il_total": 849,
+        "negative_il_expected": 97,
+        "negative_il_unexpected": 752,
+        "negative_il_percent": 19.3,
+        "negative_rl_total": 46,
+        "negative_rl_percent": 1.0,
+        "top_il_patterns": "Key.shift\u2192t, o\u2192u, h\u2192i",
+        "timestamp": "2025-09-01T05:37:49.131Z"
+      },
+      {
+        "user_id": "acc53f18cc2c6d28c1f83a71798f2ceb",
+        "total_keypairs": 3316,
+        "negative_il_total": 3,
+        "negative_il_expected": 0,
+        "negative_il_unexpected": 3,
+        "negative_il_percent": 0.1,
+        "negative_rl_total": 1,
+        "negative_rl_percent": 0.0,
+        "top_il_patterns": "Key.space\u2192e, \\\u2192Key.backspace, b\u2192v",
+        "timestamp": "2025-08-16T18:50:01.322Z"
+      },
+      {
+        "user_id": "aeffcdf11cdf06be14cada22c1dcb140",
+        "total_keypairs": 5572,
+        "negative_il_total": 1813,
+        "negative_il_expected": 148,
+        "negative_il_unexpected": 1665,
+        "negative_il_percent": 32.5,
+        "negative_rl_total": 136,
+        "negative_rl_percent": 2.4,
+        "top_il_patterns": "i\u2192n, s\u2192Key.space, a\u2192t",
+        "timestamp": "2025-09-01T05:50:07.635Z"
+      },
+      {
+        "user_id": "af6b94e779f35f7ee5e301883b92a887",
+        "total_keypairs": 4752,
+        "negative_il_total": 1207,
+        "negative_il_expected": 80,
+        "negative_il_unexpected": 1127,
+        "negative_il_percent": 25.4,
+        "negative_rl_total": 14,
+        "negative_rl_percent": 0.3,
+        "top_il_patterns": "e\u2192Key.space, s\u2192Key.space, d\u2192Key.space",
+        "timestamp": "2025-09-01T07:25:53.932Z"
+      },
+      {
+        "user_id": "b44b02731b8c4f09aba75188a01fd0e4",
+        "total_keypairs": 3707,
+        "negative_il_total": 38,
+        "negative_il_expected": 8,
+        "negative_il_unexpected": 30,
+        "negative_il_percent": 1.0,
+        "negative_rl_total": 2,
+        "negative_rl_percent": 0.1,
+        "top_il_patterns": "Key.caps_lock\u2192o, a\u2192t, d\u2192Key.space",
+        "timestamp": "2025-08-10T16:12:36.193Z"
+      },
+      {
+        "user_id": "b50a12c975cbb7fd22ced7bf6976213f",
+        "total_keypairs": 3768,
+        "negative_il_total": 118,
+        "negative_il_expected": 48,
+        "negative_il_unexpected": 70,
+        "negative_il_percent": 3.1,
+        "negative_rl_total": 17,
+        "negative_rl_percent": 0.5,
+        "top_il_patterns": "d\u2192Key.space, Key.shift\u2192a, Key.shift\u2192c",
+        "timestamp": "2025-08-29T20:32:24.066Z"
+      },
+      {
+        "user_id": "bd94e0585e1b26cd0a31681f63c42221",
+        "total_keypairs": 8893,
+        "negative_il_total": 825,
+        "negative_il_expected": 201,
+        "negative_il_unexpected": 624,
+        "negative_il_percent": 9.3,
+        "negative_rl_total": 176,
+        "negative_rl_percent": 2.0,
+        "top_il_patterns": "e\u2192Key.space, Key.shift\u2192i, d\u2192Key.space",
+        "timestamp": "2025-09-01T05:40:19.291Z"
+      },
+      {
+        "user_id": "c3a30d6a8dd34eaafe0ff104b2289bb7",
+        "total_keypairs": 3486,
+        "negative_il_total": 119,
+        "negative_il_expected": 1,
+        "negative_il_unexpected": 118,
+        "negative_il_percent": 3.4,
+        "negative_rl_total": 4,
+        "negative_rl_percent": 0.1,
+        "top_il_patterns": "e\u2192r, c\u2192e, d\u2192e",
+        "timestamp": "2025-08-29T19:20:32.048Z"
+      },
+      {
+        "user_id": "c71f1bf50a1569282b0495b4a8f70140",
+        "total_keypairs": 15666,
+        "negative_il_total": 272,
+        "negative_il_expected": 218,
+        "negative_il_unexpected": 54,
+        "negative_il_percent": 1.7,
+        "negative_rl_total": 40,
+        "negative_rl_percent": 0.3,
+        "top_il_patterns": "Key.shift\u2192t, Key.shift\u2192c, Key.shift\u2192o",
+        "timestamp": "2025-08-29T18:37:58.025Z"
+      },
+      {
+        "user_id": "cacb1e22d5f5708df09b9c3cac4c5f43",
+        "total_keypairs": 3597,
+        "negative_il_total": 86,
+        "negative_il_expected": 55,
+        "negative_il_unexpected": 31,
+        "negative_il_percent": 2.4,
+        "negative_rl_total": 29,
+        "negative_rl_percent": 0.8,
+        "top_il_patterns": "Key.shift\u2192c, Key.shift\u2192a, Key.shift\u2192t",
+        "timestamp": "2025-08-29T22:25:45.741Z"
+      },
+      {
+        "user_id": "cb43a4745633301ab5183f13e019169b",
+        "total_keypairs": 4472,
+        "negative_il_total": 546,
+        "negative_il_expected": 94,
+        "negative_il_unexpected": 452,
+        "negative_il_percent": 12.2,
+        "negative_rl_total": 38,
+        "negative_rl_percent": 0.8,
+        "top_il_patterns": "t\u2192h, Key.shift\u2192t, a\u2192r",
+        "timestamp": "2025-08-29T18:51:11.491Z"
+      },
+      {
+        "user_id": "cf45e66dd9e574ac35935a4a711ac97d",
+        "total_keypairs": 4269,
+        "negative_il_total": 86,
+        "negative_il_expected": 7,
+        "negative_il_unexpected": 79,
+        "negative_il_percent": 2.0,
+        "negative_rl_total": 2,
+        "negative_rl_percent": 0.0,
+        "top_il_patterns": "e\u2192Key.space, a\u2192t, d\u2192Key.space",
+        "timestamp": "2025-08-29T17:15:14.309Z"
+      },
+      {
+        "user_id": "d663d20c8cd195e564ccf48d082c5755",
+        "total_keypairs": 4272,
+        "negative_il_total": 590,
+        "negative_il_expected": 80,
+        "negative_il_unexpected": 510,
+        "negative_il_percent": 13.8,
+        "negative_rl_total": 20,
+        "negative_rl_percent": 0.5,
+        "top_il_patterns": "t\u2192h, Key.shift\u2192t, a\u2192r",
+        "timestamp": "2025-08-16T20:43:24.765Z"
+      },
+      {
+        "user_id": "de49d95137d1b723cdf26bae776d7cd7",
+        "total_keypairs": 4441,
+        "negative_il_total": 219,
+        "negative_il_expected": 5,
+        "negative_il_unexpected": 214,
+        "negative_il_percent": 4.9,
+        "negative_rl_total": 4,
+        "negative_rl_percent": 0.1,
+        "top_il_patterns": "Key.space\u2192t, t\u2192h, s\u2192h",
+        "timestamp": "2025-08-01T10:47:11.054Z"
+      },
+      {
+        "user_id": "e1f6b0ac3cfe255f9c018b9410d224b9",
+        "total_keypairs": 3695,
+        "negative_il_total": 165,
+        "negative_il_expected": 0,
+        "negative_il_unexpected": 165,
+        "negative_il_percent": 4.5,
+        "negative_rl_total": 5,
+        "negative_rl_percent": 0.1,
+        "top_il_patterns": "e\u2192r, c\u2192e, d\u2192e",
+        "timestamp": "2025-08-29T20:26:04.836Z"
+      },
+      {
+        "user_id": "e3369569349a57d09e28fb0487908511",
+        "total_keypairs": 4693,
+        "negative_il_total": 1003,
+        "negative_il_expected": 111,
+        "negative_il_unexpected": 892,
+        "negative_il_percent": 21.4,
+        "negative_rl_total": 67,
+        "negative_rl_percent": 1.4,
+        "top_il_patterns": "t\u2192h, e\u2192Key.space, r\u2192e",
+        "timestamp": "2025-09-01T06:36:34.589Z"
+      },
+      {
+        "user_id": "e96b71bd53b478946163feb5ca5a2865",
+        "total_keypairs": 3672,
+        "negative_il_total": 75,
+        "negative_il_expected": 0,
+        "negative_il_unexpected": 75,
+        "negative_il_percent": 2.0,
+        "negative_rl_total": 2,
+        "negative_rl_percent": 0.1,
+        "top_il_patterns": "a\u2192t, e\u2192Key.space, d\u2192Key.space",
+        "timestamp": "2025-08-29T21:31:57.075Z"
+      },
+      {
+        "user_id": "ec4d6718b71ca61ce9478e45ec7a69c2",
+        "total_keypairs": 10616,
+        "negative_il_total": 303,
+        "negative_il_expected": 243,
+        "negative_il_unexpected": 60,
+        "negative_il_percent": 2.9,
+        "negative_rl_total": 31,
+        "negative_rl_percent": 0.3,
+        "top_il_patterns": "Key.shift\u2192t, Key.shift\u2192c, Key.shift\u2192p",
+        "timestamp": "2025-08-29T19:21:10.784Z"
+      },
+      {
+        "user_id": "edc8ba7558e8f5e56c9ede5709709e3f",
+        "total_keypairs": 5702,
+        "negative_il_total": 300,
+        "negative_il_expected": 0,
+        "negative_il_unexpected": 300,
+        "negative_il_percent": 5.3,
+        "negative_rl_total": 22,
+        "negative_rl_percent": 0.4,
+        "top_il_patterns": "e\u2192Key.space, d\u2192Key.space, e\u2192n",
+        "timestamp": "2025-08-17T00:14:19.635Z"
+      },
+      {
+        "user_id": "f508fd21fe9cffac4d76fc6dc48602b4",
+        "total_keypairs": 3117,
+        "negative_il_total": 34,
+        "negative_il_expected": 5,
+        "negative_il_unexpected": 29,
+        "negative_il_percent": 1.1,
+        "negative_rl_total": 0,
+        "negative_rl_percent": 0.0,
+        "top_il_patterns": "t\u2192Key.shift, o\u2192Key.shift, i\u2192Key.backspace",
+        "timestamp": "2025-08-10T17:35:43.215Z"
+      },
+      {
+        "user_id": "feb836a0efdc8fc606b491d8a05f826b",
+        "total_keypairs": 3829,
+        "negative_il_total": 1162,
+        "negative_il_expected": 52,
+        "negative_il_unexpected": 1110,
+        "negative_il_percent": 30.3,
+        "negative_rl_total": 33,
+        "negative_rl_percent": 0.9,
+        "top_il_patterns": "i\u2192n, o\u2192u, Key.space\u2192i",
+        "timestamp": "2025-09-01T05:47:29.135Z"
+      },
+      {
+        "user_id": "fec3158cc943a0fc7f6ec2713e2b1c85",
+        "total_keypairs": 4266,
+        "negative_il_total": 596,
+        "negative_il_expected": 80,
+        "negative_il_unexpected": 516,
+        "negative_il_percent": 14.0,
+        "negative_rl_total": 37,
+        "negative_rl_percent": 0.9,
+        "top_il_patterns": "t\u2192h, Key.shift\u2192t, r\u2192e",
+        "timestamp": "2025-08-16T20:31:11.794Z"
+      }
+    ]
+  },
+  "extreme_hl_analysis": {
+    "threshold_ms": 5000,
+    "total_extreme_count": 35,
+    "percentage_of_valid": 0.012250398137939484,
+    "extreme_cases": [
+      {
+        "user_id": "de49d95137d1b723cdf26bae776d7cd7",
+        "key": "Key.alt",
+        "hl_ms": 144578.0,
+        "hl_seconds": 144.578,
+        "next_key": "o",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 1
+      },
+      {
+        "user_id": "540fe383c665bb3f7016d8b8e94372ec",
+        "key": "Key.esc",
+        "hl_ms": 114063.0,
+        "hl_seconds": 114.063,
+        "next_key": "t",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 1
+      },
+      {
+        "user_id": "03ed26062301e1ac6bbf94f3c03a7e56",
+        "key": "Key.alt",
+        "hl_ms": 72672.0,
+        "hl_seconds": 72.672,
+        "next_key": "Key.shift",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 2
+      },
+      {
+        "user_id": "03ed26062301e1ac6bbf94f3c03a7e56",
+        "key": "Key.alt",
+        "hl_ms": 65280.0,
+        "hl_seconds": 65.28,
+        "next_key": "Key.shift",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 2
+      },
+      {
+        "user_id": "195bfcb901041c1626085c1e338fe16a",
+        "key": "g",
+        "hl_ms": 59376.0,
+        "hl_seconds": 59.376,
+        "next_key": "z",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 3
+      },
+      {
+        "user_id": "a0ce91cbf1fc81f34740caf3b052fb39",
+        "key": "g",
+        "hl_ms": 26495.0,
+        "hl_seconds": 26.495,
+        "next_key": "z",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 3
+      },
+      {
+        "user_id": "195bfcb901041c1626085c1e338fe16a",
+        "key": "g",
+        "hl_ms": 25585.0,
+        "hl_seconds": 25.585,
+        "next_key": "z",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 3
+      },
+      {
+        "user_id": "aeffcdf11cdf06be14cada22c1dcb140",
+        "key": "Key.shift",
+        "hl_ms": 24726.0,
+        "hl_seconds": 24.726,
+        "next_key": "Key.cmd",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 3
+      },
+      {
+        "user_id": "a0ce91cbf1fc81f34740caf3b052fb39",
+        "key": "g",
+        "hl_ms": 22321.0,
+        "hl_seconds": 22.321,
+        "next_key": "z",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 3
+      },
+      {
+        "user_id": "aeffcdf11cdf06be14cada22c1dcb140",
+        "key": "Key.shift",
+        "hl_ms": 18658.0,
+        "hl_seconds": 18.658,
+        "next_key": "Key.cmd",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 1
+      },
+      {
+        "user_id": "8d46f2f2b4385ddb9822fa37d9b3bd71",
+        "key": "t",
+        "hl_ms": 18134.0,
+        "hl_seconds": 18.134,
+        "next_key": "h",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 1
+      },
+      {
+        "user_id": "8d46f2f2b4385ddb9822fa37d9b3bd71",
+        "key": "n",
+        "hl_ms": 17742.0,
+        "hl_seconds": 17.742,
+        "next_key": "Key.space",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 1
+      },
+      {
+        "user_id": "195bfcb901041c1626085c1e338fe16a",
+        "key": "g",
+        "hl_ms": 14081.0,
+        "hl_seconds": 14.081,
+        "next_key": "i",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 3
+      },
+      {
+        "user_id": "aeffcdf11cdf06be14cada22c1dcb140",
+        "key": "Key.backspace",
+        "hl_ms": 13742.0,
+        "hl_seconds": 13.742,
+        "next_key": "a",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 3
+      },
+      {
+        "user_id": "a0ce91cbf1fc81f34740caf3b052fb39",
+        "key": "g",
+        "hl_ms": 12304.0,
+        "hl_seconds": 12.304,
+        "next_key": "Key.backspace",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 3
+      },
+      {
+        "user_id": "aeffcdf11cdf06be14cada22c1dcb140",
+        "key": "Key.cmd",
+        "hl_ms": 11954.0,
+        "hl_seconds": 11.954,
+        "next_key": "Key.backspace",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 3
+      },
+      {
+        "user_id": "a0ce91cbf1fc81f34740caf3b052fb39",
+        "key": "g",
+        "hl_ms": 11084.0,
+        "hl_seconds": 11.084,
+        "next_key": "z",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 3
+      },
+      {
+        "user_id": "aeffcdf11cdf06be14cada22c1dcb140",
+        "key": "Key.backspace",
+        "hl_ms": 8799.0,
+        "hl_seconds": 8.799,
+        "next_key": "Delete",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 3
+      },
+      {
+        "user_id": "e3369569349a57d09e28fb0487908511",
+        "key": "Key.shift",
+        "hl_ms": 8782.0,
+        "hl_seconds": 8.782,
+        "next_key": "z",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 3
+      },
+      {
+        "user_id": "ab8d82eda7b46e483b84b3a2b393f6d0",
+        "key": "Key.shift",
+        "hl_ms": 8701.0,
+        "hl_seconds": 8.701,
+        "next_key": "s",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 1
+      },
+      {
+        "user_id": "e3369569349a57d09e28fb0487908511",
+        "key": "Key.shift",
+        "hl_ms": 7732.0,
+        "hl_seconds": 7.732,
+        "next_key": "w",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 1
+      },
+      {
+        "user_id": "e3369569349a57d09e28fb0487908511",
+        "key": "Key.shift",
+        "hl_ms": 7063.0,
+        "hl_seconds": 7.063,
+        "next_key": "s",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 3
+      },
+      {
+        "user_id": "a0ce91cbf1fc81f34740caf3b052fb39",
+        "key": "g",
+        "hl_ms": 6929.0,
+        "hl_seconds": 6.929,
+        "next_key": "o",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 3
+      },
+      {
+        "user_id": "594aa2a2f51b122fd3b0995968b62cf7",
+        "key": "Key.backspace",
+        "hl_ms": 6923.0,
+        "hl_seconds": 6.923,
+        "next_key": "i",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 1
+      },
+      {
+        "user_id": "aeffcdf11cdf06be14cada22c1dcb140",
+        "key": "Key.shift",
+        "hl_ms": 6909.0,
+        "hl_seconds": 6.909,
+        "next_key": "w",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 2
+      },
+      {
+        "user_id": "e3369569349a57d09e28fb0487908511",
+        "key": "Key.ctrl",
+        "hl_ms": 6361.0,
+        "hl_seconds": 6.361,
+        "next_key": "Key.left",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 1
+      },
+      {
+        "user_id": "e3369569349a57d09e28fb0487908511",
+        "key": "Key.shift",
+        "hl_ms": 6126.0,
+        "hl_seconds": 6.126,
+        "next_key": "o",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 1
+      },
+      {
+        "user_id": "e3369569349a57d09e28fb0487908511",
+        "key": "Key.shift",
+        "hl_ms": 6097.0,
+        "hl_seconds": 6.097,
+        "next_key": "f",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 1
+      },
+      {
+        "user_id": "e3369569349a57d09e28fb0487908511",
+        "key": "Key.shift",
+        "hl_ms": 5983.0,
+        "hl_seconds": 5.983,
+        "next_key": "a",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 1
+      },
+      {
+        "user_id": "aeffcdf11cdf06be14cada22c1dcb140",
+        "key": "a",
+        "hl_ms": 5796.0,
+        "hl_seconds": 5.796,
+        "next_key": "Key.backspace",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 2
+      },
+      {
+        "user_id": "49c51418702c12db4463fa592d455ed5",
+        "key": "Key.shift",
+        "hl_ms": 5553.0,
+        "hl_seconds": 5.553,
+        "next_key": "c",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 1
+      },
+      {
+        "user_id": "aeffcdf11cdf06be14cada22c1dcb140",
+        "key": "Key.shift",
+        "hl_ms": 5519.0,
+        "hl_seconds": 5.519,
+        "next_key": "c",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 2
+      },
+      {
+        "user_id": "e3369569349a57d09e28fb0487908511",
+        "key": "Key.shift",
+        "hl_ms": 5494.0,
+        "hl_seconds": 5.494,
+        "next_key": "Key.shift",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 3
+      },
+      {
+        "user_id": "52098f23d4739794c4e29d3ce934e3cf",
+        "key": "Key.shift",
+        "hl_ms": 5148.0,
+        "hl_seconds": 5.148,
+        "next_key": "l",
+        "device_type": "desktop",
+        "session_id": 1,
+        "video_id": 3
+      },
+      {
+        "user_id": "e3369569349a57d09e28fb0487908511",
+        "key": "Key.shift",
+        "hl_ms": 5137.0,
+        "hl_seconds": 5.137,
+        "next_key": "Key.shift",
+        "device_type": "desktop",
+        "session_id": 2,
+        "video_id": 1
+      }
+    ],
+    "key_distribution": {
+      "Key.shift": 15,
+      "g": 8,
+      "Key.alt": 3,
+      "Key.backspace": 3,
+      "Key.esc": 1,
+      "t": 1,
+      "n": 1,
+      "Key.cmd": 1,
+      "Key.ctrl": 1,
+      "a": 1
+    },
+    "extreme_stats": {
+      "mean_ms": 22624.2,
+      "median_ms": 8799.0,
+      "max_ms": 144578.0,
+      "max_seconds": 144.578,
+      "min_ms": 5137.0,
+      "std_ms": 31688.357409028842
+    },
+    "user_stats": {
+      "users_with_extreme_hl": 12,
+      "total_users": 61,
+      "percentage_users_affected": 19.672131147540984
+    },
+    "users_most_affected": [
+      {
+        "user_id": "e3369569349a57d09e28fb0487908511",
+        "count": 9
+      },
+      {
+        "user_id": "aeffcdf11cdf06be14cada22c1dcb140",
+        "count": 8
+      },
+      {
+        "user_id": "a0ce91cbf1fc81f34740caf3b052fb39",
+        "count": 5
+      },
+      {
+        "user_id": "195bfcb901041c1626085c1e338fe16a",
+        "count": 3
+      },
+      {
+        "user_id": "03ed26062301e1ac6bbf94f3c03a7e56",
+        "count": 2
+      },
+      {
+        "user_id": "8d46f2f2b4385ddb9822fa37d9b3bd71",
+        "count": 2
+      },
+      {
+        "user_id": "49c51418702c12db4463fa592d455ed5",
+        "count": 1
+      },
+      {
+        "user_id": "52098f23d4739794c4e29d3ce934e3cf",
+        "count": 1
+      },
+      {
+        "user_id": "540fe383c665bb3f7016d8b8e94372ec",
+        "count": 1
+      },
+      {
+        "user_id": "594aa2a2f51b122fd3b0995968b62cf7",
+        "count": 1
+      }
+    ]
+  },
+  "user_stats": [
+    {
+      "user_id": "03ed26062301e1ac6bbf94f3c03a7e56",
+      "total_keypairs": 4840,
+      "valid_keypairs": 4814,
+      "invalid_keypairs": 26,
+      "validity_rate": 99.46280991735537,
+      "outlier_count": 479,
+      "outlier_rate": 9.950145409223099
+    },
+    {
+      "user_id": "090e14f795db6d9fad9fc4ddd6ff5094",
+      "total_keypairs": 3052,
+      "valid_keypairs": 3052,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 415,
+      "outlier_rate": 13.597640891218873
+    },
+    {
+      "user_id": "0b368dc281d8fec53d8ecaa40d0f35eb",
+      "total_keypairs": 3730,
+      "valid_keypairs": 3730,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 89,
+      "outlier_rate": 2.386058981233244
+    },
+    {
+      "user_id": "0b3f2442320cf16d3e7e5ddd1a56820d",
+      "total_keypairs": 3835,
+      "valid_keypairs": 3835,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 2457,
+      "outlier_rate": 64.0677966101695
+    },
+    {
+      "user_id": "1770934ad1b91344c763822588694de5",
+      "total_keypairs": 3858,
+      "valid_keypairs": 3858,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 151,
+      "outlier_rate": 3.913945049248315
+    },
+    {
+      "user_id": "195bfcb901041c1626085c1e338fe16a",
+      "total_keypairs": 3488,
+      "valid_keypairs": 3480,
+      "invalid_keypairs": 8,
+      "validity_rate": 99.77064220183486,
+      "outlier_count": 297,
+      "outlier_rate": 8.53448275862069
+    },
+    {
+      "user_id": "1a2225bfe73f2095e699b02b6c9e2453",
+      "total_keypairs": 4557,
+      "valid_keypairs": 4557,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 722,
+      "outlier_rate": 15.843756857581742
+    },
+    {
+      "user_id": "1a8939f78d8fd33068520f598b6bb6b8",
+      "total_keypairs": 3122,
+      "valid_keypairs": 3105,
+      "invalid_keypairs": 17,
+      "validity_rate": 99.45547725816785,
+      "outlier_count": 200,
+      "outlier_rate": 6.44122383252818
+    },
+    {
+      "user_id": "1d67bb8e9cd49cf0fa38679f99c3960d",
+      "total_keypairs": 4775,
+      "valid_keypairs": 4773,
+      "invalid_keypairs": 2,
+      "validity_rate": 99.95811518324608,
+      "outlier_count": 4734,
+      "outlier_rate": 99.18290383406662
+    },
+    {
+      "user_id": "22ed3dfc8050575b1d6556ca6f1b2701",
+      "total_keypairs": 3552,
+      "valid_keypairs": 3552,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 191,
+      "outlier_rate": 5.377252252252252
+    },
+    {
+      "user_id": "29b03bb3fb77e6cf38fd1905823f3c57",
+      "total_keypairs": 4501,
+      "valid_keypairs": 4475,
+      "invalid_keypairs": 26,
+      "validity_rate": 99.42235058875806,
+      "outlier_count": 179,
+      "outlier_rate": 4.0
+    },
+    {
+      "user_id": "2ac10a36a31f1b96b8da6b14b63484dd",
+      "total_keypairs": 4340,
+      "valid_keypairs": 4330,
+      "invalid_keypairs": 10,
+      "validity_rate": 99.76958525345621,
+      "outlier_count": 175,
+      "outlier_rate": 4.041570438799076
+    },
+    {
+      "user_id": "2b1276338fe225d4eaec3ba139659c35",
+      "total_keypairs": 3698,
+      "valid_keypairs": 3698,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 3677,
+      "outlier_rate": 99.43212547322877
+    },
+    {
+      "user_id": "2bd58b9425f87b369e6fc71dfae5946d",
+      "total_keypairs": 5101,
+      "valid_keypairs": 5101,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 47,
+      "outlier_rate": 0.9213879631444815
+    },
+    {
+      "user_id": "2d91c1b2e2026be09d22e7dac5866cf2",
+      "total_keypairs": 4439,
+      "valid_keypairs": 4439,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 367,
+      "outlier_rate": 8.267627844109034
+    },
+    {
+      "user_id": "2d94fed3d99ee3fa9d56e8b9896c7c51",
+      "total_keypairs": 4413,
+      "valid_keypairs": 4413,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 191,
+      "outlier_rate": 4.328121459324723
+    },
+    {
+      "user_id": "396edbf6f8758f8afe333abf94199a21",
+      "total_keypairs": 3571,
+      "valid_keypairs": 3571,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 356,
+      "outlier_rate": 9.969196303556426
+    },
+    {
+      "user_id": "3994782efb4da6e6fbf5946576804562",
+      "total_keypairs": 10837,
+      "valid_keypairs": 10834,
+      "invalid_keypairs": 3,
+      "validity_rate": 99.97231706191751,
+      "outlier_count": 10803,
+      "outlier_rate": 99.71386376223002
+    },
+    {
+      "user_id": "3acb3a89513d71cf30fe23cb0e5c5e79",
+      "total_keypairs": 3327,
+      "valid_keypairs": 3327,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 428,
+      "outlier_rate": 12.86444244063721
+    },
+    {
+      "user_id": "3b748a1fdbb41baaa95bc3f44a5e7cfa",
+      "total_keypairs": 3905,
+      "valid_keypairs": 3905,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 526,
+      "outlier_rate": 13.469910371318822
+    },
+    {
+      "user_id": "49c51418702c12db4463fa592d455ed5",
+      "total_keypairs": 4388,
+      "valid_keypairs": 4388,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 171,
+      "outlier_rate": 3.8969917958067457
+    },
+    {
+      "user_id": "52098f23d4739794c4e29d3ce934e3cf",
+      "total_keypairs": 3351,
+      "valid_keypairs": 3351,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 396,
+      "outlier_rate": 11.817367949865712
+    },
+    {
+      "user_id": "540fe383c665bb3f7016d8b8e94372ec",
+      "total_keypairs": 3245,
+      "valid_keypairs": 3245,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 560,
+      "outlier_rate": 17.257318952234208
+    },
+    {
+      "user_id": "57334ce700310b2650adabca77bbdc39",
+      "total_keypairs": 4011,
+      "valid_keypairs": 4011,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 162,
+      "outlier_rate": 4.038893044128646
+    },
+    {
+      "user_id": "594aa2a2f51b122fd3b0995968b62cf7",
+      "total_keypairs": 4580,
+      "valid_keypairs": 4580,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 241,
+      "outlier_rate": 5.262008733624454
+    },
+    {
+      "user_id": "6c29e036c0e057beae28fbec035de35b",
+      "total_keypairs": 3635,
+      "valid_keypairs": 3635,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 471,
+      "outlier_rate": 12.957359009628611
+    },
+    {
+      "user_id": "7097093c0720ebe41e66169bc18c2004",
+      "total_keypairs": 10659,
+      "valid_keypairs": 10659,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 10602,
+      "outlier_rate": 99.46524064171123
+    },
+    {
+      "user_id": "71285c5ccc6b57b1bad535eabfcb68cf",
+      "total_keypairs": 4672,
+      "valid_keypairs": 4672,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 350,
+      "outlier_rate": 7.491438356164383
+    },
+    {
+      "user_id": "762e853cc9d362c4d051eb7b11bcfbc2",
+      "total_keypairs": 4659,
+      "valid_keypairs": 4659,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 169,
+      "outlier_rate": 3.6273878514702727
+    },
+    {
+      "user_id": "80d5a8bd9e65bac069257b0071bab47f",
+      "total_keypairs": 3861,
+      "valid_keypairs": 3861,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 175,
+      "outlier_rate": 4.532504532504532
+    },
+    {
+      "user_id": "84df5c67036cb0251e472e3bb5943ed7",
+      "total_keypairs": 3650,
+      "valid_keypairs": 3650,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 776,
+      "outlier_rate": 21.26027397260274
+    },
+    {
+      "user_id": "8af46a7a610823c6883e4b165b132296",
+      "total_keypairs": 3464,
+      "valid_keypairs": 3464,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 448,
+      "outlier_rate": 12.933025404157044
+    },
+    {
+      "user_id": "8b51150f8620aa5da990ec45e86ae9c1",
+      "total_keypairs": 4904,
+      "valid_keypairs": 4904,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 4865,
+      "outlier_rate": 99.2047308319739
+    },
+    {
+      "user_id": "8d46f2f2b4385ddb9822fa37d9b3bd71",
+      "total_keypairs": 4932,
+      "valid_keypairs": 4929,
+      "invalid_keypairs": 3,
+      "validity_rate": 99.93917274939173,
+      "outlier_count": 618,
+      "outlier_rate": 12.538040170419965
+    },
+    {
+      "user_id": "8fd621776f77dc6e9720191e0c99c124",
+      "total_keypairs": 4740,
+      "valid_keypairs": 4735,
+      "invalid_keypairs": 5,
+      "validity_rate": 99.89451476793249,
+      "outlier_count": 260,
+      "outlier_rate": 5.4910242872228086
+    },
+    {
+      "user_id": "941f623eb6839c755098cd31d69d6647",
+      "total_keypairs": 4697,
+      "valid_keypairs": 4697,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 103,
+      "outlier_rate": 2.1928890781349795
+    },
+    {
+      "user_id": "9e63a1c1f3ccd5fc9bd3bc6bc58b261f",
+      "total_keypairs": 4240,
+      "valid_keypairs": 4240,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 310,
+      "outlier_rate": 7.311320754716981
+    },
+    {
+      "user_id": "a0ce91cbf1fc81f34740caf3b052fb39",
+      "total_keypairs": 3696,
+      "valid_keypairs": 3683,
+      "invalid_keypairs": 13,
+      "validity_rate": 99.6482683982684,
+      "outlier_count": 313,
+      "outlier_rate": 8.498506652185718
+    },
+    {
+      "user_id": "a6259c4a1881e914ebe6efd05da970c4",
+      "total_keypairs": 3304,
+      "valid_keypairs": 3302,
+      "invalid_keypairs": 2,
+      "validity_rate": 99.93946731234867,
+      "outlier_count": 443,
+      "outlier_rate": 13.41611144760751
+    },
+    {
+      "user_id": "ab8d82eda7b46e483b84b3a2b393f6d0",
+      "total_keypairs": 4393,
+      "valid_keypairs": 4390,
+      "invalid_keypairs": 3,
+      "validity_rate": 99.9317095379012,
+      "outlier_count": 152,
+      "outlier_rate": 3.462414578587699
+    },
+    {
+      "user_id": "acc53f18cc2c6d28c1f83a71798f2ceb",
+      "total_keypairs": 3316,
+      "valid_keypairs": 3316,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 472,
+      "outlier_rate": 14.234016887816647
+    },
+    {
+      "user_id": "aeffcdf11cdf06be14cada22c1dcb140",
+      "total_keypairs": 5608,
+      "valid_keypairs": 5572,
+      "invalid_keypairs": 36,
+      "validity_rate": 99.35805991440799,
+      "outlier_count": 153,
+      "outlier_rate": 2.745872218234027
+    },
+    {
+      "user_id": "af6b94e779f35f7ee5e301883b92a887",
+      "total_keypairs": 4764,
+      "valid_keypairs": 4752,
+      "invalid_keypairs": 12,
+      "validity_rate": 99.74811083123426,
+      "outlier_count": 200,
+      "outlier_rate": 4.208754208754209
+    },
+    {
+      "user_id": "b44b02731b8c4f09aba75188a01fd0e4",
+      "total_keypairs": 3707,
+      "valid_keypairs": 3707,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 390,
+      "outlier_rate": 10.520636633396277
+    },
+    {
+      "user_id": "b50a12c975cbb7fd22ced7bf6976213f",
+      "total_keypairs": 3768,
+      "valid_keypairs": 3768,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 520,
+      "outlier_rate": 13.800424628450106
+    },
+    {
+      "user_id": "bd94e0585e1b26cd0a31681f63c42221",
+      "total_keypairs": 8893,
+      "valid_keypairs": 8893,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 414,
+      "outlier_rate": 4.655346902057798
+    },
+    {
+      "user_id": "c3a30d6a8dd34eaafe0ff104b2289bb7",
+      "total_keypairs": 3486,
+      "valid_keypairs": 3486,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 441,
+      "outlier_rate": 12.650602409638553
+    },
+    {
+      "user_id": "c71f1bf50a1569282b0495b4a8f70140",
+      "total_keypairs": 15666,
+      "valid_keypairs": 15666,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 15639,
+      "outlier_rate": 99.82765224052088
+    },
+    {
+      "user_id": "cacb1e22d5f5708df09b9c3cac4c5f43",
+      "total_keypairs": 3597,
+      "valid_keypairs": 3597,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 462,
+      "outlier_rate": 12.844036697247708
+    },
+    {
+      "user_id": "cb43a4745633301ab5183f13e019169b",
+      "total_keypairs": 4472,
+      "valid_keypairs": 4472,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 204,
+      "outlier_rate": 4.561717352415027
+    },
+    {
+      "user_id": "cf45e66dd9e574ac35935a4a711ac97d",
+      "total_keypairs": 4269,
+      "valid_keypairs": 4269,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 549,
+      "outlier_rate": 12.860154602951509
+    },
+    {
+      "user_id": "d663d20c8cd195e564ccf48d082c5755",
+      "total_keypairs": 4272,
+      "valid_keypairs": 4272,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 188,
+      "outlier_rate": 4.400749063670412
+    },
+    {
+      "user_id": "de49d95137d1b723cdf26bae776d7cd7",
+      "total_keypairs": 4441,
+      "valid_keypairs": 4441,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 252,
+      "outlier_rate": 5.674397658185094
+    },
+    {
+      "user_id": "e1f6b0ac3cfe255f9c018b9410d224b9",
+      "total_keypairs": 3695,
+      "valid_keypairs": 3695,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 436,
+      "outlier_rate": 11.799729364005412
+    },
+    {
+      "user_id": "e3369569349a57d09e28fb0487908511",
+      "total_keypairs": 4705,
+      "valid_keypairs": 4693,
+      "invalid_keypairs": 12,
+      "validity_rate": 99.74495217853348,
+      "outlier_count": 218,
+      "outlier_rate": 4.64521627956531
+    },
+    {
+      "user_id": "e96b71bd53b478946163feb5ca5a2865",
+      "total_keypairs": 3672,
+      "valid_keypairs": 3672,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 243,
+      "outlier_rate": 6.61764705882353
+    },
+    {
+      "user_id": "ec4d6718b71ca61ce9478e45ec7a69c2",
+      "total_keypairs": 10616,
+      "valid_keypairs": 10616,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 10595,
+      "outlier_rate": 99.80218538055765
+    },
+    {
+      "user_id": "edc8ba7558e8f5e56c9ede5709709e3f",
+      "total_keypairs": 5702,
+      "valid_keypairs": 5702,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 621,
+      "outlier_rate": 10.890915468256752
+    },
+    {
+      "user_id": "f508fd21fe9cffac4d76fc6dc48602b4",
+      "total_keypairs": 3117,
+      "valid_keypairs": 3117,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 3103,
+      "outlier_rate": 99.55085017645172
+    },
+    {
+      "user_id": "feb836a0efdc8fc606b491d8a05f826b",
+      "total_keypairs": 3859,
+      "valid_keypairs": 3829,
+      "invalid_keypairs": 30,
+      "validity_rate": 99.22259652759783,
+      "outlier_count": 146,
+      "outlier_rate": 3.8130060067902845
+    },
+    {
+      "user_id": "fec3158cc943a0fc7f6ec2713e2b1c85",
+      "total_keypairs": 4266,
+      "valid_keypairs": 4266,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 185,
+      "outlier_rate": 4.336615096108766
+    }
+  ],
+  "all_users": [
+    {
+      "user_id": "84df5c67036cb0251e472e3bb5943ed7",
+      "total_keypairs": 3650,
+      "valid_keypairs": 3650,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 776,
+      "outlier_rate": 21.26027397260274
+    },
+    {
+      "user_id": "7097093c0720ebe41e66169bc18c2004",
+      "total_keypairs": 10659,
+      "valid_keypairs": 10659,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 10602,
+      "outlier_rate": 99.46524064171123
+    },
+    {
+      "user_id": "762e853cc9d362c4d051eb7b11bcfbc2",
+      "total_keypairs": 4659,
+      "valid_keypairs": 4659,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 169,
+      "outlier_rate": 3.6273878514702727
+    },
+    {
+      "user_id": "80d5a8bd9e65bac069257b0071bab47f",
+      "total_keypairs": 3861,
+      "valid_keypairs": 3861,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 175,
+      "outlier_rate": 4.532504532504532
+    },
+    {
+      "user_id": "090e14f795db6d9fad9fc4ddd6ff5094",
+      "total_keypairs": 3052,
+      "valid_keypairs": 3052,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 415,
+      "outlier_rate": 13.597640891218873
+    },
+    {
+      "user_id": "8af46a7a610823c6883e4b165b132296",
+      "total_keypairs": 3464,
+      "valid_keypairs": 3464,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 448,
+      "outlier_rate": 12.933025404157044
+    },
+    {
+      "user_id": "8b51150f8620aa5da990ec45e86ae9c1",
+      "total_keypairs": 4904,
+      "valid_keypairs": 4904,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 4865,
+      "outlier_rate": 99.2047308319739
+    },
+    {
+      "user_id": "941f623eb6839c755098cd31d69d6647",
+      "total_keypairs": 4697,
+      "valid_keypairs": 4697,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 103,
+      "outlier_rate": 2.1928890781349795
+    },
+    {
+      "user_id": "9e63a1c1f3ccd5fc9bd3bc6bc58b261f",
+      "total_keypairs": 4240,
+      "valid_keypairs": 4240,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 310,
+      "outlier_rate": 7.311320754716981
+    },
+    {
+      "user_id": "acc53f18cc2c6d28c1f83a71798f2ceb",
+      "total_keypairs": 3316,
+      "valid_keypairs": 3316,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 472,
+      "outlier_rate": 14.234016887816647
+    },
+    {
+      "user_id": "b44b02731b8c4f09aba75188a01fd0e4",
+      "total_keypairs": 3707,
+      "valid_keypairs": 3707,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 390,
+      "outlier_rate": 10.520636633396277
+    },
+    {
+      "user_id": "b50a12c975cbb7fd22ced7bf6976213f",
+      "total_keypairs": 3768,
+      "valid_keypairs": 3768,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 520,
+      "outlier_rate": 13.800424628450106
+    },
+    {
+      "user_id": "bd94e0585e1b26cd0a31681f63c42221",
+      "total_keypairs": 8893,
+      "valid_keypairs": 8893,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 414,
+      "outlier_rate": 4.655346902057798
+    },
+    {
+      "user_id": "c3a30d6a8dd34eaafe0ff104b2289bb7",
+      "total_keypairs": 3486,
+      "valid_keypairs": 3486,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 441,
+      "outlier_rate": 12.650602409638553
+    },
+    {
+      "user_id": "c71f1bf50a1569282b0495b4a8f70140",
+      "total_keypairs": 15666,
+      "valid_keypairs": 15666,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 15639,
+      "outlier_rate": 99.82765224052088
+    },
+    {
+      "user_id": "cacb1e22d5f5708df09b9c3cac4c5f43",
+      "total_keypairs": 3597,
+      "valid_keypairs": 3597,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 462,
+      "outlier_rate": 12.844036697247708
+    },
+    {
+      "user_id": "cb43a4745633301ab5183f13e019169b",
+      "total_keypairs": 4472,
+      "valid_keypairs": 4472,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 204,
+      "outlier_rate": 4.561717352415027
+    },
+    {
+      "user_id": "cf45e66dd9e574ac35935a4a711ac97d",
+      "total_keypairs": 4269,
+      "valid_keypairs": 4269,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 549,
+      "outlier_rate": 12.860154602951509
+    },
+    {
+      "user_id": "d663d20c8cd195e564ccf48d082c5755",
+      "total_keypairs": 4272,
+      "valid_keypairs": 4272,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 188,
+      "outlier_rate": 4.400749063670412
+    },
+    {
+      "user_id": "de49d95137d1b723cdf26bae776d7cd7",
+      "total_keypairs": 4441,
+      "valid_keypairs": 4441,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 252,
+      "outlier_rate": 5.674397658185094
+    },
+    {
+      "user_id": "e1f6b0ac3cfe255f9c018b9410d224b9",
+      "total_keypairs": 3695,
+      "valid_keypairs": 3695,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 436,
+      "outlier_rate": 11.799729364005412
+    },
+    {
+      "user_id": "e96b71bd53b478946163feb5ca5a2865",
+      "total_keypairs": 3672,
+      "valid_keypairs": 3672,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 243,
+      "outlier_rate": 6.61764705882353
+    },
+    {
+      "user_id": "ec4d6718b71ca61ce9478e45ec7a69c2",
+      "total_keypairs": 10616,
+      "valid_keypairs": 10616,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 10595,
+      "outlier_rate": 99.80218538055765
+    },
+    {
+      "user_id": "edc8ba7558e8f5e56c9ede5709709e3f",
+      "total_keypairs": 5702,
+      "valid_keypairs": 5702,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 621,
+      "outlier_rate": 10.890915468256752
+    },
+    {
+      "user_id": "f508fd21fe9cffac4d76fc6dc48602b4",
+      "total_keypairs": 3117,
+      "valid_keypairs": 3117,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 3103,
+      "outlier_rate": 99.55085017645172
+    },
+    {
+      "user_id": "71285c5ccc6b57b1bad535eabfcb68cf",
+      "total_keypairs": 4672,
+      "valid_keypairs": 4672,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 350,
+      "outlier_rate": 7.491438356164383
+    },
+    {
+      "user_id": "fec3158cc943a0fc7f6ec2713e2b1c85",
+      "total_keypairs": 4266,
+      "valid_keypairs": 4266,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 185,
+      "outlier_rate": 4.336615096108766
+    },
+    {
+      "user_id": "6c29e036c0e057beae28fbec035de35b",
+      "total_keypairs": 3635,
+      "valid_keypairs": 3635,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 471,
+      "outlier_rate": 12.957359009628611
+    },
+    {
+      "user_id": "396edbf6f8758f8afe333abf94199a21",
+      "total_keypairs": 3571,
+      "valid_keypairs": 3571,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 356,
+      "outlier_rate": 9.969196303556426
+    },
+    {
+      "user_id": "0b368dc281d8fec53d8ecaa40d0f35eb",
+      "total_keypairs": 3730,
+      "valid_keypairs": 3730,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 89,
+      "outlier_rate": 2.386058981233244
+    },
+    {
+      "user_id": "0b3f2442320cf16d3e7e5ddd1a56820d",
+      "total_keypairs": 3835,
+      "valid_keypairs": 3835,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 2457,
+      "outlier_rate": 64.0677966101695
+    },
+    {
+      "user_id": "1770934ad1b91344c763822588694de5",
+      "total_keypairs": 3858,
+      "valid_keypairs": 3858,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 151,
+      "outlier_rate": 3.913945049248315
+    },
+    {
+      "user_id": "1a2225bfe73f2095e699b02b6c9e2453",
+      "total_keypairs": 4557,
+      "valid_keypairs": 4557,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 722,
+      "outlier_rate": 15.843756857581742
+    },
+    {
+      "user_id": "22ed3dfc8050575b1d6556ca6f1b2701",
+      "total_keypairs": 3552,
+      "valid_keypairs": 3552,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 191,
+      "outlier_rate": 5.377252252252252
+    },
+    {
+      "user_id": "2b1276338fe225d4eaec3ba139659c35",
+      "total_keypairs": 3698,
+      "valid_keypairs": 3698,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 3677,
+      "outlier_rate": 99.43212547322877
+    },
+    {
+      "user_id": "2bd58b9425f87b369e6fc71dfae5946d",
+      "total_keypairs": 5101,
+      "valid_keypairs": 5101,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 47,
+      "outlier_rate": 0.9213879631444815
+    },
+    {
+      "user_id": "2d91c1b2e2026be09d22e7dac5866cf2",
+      "total_keypairs": 4439,
+      "valid_keypairs": 4439,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 367,
+      "outlier_rate": 8.267627844109034
+    },
+    {
+      "user_id": "594aa2a2f51b122fd3b0995968b62cf7",
+      "total_keypairs": 4580,
+      "valid_keypairs": 4580,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 241,
+      "outlier_rate": 5.262008733624454
+    },
+    {
+      "user_id": "2d94fed3d99ee3fa9d56e8b9896c7c51",
+      "total_keypairs": 4413,
+      "valid_keypairs": 4413,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 191,
+      "outlier_rate": 4.328121459324723
+    },
+    {
+      "user_id": "57334ce700310b2650adabca77bbdc39",
+      "total_keypairs": 4011,
+      "valid_keypairs": 4011,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 162,
+      "outlier_rate": 4.038893044128646
+    },
+    {
+      "user_id": "540fe383c665bb3f7016d8b8e94372ec",
+      "total_keypairs": 3245,
+      "valid_keypairs": 3245,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 560,
+      "outlier_rate": 17.257318952234208
+    },
+    {
+      "user_id": "52098f23d4739794c4e29d3ce934e3cf",
+      "total_keypairs": 3351,
+      "valid_keypairs": 3351,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 396,
+      "outlier_rate": 11.817367949865712
+    },
+    {
+      "user_id": "3acb3a89513d71cf30fe23cb0e5c5e79",
+      "total_keypairs": 3327,
+      "valid_keypairs": 3327,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 428,
+      "outlier_rate": 12.86444244063721
+    },
+    {
+      "user_id": "3b748a1fdbb41baaa95bc3f44a5e7cfa",
+      "total_keypairs": 3905,
+      "valid_keypairs": 3905,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 526,
+      "outlier_rate": 13.469910371318822
+    },
+    {
+      "user_id": "49c51418702c12db4463fa592d455ed5",
+      "total_keypairs": 4388,
+      "valid_keypairs": 4388,
+      "invalid_keypairs": 0,
+      "validity_rate": 100.0,
+      "outlier_count": 171,
+      "outlier_rate": 3.8969917958067457
+    },
+    {
+      "user_id": "3994782efb4da6e6fbf5946576804562",
+      "total_keypairs": 10837,
+      "valid_keypairs": 10834,
+      "invalid_keypairs": 3,
+      "validity_rate": 99.97231706191751,
+      "outlier_count": 10803,
+      "outlier_rate": 99.71386376223002
+    },
+    {
+      "user_id": "1d67bb8e9cd49cf0fa38679f99c3960d",
+      "total_keypairs": 4775,
+      "valid_keypairs": 4773,
+      "invalid_keypairs": 2,
+      "validity_rate": 99.95811518324608,
+      "outlier_count": 4734,
+      "outlier_rate": 99.18290383406662
+    },
+    {
+      "user_id": "a6259c4a1881e914ebe6efd05da970c4",
+      "total_keypairs": 3304,
+      "valid_keypairs": 3302,
+      "invalid_keypairs": 2,
+      "validity_rate": 99.93946731234867,
+      "outlier_count": 443,
+      "outlier_rate": 13.41611144760751
+    },
+    {
+      "user_id": "8d46f2f2b4385ddb9822fa37d9b3bd71",
+      "total_keypairs": 4932,
+      "valid_keypairs": 4929,
+      "invalid_keypairs": 3,
+      "validity_rate": 99.93917274939173,
+      "outlier_count": 618,
+      "outlier_rate": 12.538040170419965
+    },
+    {
+      "user_id": "ab8d82eda7b46e483b84b3a2b393f6d0",
+      "total_keypairs": 4393,
+      "valid_keypairs": 4390,
+      "invalid_keypairs": 3,
+      "validity_rate": 99.9317095379012,
+      "outlier_count": 152,
+      "outlier_rate": 3.462414578587699
+    },
+    {
+      "user_id": "8fd621776f77dc6e9720191e0c99c124",
+      "total_keypairs": 4740,
+      "valid_keypairs": 4735,
+      "invalid_keypairs": 5,
+      "validity_rate": 99.89451476793249,
+      "outlier_count": 260,
+      "outlier_rate": 5.4910242872228086
+    },
+    {
+      "user_id": "195bfcb901041c1626085c1e338fe16a",
+      "total_keypairs": 3488,
+      "valid_keypairs": 3480,
+      "invalid_keypairs": 8,
+      "validity_rate": 99.77064220183486,
+      "outlier_count": 297,
+      "outlier_rate": 8.53448275862069
+    },
+    {
+      "user_id": "2ac10a36a31f1b96b8da6b14b63484dd",
+      "total_keypairs": 4340,
+      "valid_keypairs": 4330,
+      "invalid_keypairs": 10,
+      "validity_rate": 99.76958525345621,
+      "outlier_count": 175,
+      "outlier_rate": 4.041570438799076
+    },
+    {
+      "user_id": "af6b94e779f35f7ee5e301883b92a887",
+      "total_keypairs": 4764,
+      "valid_keypairs": 4752,
+      "invalid_keypairs": 12,
+      "validity_rate": 99.74811083123426,
+      "outlier_count": 200,
+      "outlier_rate": 4.208754208754209
+    },
+    {
+      "user_id": "e3369569349a57d09e28fb0487908511",
+      "total_keypairs": 4705,
+      "valid_keypairs": 4693,
+      "invalid_keypairs": 12,
+      "validity_rate": 99.74495217853348,
+      "outlier_count": 218,
+      "outlier_rate": 4.64521627956531
+    },
+    {
+      "user_id": "a0ce91cbf1fc81f34740caf3b052fb39",
+      "total_keypairs": 3696,
+      "valid_keypairs": 3683,
+      "invalid_keypairs": 13,
+      "validity_rate": 99.6482683982684,
+      "outlier_count": 313,
+      "outlier_rate": 8.498506652185718
+    },
+    {
+      "user_id": "03ed26062301e1ac6bbf94f3c03a7e56",
+      "total_keypairs": 4840,
+      "valid_keypairs": 4814,
+      "invalid_keypairs": 26,
+      "validity_rate": 99.46280991735537,
+      "outlier_count": 479,
+      "outlier_rate": 9.950145409223099
+    },
+    {
+      "user_id": "1a8939f78d8fd33068520f598b6bb6b8",
+      "total_keypairs": 3122,
+      "valid_keypairs": 3105,
+      "invalid_keypairs": 17,
+      "validity_rate": 99.45547725816785,
+      "outlier_count": 200,
+      "outlier_rate": 6.44122383252818
+    },
+    {
+      "user_id": "29b03bb3fb77e6cf38fd1905823f3c57",
+      "total_keypairs": 4501,
+      "valid_keypairs": 4475,
+      "invalid_keypairs": 26,
+      "validity_rate": 99.42235058875806,
+      "outlier_count": 179,
+      "outlier_rate": 4.0
+    },
+    {
+      "user_id": "aeffcdf11cdf06be14cada22c1dcb140",
+      "total_keypairs": 5608,
+      "valid_keypairs": 5572,
+      "invalid_keypairs": 36,
+      "validity_rate": 99.35805991440799,
+      "outlier_count": 153,
+      "outlier_rate": 2.745872218234027
+    },
+    {
+      "user_id": "feb836a0efdc8fc606b491d8a05f826b",
+      "total_keypairs": 3859,
+      "valid_keypairs": 3829,
+      "invalid_keypairs": 30,
+      "validity_rate": 99.22259652759783,
+      "outlier_count": 146,
+      "outlier_rate": 3.8130060067902845
+    }
+  ],
+  "quality_issues": {
+    "total_issues": 906,
+    "issue_counts": {
+      "orphan_release": 465,
+      "double_press": 441
+    },
+    "unreleased_keys": {
+      "0b3f2442320cf16d3e7e5ddd1a56820d_1_3_1_0b3f2442320cf16d3e7e5ddd1a56820d.csv": {
+        "Key.space": 1735660141997.0
+      },
+      "0b3f2442320cf16d3e7e5ddd1a56820d_1_3_2_0b3f2442320cf16d3e7e5ddd1a56820d.csv": {
+        "g": 1735660082496.0,
+        "k": 1735660113030.0
+      },
+      "195bfcb901041c1626085c1e338fe16a_2_3_2_195bfcb901041c1626085c1e338fe16a.csv": {
+        "g": 1735660088497.0
+      },
+      "1a8939f78d8fd33068520f598b6bb6b8_1_1_2_1a8939f78d8fd33068520f598b6bb6b8.csv": {
+        ",1735660021410\nR,Key.shift,1735660021493\nR,": 1735660021522.0
+      },
+      "1a8939f78d8fd33068520f598b6bb6b8_1_2_1_1a8939f78d8fd33068520f598b6bb6b8.csv": {
+        ",1735660120381\nR,Key.shift,1735660120461\nR,": 1735660120503.0,
+        ",1735660126965\nR,Key.shift,1735660127040\nR,": 1735660127119.0
+      },
+      "1a8939f78d8fd33068520f598b6bb6b8_2_1_1_1a8939f78d8fd33068520f598b6bb6b8.csv": {
+        ",1735660116020\nR,Key.shift,1735660116112\nR,": 1735660116169.0,
+        ",1735660121904\nR,Key.shift,1735660122000\nR,": 1735660122069.0
+      },
+      "1a8939f78d8fd33068520f598b6bb6b8_2_3_1_1a8939f78d8fd33068520f598b6bb6b8.csv": {
+        ",1735660059838\nR,": 1735660059974.0,
+        ",1735660065203\nR,Key.shift,1735660065279\nR,": 1735660065325.0
+      },
+      "29b03bb3fb77e6cf38fd1905823f3c57_1_1_2_29b03bb3fb77e6cf38fd1905823f3c57.csv": {
+        ",1735660110846\nR,Key.shift,1735660110928\nR,": 1735660111047.0,
+        ",1735660114800\nR,Key.shift,1735660114861\nR,": 1735660114926.0
+      },
+      "29b03bb3fb77e6cf38fd1905823f3c57_1_2_1_29b03bb3fb77e6cf38fd1905823f3c57.csv": {
+        ",1735660082419\nR,Key.shift,1735660082498\nR,": 1735660082550.0,
+        ",1735660103790\nR,Key.shift,1735660103895\nR,": 1735660104000.0
+      },
+      "29b03bb3fb77e6cf38fd1905823f3c57_2_1_1_29b03bb3fb77e6cf38fd1905823f3c57.csv": {
+        ",1735660167415\nR,Key.shift,1735660167480\nR,": 1735660167530.0,
+        ",1735660172526\nR,Key.shift,1735660172605\nR,": 1735660172684.0
+      },
+      "29b03bb3fb77e6cf38fd1905823f3c57_2_1_2_29b03bb3fb77e6cf38fd1905823f3c57.csv": {
+        ",1735660153084\nR,Key.shift,1735660153157\nR,": 1735660153243.0,
+        ",1735660158716\nR,Key.shift,1735660158773\nR,": 1735660158845.0
+      },
+      "29b03bb3fb77e6cf38fd1905823f3c57_3_2_1_29b03bb3fb77e6cf38fd1905823f3c57.csv": {
+        ",1735660061728\nR,Key.shift,1735660061788\nR,": 1735660061842.0
+      },
+      "2ac10a36a31f1b96b8da6b14b63484dd_1_1_1_2ac10a36a31f1b96b8da6b14b63484dd.csv": {
+        ",1735660025647\nR,": 1735660025747.0,
+        ",1735660031436\nR,": 1735660031550.0
+      },
+      "2ac10a36a31f1b96b8da6b14b63484dd_3_1_1_2ac10a36a31f1b96b8da6b14b63484dd.csv": {
+        ",1735660031159\nR,Key.shift,1735660031243\nR,": 1735660031249.0,
+        ",1735660039150\nR,Key.shift,1735660039192\nR,": 1735660039198.0
+      },
+      "2b1276338fe225d4eaec3ba139659c35_1_1_2_2b1276338fe225d4eaec3ba139659c35.csv": {
+        "e": 1735660128397.0
+      },
+      "3994782efb4da6e6fbf5946576804562_1_1_2_3994782efb4da6e6fbf5946576804562.csv": {
+        "t": 1735660010767.0
+      },
+      "3994782efb4da6e6fbf5946576804562_1_2_2_3994782efb4da6e6fbf5946576804562.csv": {
+        "m": 1735660011662.0,
+        "o": 1735660012863.0
+      },
+      "3994782efb4da6e6fbf5946576804562_3_1_1_3994782efb4da6e6fbf5946576804562.csv": {
+        ",1735660067292\nR,": 1735660067386.0,
+        ",1735660068457\nR,Key.shift,1735660068489\nR,": 1735660068536.0
+      },
+      "7097093c0720ebe41e66169bc18c2004_1_1_1_7097093c0720ebe41e66169bc18c2004.csv": {
+        "r": 1735660013296.0
+      },
+      "7097093c0720ebe41e66169bc18c2004_1_3_1_7097093c0720ebe41e66169bc18c2004.csv": {
+        "d": 1735660064213.0
+      },
+      "8b51150f8620aa5da990ec45e86ae9c1_1_1_1_8b51150f8620aa5da990ec45e86ae9c1.csv": {
+        "Key.space": 1735660023984.0,
+        "n": 1735660024606.0
+      },
+      "8b51150f8620aa5da990ec45e86ae9c1_1_2_2_8b51150f8620aa5da990ec45e86ae9c1.csv": {
+        "p": 1735660012276.0
+      },
+      "8d46f2f2b4385ddb9822fa37d9b3bd71_1_1_1_8d46f2f2b4385ddb9822fa37d9b3bd71.csv": {
+        "l": 1735660132693.0
+      },
+      "8d46f2f2b4385ddb9822fa37d9b3bd71_3_2_2_8d46f2f2b4385ddb9822fa37d9b3bd71.csv": {
+        "Key.enter": 1735660096180.0
+      },
+      "8fd621776f77dc6e9720191e0c99c124_1_1_1_8fd621776f77dc6e9720191e0c99c124.csv": {
+        ",1735660003449\nR,Key.shift,1735660003505\nR,": 1735660003605.0,
+        ",1735660060499\nR,Key.shift,1735660060547\nR,": 1735660060612.0
+      },
+      "a0ce91cbf1fc81f34740caf3b052fb39_3_3_1_a0ce91cbf1fc81f34740caf3b052fb39.csv": {
+        "g": 1735660125783.0
+      },
+      "a6259c4a1881e914ebe6efd05da970c4_2_2_2_a6259c4a1881e914ebe6efd05da970c4.csv": {
+        "F3": 1735660041934.0
+      },
+      "aeffcdf11cdf06be14cada22c1dcb140_1_1_1_aeffcdf11cdf06be14cada22c1dcb140.csv": {
+        "a": 1735660243636.0,
+        "c": 1735660244049.0
+      },
+      "aeffcdf11cdf06be14cada22c1dcb140_1_1_2_aeffcdf11cdf06be14cada22c1dcb140.csv": {
+        "Key.right": 1735660063732.0
+      },
+      "aeffcdf11cdf06be14cada22c1dcb140_1_2_2_aeffcdf11cdf06be14cada22c1dcb140.csv": {
+        "Key.right": 1735660026408.0
+      },
+      "aeffcdf11cdf06be14cada22c1dcb140_1_3_1_aeffcdf11cdf06be14cada22c1dcb140.csv": {
+        ",1735660045996\nR,": 1735660046067.0,
+        "Key.right": 1735660046310.0,
+        ",1735660052112\nR,": 1735660052247.0
+      },
+      "aeffcdf11cdf06be14cada22c1dcb140_2_1_1_aeffcdf11cdf06be14cada22c1dcb140.csv": {
+        "Key.right": 1735660034578.0
+      },
+      "aeffcdf11cdf06be14cada22c1dcb140_2_2_2_aeffcdf11cdf06be14cada22c1dcb140.csv": {
+        "Key.right": 1735660020871.0
+      },
+      "aeffcdf11cdf06be14cada22c1dcb140_2_3_1_aeffcdf11cdf06be14cada22c1dcb140.csv": {
+        ",1735660012083\nR,": 1735660012177.0,
+        ",1735660013318\nR,": 1735660013416.0,
+        ",1735660036457\nR,": 1735660036538.0
+      },
+      "aeffcdf11cdf06be14cada22c1dcb140_2_3_2_aeffcdf11cdf06be14cada22c1dcb140.csv": {
+        "Key.right": 1735660010169.0
+      },
+      "aeffcdf11cdf06be14cada22c1dcb140_3_1_2_aeffcdf11cdf06be14cada22c1dcb140.csv": {
+        "Key.right": 1735660067172.0
+      },
+      "aeffcdf11cdf06be14cada22c1dcb140_3_3_1_aeffcdf11cdf06be14cada22c1dcb140.csv": {
+        ",1735660036562\nR,": 1735660036624.0,
+        ",1735660043020\nR,": 1735660043098.0,
+        ",1735660046686\nR,": 1735660046772.0,
+        ",1735660048702\nR,": 1735660048755.0
+      },
+      "aeffcdf11cdf06be14cada22c1dcb140_3_3_2_aeffcdf11cdf06be14cada22c1dcb140.csv": {
+        "Key.down": 1735660061444.0
+      },
+      "af6b94e779f35f7ee5e301883b92a887_1_1_1_af6b94e779f35f7ee5e301883b92a887.csv": {
+        ",1735660285970\nR,Key.shift,1735660286050\nR,": 1735660286050.0,
+        ",1735660291570\nR,Key.shift,1735660291634\nR,": 1735660291666.0
+      },
+      "af6b94e779f35f7ee5e301883b92a887_2_1_1_af6b94e779f35f7ee5e301883b92a887.csv": {
+        ",1735660016121\nR,Key.shift,1735660016185\nR,": 1735660016185.0,
+        ",1735660021449\nR,Key.shift,1735660021544\nR,": 1735660021544.0
+      },
+      "c71f1bf50a1569282b0495b4a8f70140_1_2_2_c71f1bf50a1569282b0495b4a8f70140.csv": {
+        "g": 1735660015207.0,
+        "Key.comma": 1735660015518.0
+      },
+      "c71f1bf50a1569282b0495b4a8f70140_1_3_1_c71f1bf50a1569282b0495b4a8f70140.csv": {
+        "y": 1735660016187.0
+      },
+      "c71f1bf50a1569282b0495b4a8f70140_1_3_2_c71f1bf50a1569282b0495b4a8f70140.csv": {
+        "r": 1735660016675.0
+      },
+      "e3369569349a57d09e28fb0487908511_1_3_2_e3369569349a57d09e28fb0487908511.csv": {
+        ",1735660019785\nR,": 1735660019886.0,
+        ",1735660047054\nR,": 1735660047134.0
+      },
+      "e3369569349a57d09e28fb0487908511_2_1_1_e3369569349a57d09e28fb0487908511.csv": {
+        ",1735660004104\nR,": 1735660004166.0,
+        ",1735660033703\nR,": 1735660033772.0
+      },
+      "e3369569349a57d09e28fb0487908511_3_1_1_e3369569349a57d09e28fb0487908511.csv": {
+        ",1735660004644\nR,": 1735660004726.0,
+        ",1735660023155\nR,": 1735660023259.0
+      },
+      "ec4d6718b71ca61ce9478e45ec7a69c2_1_1_1_ec4d6718b71ca61ce9478e45ec7a69c2.csv": {
+        "k": 1735660008824.0
+      },
+      "ec4d6718b71ca61ce9478e45ec7a69c2_1_2_2_ec4d6718b71ca61ce9478e45ec7a69c2.csv": {
+        "I": 1735660007458.0
+      },
+      "ec4d6718b71ca61ce9478e45ec7a69c2_1_3_2_ec4d6718b71ca61ce9478e45ec7a69c2.csv": {
+        "u": 1735660010350.0
+      },
+      "f508fd21fe9cffac4d76fc6dc48602b4_1_1_1_f508fd21fe9cffac4d76fc6dc48602b4.csv": {
+        "h": 1735660019189.0
+      },
+      "f508fd21fe9cffac4d76fc6dc48602b4_1_2_1_f508fd21fe9cffac4d76fc6dc48602b4.csv": {
+        "k": 1735660010981.0
+      },
+      "f508fd21fe9cffac4d76fc6dc48602b4_1_3_1_f508fd21fe9cffac4d76fc6dc48602b4.csv": {
+        "a": 1735660026329.0
+      },
+      "feb836a0efdc8fc606b491d8a05f826b_1_1_1_feb836a0efdc8fc606b491d8a05f826b.csv": {
+        ",1735660131849\nR,": 1735660131965.0,
+        ",1735660175580\nR,": 1735660175647.0
+      },
+      "feb836a0efdc8fc606b491d8a05f826b_2_3_1_feb836a0efdc8fc606b491d8a05f826b.csv": {
+        ",1735660003238\nR,": 1735660003344.0,
+        ",1735660015803\nR,": 1735660015898.0
+      },
+      "feb836a0efdc8fc606b491d8a05f826b_3_2_1_feb836a0efdc8fc606b491d8a05f826b.csv": {
+        ",1735660003697\nR,": 1735660003780.0,
+        ",1735660010905\nP,Key.space,1735660010957\nR,": 1735660010994.0,
+        ",1735660020148\nR,": 1735660020207.0,
+        ",1735660029065\nR,": 1735660029142.0
+      },
+      "feb836a0efdc8fc606b491d8a05f826b_3_3_1_feb836a0efdc8fc606b491d8a05f826b.csv": {
+        ",1735660002439\nR,": 1735660002492.0,
+        ",1735660007528\nR,": 1735660007612.0,
+        ",1735660007854\nR,": 1735660007944.0,
+        ",1735660010811\nR,": 1735660010895.0
+      },
+      "feb836a0efdc8fc606b491d8a05f826b_3_3_2_feb836a0efdc8fc606b491d8a05f826b.csv": {
+        ",1735660006137\nR,": 1735660006258.0,
+        ",1735660026778\nP,Key.space,1735660026858\nR,": 1735660026860.0
+      }
+    }
+  },
+  "recommendations": [
+    "**Unreleased Keys:** Multiple sessions have unreleased keys. May indicate incomplete data capture.",
+    "**IL Timing:** 22453 negative values detected. Check timestamp synchronization.",
+    "**RL Timing:** 1899 negative values detected. Check timestamp synchronization."
+  ],
+  "data_paths": {
+    "keypairs": "artifacts/2025-09-07_00-27-43_loris-mbp-cable-rcn-com/keypairs/keypairs.parquet",
+    "metadata": "artifacts/2025-09-07_00-27-43_loris-mbp-cable-rcn-com/cleaned_data/desktop/metadata/metadata.csv",
+    "raw_data": "artifacts/2025-09-07_00-27-43_loris-mbp-cable-rcn-com/cleaned_data",
+    "analysis_results": "artifacts/2025-09-07_00-27-43_loris-mbp-cable-rcn-com/eda_reports/data_quality/analysis_results.json"
+  }
+}

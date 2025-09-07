@@ -1,0 +1,13 @@
+{
+  "user_id": "00e7f0673175222703472b0f2804e967",
+  "platform_id": "1",
+  "task_id": "13",
+  "start_time": 1752447291702,
+  "end_time": 1752447324842,
+  "duration_ms": 33140,
+  "platform": "instagram",
+  "is_mobile": false,
+  "device_type": "desktop",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+  "screen_size": "1728x1117"
+}

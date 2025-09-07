@@ -1,0 +1,23 @@
+{
+  "email": "stutisinha240@gmail.com",
+  "gender": "female",
+  "age": "18_24",
+  "handedness": "right",
+  "education": "some_college",
+  "consent_email_for_future": true,
+  "submission_timestamp": "2025-09-01T05:56:26.012Z",
+  "device_info": {
+    "isMobile": false,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "screenWidth": 1280,
+    "screenHeight": 720,
+    "windowWidth": 1280,
+    "windowHeight": 585,
+    "touchCapable": true,
+    "platform": "Win32",
+    "vendor": "Google Inc.",
+    "deviceType": "desktop"
+  },
+  "is_mobile": false,
+  "device_type": "desktop"
+}

@@ -1,0 +1,23 @@
+{
+  "email": "vinti.agarwal3@gmail.com",
+  "gender": "female",
+  "age": "35_44",
+  "handedness": "right",
+  "education": "doctorate",
+  "consent_email_for_future": true,
+  "submission_timestamp": "2025-09-01T05:31:30.806Z",
+  "device_info": {
+    "isMobile": false,
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "screenWidth": 1920,
+    "screenHeight": 1080,
+    "windowWidth": 1897,
+    "windowHeight": 843,
+    "touchCapable": false,
+    "platform": "MacIntel",
+    "vendor": "Google Inc.",
+    "deviceType": "desktop"
+  },
+  "is_mobile": false,
+  "device_type": "desktop"
+}

@@ -1,0 +1,1 @@
+Alright.  The first post with through correctly.  This is the second task.  Several more to go.  There were minimal changes to the actual frontend code.  There were only a few changes to the url to point towards the Google Cloud Storage rather that Netlify.

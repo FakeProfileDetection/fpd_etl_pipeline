@@ -1,0 +1,23 @@
+{
+  "email": "p20240488@pilani.bits-pilani.ac.in",
+  "gender": "male",
+  "age": "35_44",
+  "handedness": "left",
+  "education": "masters",
+  "consent_email_for_future": true,
+  "submission_timestamp": "2025-09-01T07:26:17.260Z",
+  "device_info": {
+    "isMobile": false,
+    "userAgent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:142.0) Gecko/20100101 Firefox/142.0",
+    "screenWidth": 1920,
+    "screenHeight": 1080,
+    "windowWidth": 1854,
+    "windowHeight": 905,
+    "touchCapable": false,
+    "platform": "Linux x86_64",
+    "vendor": "",
+    "deviceType": "desktop"
+  },
+  "is_mobile": false,
+  "device_type": "desktop"
+}

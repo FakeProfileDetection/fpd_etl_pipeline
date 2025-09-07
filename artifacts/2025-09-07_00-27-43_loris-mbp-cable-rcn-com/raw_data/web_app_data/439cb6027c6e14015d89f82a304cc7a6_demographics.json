@@ -1,0 +1,23 @@
+{
+  "email": "walter.heft@gmail.com",
+  "gender": "male",
+  "age": "25_34",
+  "handedness": "right",
+  "education": "bachelor",
+  "consent_email_for_future": true,
+  "submission_timestamp": "2025-08-29T17:18:09.190Z",
+  "device_info": {
+    "isMobile": false,
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "screenWidth": 1440,
+    "screenHeight": 900,
+    "windowWidth": 943,
+    "windowHeight": 692,
+    "touchCapable": false,
+    "platform": "MacIntel",
+    "vendor": "Google Inc.",
+    "deviceType": "desktop"
+  },
+  "is_mobile": false,
+  "device_type": "desktop"
+}

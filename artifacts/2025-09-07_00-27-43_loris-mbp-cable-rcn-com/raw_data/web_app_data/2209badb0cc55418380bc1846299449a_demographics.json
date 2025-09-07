@@ -1,0 +1,23 @@
+{
+  "email": "mkstalin.mk22@gmail.com",
+  "gender": "male",
+  "age": "18_24",
+  "handedness": "right",
+  "education": "bachelor",
+  "consent_email_for_future": true,
+  "submission_timestamp": "2025-09-01T05:33:39.769Z",
+  "device_info": {
+    "isMobile": false,
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15",
+    "screenWidth": 1496,
+    "screenHeight": 967,
+    "windowWidth": 1496,
+    "windowHeight": 854,
+    "touchCapable": false,
+    "platform": "MacIntel",
+    "vendor": "Apple Computer, Inc.",
+    "deviceType": "desktop"
+  },
+  "is_mobile": false,
+  "device_type": "desktop"
+}

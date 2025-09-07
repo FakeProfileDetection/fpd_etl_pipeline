@@ -1,0 +1,23 @@
+{
+  "email": "amruthsrivatsan@gmail.com",
+  "gender": "male",
+  "age": "18_24",
+  "handedness": "ambidextrous",
+  "education": "some_college",
+  "consent_email_for_future": true,
+  "submission_timestamp": "2025-09-01T07:25:47.115Z",
+  "device_info": {
+    "isMobile": true,
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/138.0.7204.119 Mobile/15E148 Safari/604.1",
+    "screenWidth": 390,
+    "screenHeight": 844,
+    "windowWidth": 390,
+    "windowHeight": 773,
+    "touchCapable": true,
+    "platform": "iPhone",
+    "vendor": "Apple Computer, Inc.",
+    "deviceType": "iphone"
+  },
+  "is_mobile": true,
+  "device_type": "iphone"
+}

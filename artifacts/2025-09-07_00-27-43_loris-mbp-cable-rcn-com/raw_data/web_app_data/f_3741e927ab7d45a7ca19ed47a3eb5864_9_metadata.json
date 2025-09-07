@@ -1,0 +1,13 @@
+{
+  "user_id": "3741e927ab7d45a7ca19ed47a3eb5864",
+  "platform_id": "0",
+  "task_id": "9",
+  "start_time": 1751156310401,
+  "end_time": 1751156362747,
+  "duration_ms": 52346,
+  "platform": "facebook",
+  "is_mobile": false,
+  "device_type": "desktop",
+  "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+  "screen_size": "1920x1080"
+}

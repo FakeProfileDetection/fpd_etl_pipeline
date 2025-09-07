@@ -1,0 +1,1 @@
+Great.  No more super long posts.  I want to workout before today's meeting and there is still a lot of additional work to be done.  For example, Alvin and I need to set up Suprabase and Google Cloud storage to send a backup of the data to Supabase (not SupRabase...or is it?).

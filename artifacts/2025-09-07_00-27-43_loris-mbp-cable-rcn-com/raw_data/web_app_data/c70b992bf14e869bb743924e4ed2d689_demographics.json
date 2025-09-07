@@ -1,0 +1,23 @@
+{
+  "email": "p20240488@pilani.bits-pilani.ac.in",
+  "gender": "male",
+  "age": "35_44",
+  "handedness": "left",
+  "education": "masters",
+  "consent_email_for_future": true,
+  "submission_timestamp": "2025-09-01T05:55:56.451Z",
+  "device_info": {
+    "isMobile": false,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0",
+    "screenWidth": 1536,
+    "screenHeight": 864,
+    "windowWidth": 1528,
+    "windowHeight": 738,
+    "touchCapable": false,
+    "platform": "Win32",
+    "vendor": "Google Inc.",
+    "deviceType": "desktop"
+  },
+  "is_mobile": false,
+  "device_type": "desktop"
+}

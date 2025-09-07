@@ -1,0 +1,1 @@
+Hello world.  Is wasm working properly?  How do I know the data is captured via wasm and not the Javascript keystroke logger?  Shouldn't I see some console messages?  Hm.

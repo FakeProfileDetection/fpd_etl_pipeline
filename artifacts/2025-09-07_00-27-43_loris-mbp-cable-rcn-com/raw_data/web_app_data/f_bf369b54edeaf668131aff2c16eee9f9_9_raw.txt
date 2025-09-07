@@ -1,0 +1,1 @@
+And that's another thing to test.  All team members have the correct IAM permissions to view, download, modify, etc. the data.  But how can they access that from the cloud console?  I made an attempt on my personal email some time ago but was unable to access it.

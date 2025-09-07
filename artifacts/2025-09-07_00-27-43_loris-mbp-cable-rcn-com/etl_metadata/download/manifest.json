@@ -1,0 +1,9 @@
+{
+  "version_id": "2025-09-07_00-27-43_loris-mbp-cable-rcn-com",
+  "stage": "download",
+  "source": "gs://fake-profile-detection-eda-bucket/uploads/",
+  "destination": "artifacts/2025-09-07_00-27-43_loris-mbp-cable-rcn-com/raw_data/web_app_data",
+  "files_downloaded": 7333,
+  "total_size": 19891391,
+  "timestamp": "2025-09-07T00:28:00.285172"
+}

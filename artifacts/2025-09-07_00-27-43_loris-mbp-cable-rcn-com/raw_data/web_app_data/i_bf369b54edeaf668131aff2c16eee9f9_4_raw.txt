@@ -1,0 +1,1 @@
+We could run the Netlify app with a smaller cohort that we have a tad more supervisory control over.  And, we can run this GCS version with M-Turk, which should allow for more data transfer...even though I did set up rate limiting.  We may need to think more carefully about that.
