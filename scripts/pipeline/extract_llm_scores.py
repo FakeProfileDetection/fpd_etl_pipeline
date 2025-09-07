@@ -594,6 +594,33 @@ class ExtractLLMScoresStage:
                     for i, (fname, text, metadata) in enumerate(user_files[user_id]):
                         if i < len(cached):
                             score_data = cached[i]
+                            # Calculate derived fields
+                            cc_score = score_data.get("Coach Carter", 0)
+                            os_score = score_data.get("Oscars Slap", 0)
+                            tu_score = score_data.get("Trump-Ukraine Meeting", 0)
+                            
+                            max_score = max(cc_score, os_score, tu_score)
+                            
+                            # Determine likely video
+                            if max_score == cc_score and cc_score > 0:
+                                likely_video = "Coach Carter"
+                            elif max_score == os_score and os_score > 0:
+                                likely_video = "Oscars Slap"
+                            elif max_score == tu_score and tu_score > 0:
+                                likely_video = "Trump-Ukraine Meeting"
+                            else:
+                                likely_video = "Unknown"
+                            
+                            # Determine engagement level
+                            if max_score >= 70:
+                                engagement_level = "High"
+                            elif max_score >= 40:
+                                engagement_level = "Medium"
+                            elif max_score > 0:
+                                engagement_level = "Low"
+                            else:
+                                engagement_level = "None"
+                            
                             score = TextScore(
                                 user_id=user_id,
                                 device_type=device_type,
@@ -602,11 +629,16 @@ class ExtractLLMScoresStage:
                                 session_id=metadata["session_id"],
                                 filename=fname,
                                 text=text,
-                                coach_carter_score=score_data.get("Coach Carter", 0),
-                                oscars_slap_score=score_data.get("Oscars Slap", 0),
-                                trump_ukraine_score=score_data.get(
-                                    "Trump-Ukraine Meeting", 0
-                                ),
+                                coach_carter_score=cc_score,
+                                oscars_slap_score=os_score,
+                                trump_ukraine_score=tu_score,
+                                max_score=max_score,
+                                likely_video=likely_video,
+                                engagement_level=engagement_level,
+                                passes_threshold=max_score >= self.threshold,
+                                text_preview=text[:100] if text else "",
+                                processing_time=0.0,  # Not tracked for cached results
+                                user_type=metadata["user_type"],
                             )
 
                             # Add to appropriate results list
