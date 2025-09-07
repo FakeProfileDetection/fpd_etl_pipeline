@@ -607,8 +607,6 @@ class ExtractLLMScoresStage:
                                 trump_ukraine_score=score_data.get(
                                     "Trump-Ukraine Meeting", 0
                                 ),
-                                response_time_ms=score_data.get("response_time_ms", 0),
-                                model_used=score_data.get("model_used", "cached"),
                             )
 
                             # Add to appropriate results list
@@ -711,10 +709,6 @@ class ExtractLLMScoresStage:
                             "Trump-Ukraine Meeting": result.get(
                                 "Trump-Ukraine Meeting", 0
                             ),
-                            "response_time_ms": result.get("processing_time", 0),
-                            "model_used": processor.model
-                            if hasattr(processor, "model")
-                            else "unknown",
                         }
                     )
 
